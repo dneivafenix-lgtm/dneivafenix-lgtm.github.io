@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Petit Nuvem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="announcement">Uma pequena seleção. Um mundo de descobertas.</div>
+<header>
+  <a class="brand" href="#"><span class="cloud">☁</span><span>petit nuvem<small>PARA OS PEQUENOS DIAS</small></span></a>
+  <nav><a href="#colecao">A nossa coleção</a><a href="#kit-inicial">O primeiro kit</a><a href="#sobre">A Petit Nuvem</a></nav>
+  <button class="bag" id="openCart">Saco <span id="count">0</span></button>
+</header>
+<main>
+<section class="intro">
+  <div class="intro-copy">
+    <p class="eyebrow">PEQUENOS ESSENCIAIS · GRANDES DESCOBERTAS</p>
+    <h1>Um bocadinho de amor.<br>Todos os dias.</h1>
+    <p>Da primeira colherada à próxima brincadeira.</p>
+    <a class="primary" href="#colecao">Descobrir a coleção</a>
+    <a class="kit-link" href="#kit-inicial">Começar com o nosso kit</a>
+  </div>
+  <div class="intro-art">
+    <div class="hero-photo product-photo"></div>
+    <span class="note">Para guardar<br>coisas boas.</span>
+  </div>
+</section>
+<section class="campaigns">
+  <article class="campaign"><img src="https://petit-nuvem.dneivafenix.chatgpt.site/campaign-cup.png" alt=""><div class="campaign-copy"><p class="eyebrow">OS PRIMEIROS GOLINHOS</p><h2>Pequenos goles.</h2><p>Um copinho, duas mãozinhas e tantas descobertas.</p><button class="primary" data-detail="4">Descobrir o copinho</button></div></article>
+  <article class="campaign campaign-teether"><img src="https://petit-nuvem.dneivafenix.chatgpt.site/campaign-teether.png" alt=""><div class="campaign-copy"><p class="eyebrow">TODOS OS SENTIDOS</p><h2>À mão de semear.</h2><p>Uma pequena argola para uma grande curiosidade.</p><button class="primary" data-detail="8">Descobrir o mordedor</button></div></article>
+</section>
+<section class="starter-kit" id="kit-inicial">
+  <div><p class="eyebrow">O PRIMEIRO KIT</p><h2>As primeiras colheradas.</h2><p>Babete, colheres, dois copinhos e caixinhas.</p><button class="primary" data-kit="add">Adicionar kit +</button><button class="kit-link kit-details" data-kit="open">Ver o que inclui</button></div>
+  <div><div class="kit-preview" id="kitPreview"></div><p class="kit-price">Kit · <strong id="kitPrice"></strong></p></div>
+</section>
+<section class="collection" id="colecao">
+  <div class="section-title"><div><p class="eyebrow">ESCOLHIDOS COM CARINHO</p><h2>Pequenos favoritos</h2></div></div>
+  <div class="catalog-toolbar"><div class="filters"><button class="active" data-filter="all">Todos</button><button data-filter="meal">À mesa</button><button data-filter="play">A brincar</button></div><span id="shown"></span></div>
+  <div class="grid" id="products"></div>
+</section>
+<section class="about" id="sobre"><p class="eyebrow">OLÁ, SOMOS A PETIT NUVEM</p><h2>As melhores coisas cabem em mãos pequenas.</h2><a href="#colecao">Conhecer os essenciais</a></section>
+</main>
+<footer><a class="brand" href="#">petit nuvem</a><small>© <span id="year"></span> Petit Nuvem</small></footer>
+<dialog id="kit"><button class="close" data-close="kit">×</button><div id="kitContent"></div></dialog>
+<dialog id="detail"><button class="close" data-close="detail">×</button><div id="detailContent"></div></dialog>
+<dialog id="cart"><div class="cart-head"><h2>O teu saco</h2><button class="close" data-close="cart">×</button></div><div id="cartContent"></div></dialog>
+<div id="toast"></div>
+<script src="shop-config.js"></script>
+<script src="catalog.js"></script>
+<script src="app.js"></script>
+</body></html>
