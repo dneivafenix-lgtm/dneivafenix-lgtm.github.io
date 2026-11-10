@@ -361,3 +361,29 @@ Object.assign(window.DiaryI18n.fr, {
   sumFoods: n => n === 1 ? '1 aliment' : `${n} aliments`, sumNew: n => n === 1 ? '1 nouveau' : `${n} nouveaux`,
   sumReactions: n => n === 1 ? '1 réaction suspectée' : `${n} réactions suspectées`, sumPlanned: n => n === 1 ? '1 recette au menu' : `${n} recettes au menu`
 });
+
+// Calendário com pontos por tipo, filtros, botão de adicionar e notas do dia.
+Object.assign(window.DiaryI18n.pt, {
+  legendFoods: 'Alimentos', legendPlan: 'Receitas', legendNotes: 'Notas', legendReactions: 'Reações', filterNew: 'Novos',
+  add: 'Adicionar', addWhat: 'O que queres registar?', optFood: 'Alimento', optFoodHint: 'O que o bebé provou',
+  optRecipe: 'Receita', optRecipeHint: 'Juntar ao plano deste dia', optNote: 'Nota', optNoteHint: 'Sono, apetite, humor, o que quiseres lembrar',
+  noteTitle: 'Nota do dia', notePlaceholder: 'Escreve aqui…', editNote: 'Editar nota'
+});
+Object.assign(window.DiaryI18n.en, {
+  legendFoods: 'Foods', legendPlan: 'Recipes', legendNotes: 'Notes', legendReactions: 'Reactions', filterNew: 'New',
+  add: 'Add', addWhat: 'What would you like to log?', optFood: 'Food', optFoodHint: 'Something your baby tried',
+  optRecipe: 'Recipe', optRecipeHint: "Add to this day's plan", optNote: 'Note', optNoteHint: 'Sleep, appetite, mood, anything worth remembering',
+  noteTitle: 'Note for the day', notePlaceholder: 'Write here…', editNote: 'Edit note'
+});
+Object.assign(window.DiaryI18n.es, {
+  legendFoods: 'Alimentos', legendPlan: 'Recetas', legendNotes: 'Notas', legendReactions: 'Reacciones', filterNew: 'Nuevos',
+  add: 'Añadir', addWhat: '¿Qué quieres registrar?', optFood: 'Alimento', optFoodHint: 'Lo que probó el bebé',
+  optRecipe: 'Receta', optRecipeHint: 'Añadir al plan de este día', optNote: 'Nota', optNoteHint: 'Sueño, apetito, humor, lo que quieras recordar',
+  noteTitle: 'Nota del día', notePlaceholder: 'Escribe aquí…', editNote: 'Editar nota'
+});
+Object.assign(window.DiaryI18n.fr, {
+  legendFoods: 'Aliments', legendPlan: 'Recettes', legendNotes: 'Notes', legendReactions: 'Réactions', filterNew: 'Nouveaux',
+  add: 'Ajouter', addWhat: 'Que voulez-vous noter ?', optFood: 'Aliment', optFoodHint: 'Ce que bébé a goûté',
+  optRecipe: 'Recette', optRecipeHint: 'Ajouter au menu de ce jour', optNote: 'Note', optNoteHint: "Sommeil, appétit, humeur, ce que vous voulez retenir",
+  noteTitle: 'Note du jour', notePlaceholder: 'Écrivez ici…', editNote: 'Modifier la note'
+});
