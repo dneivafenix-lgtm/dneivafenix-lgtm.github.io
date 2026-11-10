@@ -1,7 +1,7 @@
 /* Tema de petitnuvem.com: cartões brancos sobre creme, um só castanho, Manrope nos títulos e DM Sans no texto. Com modo escuro. */
-:root{--bg:#faf6f2;--card:#fff;--ink:#3b2e28;--body:#5e4e46;--muted:#77675f;--line:rgba(107,82,70,.16);--edge:rgba(107,82,70,.3);--brand:#6b5246;--on-brand:#fff;--tint:#e6ecdf;--tint-ink:#3f4d39;--accent:#d9a441;--on-accent:#3b2e28;--focus:#c98a5e;--warn:#b0453a;--warn-bg:#f6dcd8;--note-bg:#f8e3d3;--track:rgba(59,46,40,.12);--shadow:0 1px 2px rgba(59,46,40,.04),0 12px 32px -14px rgba(59,46,40,.14);--display:Manrope,'DM Sans',system-ui,sans-serif;--text:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1613;--card:#28201c;--ink:#f5ede7;--body:#d9cbc2;--muted:#a8978d;--line:#3a2f2a;--edge:#54463f;--brand:#d9b9a6;--on-brand:#2a1f1a;--tint:#2b3327;--tint-ink:#c9d8bf;--accent:#d9a441;--on-accent:#3b2e28;--focus:#e0a37a;--warn:#f0a094;--warn-bg:#42231f;--note-bg:#3a2a20;--track:rgba(245,237,231,.14);--shadow:0 0 0 1px #3a2f2a;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#1c1613;--card:#28201c;--ink:#f5ede7;--body:#d9cbc2;--muted:#a8978d;--line:#3a2f2a;--edge:#54463f;--brand:#d9b9a6;--on-brand:#2a1f1a;--tint:#2b3327;--tint-ink:#c9d8bf;--accent:#d9a441;--on-accent:#3b2e28;--focus:#e0a37a;--warn:#f0a094;--warn-bg:#42231f;--note-bg:#3a2a20;--track:rgba(245,237,231,.14);--shadow:0 0 0 1px #3a2f2a;color-scheme:dark}
+:root{--bg:#faf6f2;--card:#fff;--ink:#3b2e28;--body:#5e4e46;--muted:#77675f;--line:rgba(107,82,70,.16);--edge:rgba(107,82,70,.3);--brand:#6b5246;--on-brand:#fff;--tint:#e6ecdf;--tint-ink:#3f4d39;--accent:#d9a441;--on-accent:#3b2e28;--focus:#c98a5e;--warn:#b0453a;--warn-bg:#f6dcd8;--note-bg:#f8e3d3;--track:rgba(59,46,40,.12);--shadow:0 1px 2px rgba(59,46,40,.04),0 12px 32px -14px rgba(59,46,40,.14);--logo-img:block;--logo-txt:none;--display:Manrope,'DM Sans',system-ui,sans-serif;--text:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1613;--card:#28201c;--ink:#f5ede7;--body:#d9cbc2;--muted:#a8978d;--line:#3a2f2a;--edge:#54463f;--brand:#d9b9a6;--on-brand:#2a1f1a;--tint:#2b3327;--tint-ink:#c9d8bf;--accent:#d9a441;--on-accent:#3b2e28;--focus:#e0a37a;--warn:#f0a094;--warn-bg:#42231f;--note-bg:#3a2a20;--track:rgba(245,237,231,.14);--shadow:0 0 0 1px #3a2f2a;--logo-img:none;--logo-txt:flex;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1c1613;--card:#28201c;--ink:#f5ede7;--body:#d9cbc2;--muted:#a8978d;--line:#3a2f2a;--edge:#54463f;--brand:#d9b9a6;--on-brand:#2a1f1a;--tint:#2b3327;--tint-ink:#c9d8bf;--accent:#d9a441;--on-accent:#3b2e28;--focus:#e0a37a;--warn:#f0a094;--warn-bg:#42231f;--note-bg:#3a2a20;--track:rgba(245,237,231,.14);--shadow:0 0 0 1px #3a2f2a;--logo-img:none;--logo-txt:flex;color-scheme:dark}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;font-family:var(--text);background:var(--bg);color:var(--ink);line-height:1.5;padding-bottom:calc(72px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
@@ -18,7 +18,12 @@ h1,h2{font-family:var(--display);font-weight:600;letter-spacing:-.01em;color:var
 .top{background:var(--card);border-bottom:1px solid var(--line)}
 .top>div{max-width:680px;margin:auto;padding:8px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:20px;font-weight:600;letter-spacing:-.01em;color:var(--brand);min-height:44px}
-.mark{width:32px;height:32px;border-radius:10px;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;flex:none}
+.brand{text-decoration:none}
+/* O logótipo em imagem é castanho: no modo escuro fica a nuvem com o nome, que acompanha as cores. */
+.brand img{width:150px;height:auto;display:none}
+.brandtxt{display:flex;align-items:center;gap:8px}
+body.haslogo .brand img{display:var(--logo-img)}
+body.haslogo .brandtxt{display:var(--logo-txt)}
 .top select{border:1px solid var(--edge);background:var(--card);border-radius:999px;padding:0 10px;min-height:44px;font-weight:500;font-size:14px}
 main{max-width:680px;margin:auto;padding:16px 20px 28px;outline:none;display:flex;flex-direction:column;gap:14px}
 

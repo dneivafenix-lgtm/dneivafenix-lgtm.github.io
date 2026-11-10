@@ -1,7 +1,11 @@
 // Configuração da app. Altere aqui sem mexer no resto do código.
 window.DiaryConfig = {
-  // Nome da marca (provisório: confirmar registo de marca e domínio antes de lançar).
-  brand: { name: 'Bocado' },
+  // Marca: nome, logótipo (imagem; se não carregar aparece a nuvem com o nome) e ligação ao tocar.
+  brand: {
+    name: 'Petit Nuvem',
+    logo: 'https://cdn.shopify.com/s/files/1/1092/3832/1484/files/pn-logo-horizontal-texto.png?v=1792060811&width=685',
+    url: 'https://petitnuvem.com/'
+  },
   // Idiomas disponíveis (a ordem define o menu). Para adicionar um país,
   // acrescente o idioma em i18n.js e os nomes dos alimentos em foods.js.
   languages: ['pt', 'en', 'es', 'fr'],

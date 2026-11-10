@@ -1,6 +1,6 @@
 (() => {
   const CFG = window.DiaryConfig, I18N = window.DiaryI18n, F = window.DiaryFoods;
-  const KEY = 'bocado-diary';
+  const KEY = 'pn-food-diary';
   const $ = id => document.getElementById(id);
 
   // ---------- state ----------
@@ -253,7 +253,7 @@
       el('div', { class: 'card' }, el('h2', {}, t().data), el('p', { class: 'muted' }, t().dataNote),
         el('div', { class: 'btnrow' },
           el('button', { class: 'ghost', onclick: () => {
-            const a = el('a', { href: URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })), download: `bocado-${todayIso()}.json` });
+            const a = el('a', { href: URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })), download: `diario-alimentar-${todayIso()}.json` });
             document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
           } }, t().exportData),
           el('button', { class: 'ghost', onclick: () => file.click() }, t().importData), file),
@@ -328,7 +328,6 @@
     const welcome = !state.onboarded;
     document.documentElement.lang = state.lang;
     document.title = welcome || tab === 'today' ? CFG.brand.name : `${t()[tab === 'report' ? 'reportOpen' : TABS.find(x => x[0] === tab)[1]]} · ${CFG.brand.name}`;
-    $('brandName').textContent = CFG.brand.name;
     $('langQuick').replaceWith(Object.assign(langSelect(), { id: 'langQuick' }));
     document.body.classList.toggle('bare', welcome);
     $('tabs').hidden = welcome;
@@ -338,6 +337,15 @@
     const view = welcome ? viewWelcome : tab === 'report' ? viewReport : TABS.find(x => x[0] === tab)[2];
     $('view').replaceChildren(...view().flat(Infinity).filter(Boolean));
   };
+  // Marca: tenta a imagem do logótipo; se falhar fica a nuvem com o nome.
+  $('brandName').textContent = CFG.brand.name;
+  if (CFG.brand.url) $('brandLink').href = CFG.brand.url;
+  if (CFG.brand.logo) {
+    const img = $('brandLogo');
+    img.alt = CFG.brand.name;
+    img.onload = () => document.body.classList.add('haslogo');
+    img.src = CFG.brand.logo;
+  }
   render();
 
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
