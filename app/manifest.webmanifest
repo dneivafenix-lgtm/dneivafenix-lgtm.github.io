@@ -1,0 +1,13 @@
+{
+  "name": "Petit Nuvem · Diário alimentar",
+  "short_name": "Petit Nuvem",
+  "description": "Diário de introdução alimentar do bebé.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#faf6f2",
+  "theme_color": "#6b5246",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

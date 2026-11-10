@@ -1,0 +1,18 @@
+// Configuração da app. Altere aqui sem mexer no resto do código.
+window.DiaryConfig = {
+  // Marca: nome, logótipo (imagem; se não carregar aparece a nuvem com o nome) e ligação ao tocar.
+  brand: {
+    name: 'Petit Nuvem',
+    logo: 'https://cdn.shopify.com/s/files/1/1092/3832/1484/files/pn-logo-horizontal-texto.png?v=1792060811&width=685',
+    url: 'https://petitnuvem.com/'
+  },
+  // Idiomas disponíveis (a ordem define o menu). Para adicionar um país,
+  // acrescente o idioma em i18n.js e os nomes dos alimentos em foods.js.
+  languages: ['pt', 'en', 'es', 'fr'],
+  fallbackLanguage: 'en',
+  // Marcos do desafio (número de alimentos provados).
+  milestones: [10, 25, 50, 75, 100],
+  // Cartão opcional de um parceiro (por exemplo uma loja), desligado por omissão.
+  // text: uma frase por idioma; só aparece nos idiomas que tiverem frase.
+  partner: { enabled: false, name: '', url: '', text: {} }
+};
