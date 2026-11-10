@@ -6,27 +6,27 @@ window.DiaryI18n = {
     today: 'Hoje', prevDay: 'Dia anterior', nextDay: 'Dia seguinte',
     addFood: '+ Registar alimento', emptyDay: 'Ainda sem registos neste dia.',
     ageMonths: n => n === 1 ? '1 mês' : `${n} meses`, ageLine: (name, age) => `${name} · ${age}`,
-    setupHint: 'Indique o nome e a data de nascimento nas Definições para ver a idade aqui.',
+    setupHint: 'Indica o nome e a data de nascimento nas Definições para ver a idade aqui.',
     search: 'Procurar alimento…', all: 'Todos', noResults: 'Nenhum alimento encontrado.',
     cat: { veg: 'Legumes', fruit: 'Fruta', grain: 'Cereais', protein: 'Proteínas', dairy: 'Laticínios', herb: 'Ervas e especiarias', other: 'Outros' },
     allergenName: { egg: 'Ovo', milk: 'Leite', peanut: 'Amendoim', nuts: 'Frutos secos', gluten: 'Glúten', fish: 'Peixe', shellfish: 'Marisco', soy: 'Soja', sesame: 'Sésamo' },
     allergenBadge: 'Alergénio', triedTimes: n => n === 1 ? 'Provou 1 vez' : `Provou ${n} vezes`, notTried: 'Ainda não provou',
-    infoAllergen: a => `Alergénio comum (${a}). Ofereça em pequena quantidade, um alergénio novo de cada vez, e observe nas horas seguintes.`,
+    infoAllergen: a => `Alergénio comum (${a}). Oferece em pequena quantidade, um alergénio novo de cada vez, e observa nas horas seguintes.`,
     infoMin12: 'Não oferecer antes dos 12 meses.',
-    infoChoke: 'Risco de engasgamento: ofereça esmagado, moído ou cortado em pedaços pequenos, nunca inteiro.',
+    infoChoke: 'Risco de engasgamento: oferece esmagado, moído ou cortado em pedaços pequenos, nunca inteiro.',
     history: 'Histórico', logThis: 'Registar este alimento',
     howWasIt: 'Como correu?', liked: 'Gostou', neutral: 'Assim-assim', disliked: 'Não gostou',
     suspectReaction: 'Suspeita de reação (pele, vómitos, outro)', note: 'Nota (opcional)',
     save: 'Guardar', cancel: 'Cancelar', remove: 'Apagar', close: 'Fechar', reactionFlag: 'Suspeita de reação',
     foodsTried: 'alimentos provados', byCategory: 'Por categoria', allergensTitle: 'Alergénios introduzidos',
     introduced: 'Introduzido', pending: 'Por introduzir', reactionsTitle: 'Suspeitas de reação', noReactions: 'Nenhuma suspeita registada.',
-    reactionAdvice: 'Fale com o pediatra antes de voltar a oferecer estes alimentos.',
+    reactionAdvice: 'Fala com o pediatra antes de voltares a oferecer estes alimentos.',
     language: 'Idioma', babyName: 'Nome do bebé', birthDate: 'Data de nascimento',
-    data: 'Os seus dados', dataNote: 'Tudo fica guardado apenas neste dispositivo. Faça uma cópia para não perder os registos.',
+    data: 'Os teus dados', dataNote: 'Tudo fica guardado apenas neste dispositivo. Faz uma cópia para não perderes os registos.',
     exportData: 'Exportar cópia', importData: 'Importar cópia', clearData: 'Apagar tudo',
     confirmClear: 'Apagar todos os registos? Não é possível desfazer.', importOk: 'Cópia importada.', importFail: 'Ficheiro inválido.',
-    disclaimer: 'Esta app é um diário e não substitui o aconselhamento médico. As recomendações variam de país para país: siga as indicações do pediatra do seu bebé. Em caso de dificuldade em respirar ou inchaço da cara, ligue para o número de emergência.',
-    tips: ['Um alimento novo de cada vez ajuda a perceber o que o bebé gosta e tolera.', 'Recusar à primeira é normal. Volte a oferecer noutro dia, sem insistir.', 'Sem sal e sem açúcar adicionados nas primeiras refeições.', 'O bebé deve comer sentado e sempre acompanhado por um adulto.', 'Ofereça alergénios novos de manhã, para poder observar durante o dia.']
+    disclaimer: 'Esta app é um diário e não substitui o aconselhamento médico. As recomendações variam de país para país: segue as indicações do pediatra do teu bebé. Em caso de dificuldade em respirar ou inchaço da cara, liga para o número de emergência.',
+    tips: ['Um alimento novo de cada vez ajuda a perceber o que o bebé gosta e tolera.', 'Recusar à primeira é normal. Volta a oferecer noutro dia, sem insistir.', 'Sem sal e sem açúcar adicionados nas primeiras refeições.', 'O bebé deve comer sentado e sempre acompanhado por um adulto.', 'Oferece alergénios novos de manhã, para poderes observar durante o dia.']
   },
   en: {
     langName: 'English', tagline: 'Starting solids diary',
@@ -116,13 +116,13 @@ window.DiaryI18n = {
 
 // Boas-vindas, marcos e relatório.
 Object.assign(window.DiaryI18n.pt, {
-  obTitle: 'Os primeiros alimentos do seu bebé, bem registados.',
+  obTitle: 'Os primeiros alimentos do teu bebé, bem registados.',
   obLead: 'Um diário simples para a introdução alimentar, dos primeiros purés aos 100 alimentos.',
-  obPoints: ['Registe o que o bebé provou, se gostou e como reagiu.', 'Acompanhe os alergénios já introduzidos.', 'Leve um relatório claro à consulta do pediatra.'],
+  obPoints: ['Regista o que o bebé provou, se gostou e como reagiu.', 'Acompanha os alergénios já introduzidos.', 'Leva um relatório claro à consulta do pediatra.'],
   obAccept: 'Compreendo que esta app é um diário e não substitui o aconselhamento do pediatra.',
   obPrivacy: 'Sem conta e sem publicidade. Os dados ficam apenas neste dispositivo.',
   obStart: 'Começar',
-  nextMilestone: n => `Próximo marco: ${n} alimentos`, allDone: 'Completou os 100 alimentos.',
+  nextMilestone: n => `Próximo marco: ${n} alimentos`, allDone: 'Completaste os 100 alimentos.',
   reportOpen: 'Relatório para o pediatra', reportTitle: 'Relatório de introdução alimentar', reportBack: 'Voltar ao progresso', reportPrint: 'Imprimir ou guardar em PDF',
   reportDate: d => `Emitido a ${d}`, reportAge: a => `Idade: ${a}`,
   reportFood: 'Alimento', reportFirst: 'Primeira vez', reportTimes: 'Vezes', reportDateCol: 'Data', reportNoteCol: 'Nota', reportAllergen: 'Alergénio',
@@ -175,7 +175,7 @@ Object.assign(window.DiaryI18n.pt, {
   suggestTitle: 'Sugestão de hoje', logShort: 'Registar',
   statLogs: n => n === 1 ? 'registo' : 'registos', statStreak: n => n === 1 ? 'dia seguido' : 'dias seguidos', statDays: n => n === 1 ? 'dia com registo' : 'dias com registo',
   lastOffered: d => `Última vez: ${d}`,
-  allergenKeep: 'Depois de introduzido sem reação, é habitual manter o alergénio na alimentação regular. Confirme a frequência com o pediatra.',
+  allergenKeep: 'Depois de introduzido sem reação, é habitual manter o alergénio na alimentação regular. Confirma a frequência com o pediatra.',
   retryTitle: 'Para voltar a oferecer', retryNote: 'Recusar à primeira é normal: muitos bebés precisam de provar várias vezes.'
 });
 Object.assign(window.DiaryI18n.en, {
@@ -209,9 +209,9 @@ Object.assign(window.DiaryI18n.fr, {
 // Receitas.
 Object.assign(window.DiaryI18n.pt, {
   tabRecipes: 'Receitas', recipeOfDay: 'Receita do dia', recipesAll: 'Todas', stage: n => `${n}+ meses`, searchRecipes: 'Procurar receita…',
-  ingredients: 'Ingredientes', howTo: 'Como fazer', recipeFoods: 'Alimentos desta receita', recipeFoodsHint: 'Toque num alimento para o registar no dia de hoje.',
+  ingredients: 'Ingredientes', howTo: 'Como fazer', recipeFoods: 'Alimentos desta receita', recipeFoodsHint: 'Toca num alimento para o registares no dia de hoje.',
   recipesWith: 'Receitas com este alimento', recipesEmpty: 'Nenhuma receita encontrada.',
-  recipeNote: 'Adapte a textura à fase do bebé e siga as orientações do pediatra sobre a introdução de novos alimentos.',
+  recipeNote: 'Adapta a textura à fase do bebé e segue as orientações do pediatra sobre a introdução de novos alimentos.',
   bookTitle: 'Mais receitas no livro «A Primeira Colher»', bookText: 'Livro digital com receitas dos 6 aos 12 meses, organizadas por fase.', bookCta: 'Ver o livro'
 });
 Object.assign(window.DiaryI18n.en, {

@@ -29,7 +29,10 @@
   const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
   const todayIso = () => iso(new Date());
   let tab = 'today', day = todayIso(), query = '', cat = 'all', rquery = '', rstage = null;
-  const hasRecipes = () => !!R && R.lang === state.lang;
+  // Receitas: originais em português; os outros idiomas vêm dos ficheiros recipes.<idioma>.js.
+  const RX = window.DiaryRecipesI18n || {};
+  const hasRecipes = () => !!R && (R.lang === state.lang || Array.isArray(RX[state.lang]));
+  const rx = r => R.lang === state.lang ? r : Object.assign({}, r, RX[state.lang][r.id]);
 
   const t = () => I18N[state.lang];
   const fname = food => F.name(food, state.lang);
@@ -164,17 +167,17 @@
   };
 
   // ---------- receitas ----------
-  const recipeMeta = r => [t().stage(r.min), r.tempo, r.por].join(' · ');
+  const recipeMeta = r => [t().stage(r.min), rx(r).tempo, rx(r).por].join(' · ');
   const openRecipe = r => openSheet(
-    sheetHead('', r.t),
+    sheetHead('', rx(r).t),
     el('p', { class: 'muted' }, recipeMeta(r)),
-    el('h3', { class: 'sub' }, t().ingredients), el('ul', { class: 'ing' }, r.ing.map(x => el('li', {}, x))),
-    el('h3', { class: 'sub' }, t().howTo), el('ol', { class: 'steps' }, r.passos.map(x => el('li', {}, x))),
+    el('h3', { class: 'sub' }, t().ingredients), el('ul', { class: 'ing' }, rx(r).ing.map(x => el('li', {}, x))),
+    el('h3', { class: 'sub' }, t().howTo), el('ol', { class: 'steps' }, rx(r).passos.map(x => el('li', {}, x))),
     r.foods.length ? [el('h3', { class: 'sub' }, t().recipeFoods), el('p', { class: 'fine' }, t().recipeFoodsHint),
       el('div', { class: 'pills' }, r.foods.map(id => F.byId.get(id)).map(x => foodCard(x, () => openLogForm(x, todayIso()))))] : null,
     el('p', { class: 'fine', style: 'margin-top:16px' }, t().recipeNote));
   const recipeRow = r => el('button', { class: 'recipe', onclick: () => openRecipe(r) },
-    el('span', { class: 'rname' }, r.t), el('span', { class: 'muted' }, recipeMeta(r)));
+    el('span', { class: 'rname' }, rx(r).t), el('span', { class: 'muted' }, recipeMeta(r)));
   // Fase do bebé: a maior fase que já atingiu (6+ por omissão).
   const babyStage = () => { const a = ageMonths(); return a === null ? null : ([...R.stages].reverse().find(m => a >= m) || R.stages[0]); };
 
@@ -182,7 +185,7 @@
     if (rstage === null) rstage = babyStage() || 0;
     const box = el('div', { class: 'rlist' });
     const fill = () => {
-      const items = R.list.filter(r => (!rstage || r.min === rstage) && r.t.toLowerCase().includes(rquery.toLowerCase()));
+      const items = R.list.filter(r => (!rstage || r.min === rstage) && rx(r).t.toLowerCase().includes(rquery.toLowerCase()));
       box.replaceChildren(...(items.length ? items.map(recipeRow) : [el('p', { class: 'muted' }, t().recipesEmpty)]));
     };
     const opts = [0, ...R.stages];
@@ -194,7 +197,7 @@
       el('div', { class: 'hello' }, el('h1', {}, t().tabRecipes)),
       el('input', { class: 'search', type: 'search', value: rquery, placeholder: t().searchRecipes, 'aria-label': t().searchRecipes, oninput: e => { rquery = e.target.value; fill(); } }),
       chips, box,
-      el('div', { class: 'card book' }, el('h2', {}, t().bookTitle), el('p', {}, t().bookText),
+      R.lang === state.lang && el('div', { class: 'card book' }, el('h2', {}, t().bookTitle), el('p', {}, t().bookText),
         el('a', { href: R.book.url, rel: 'noopener' }, t().bookCta)),
       el('p', { class: 'fine' }, t().recipeNote)
     ];
@@ -254,7 +257,7 @@
         el('div', {}, el('p', { class: 'eyebrow' }, t().suggestTitle), el('h2', {}, fname(suggestion))),
         el('button', { class: 'primary', onclick: () => openLogForm(suggestion, day) }, t().logShort)),
       daily && el('button', { class: 'card daily', onclick: () => openRecipe(daily) },
-        el('span', { class: 'eyebrow' }, t().recipeOfDay), el('span', { class: 'rname' }, daily.t), el('span', { class: 'muted' }, recipeMeta(daily))),
+        el('span', { class: 'eyebrow' }, t().recipeOfDay), el('span', { class: 'rname' }, rx(daily).t), el('span', { class: 'muted' }, recipeMeta(daily))),
       el('div', { class: 'card tip' }, el('p', {}, tip)),
       partner && el('div', { class: 'card partner' }, el('p', {}, partner.text[state.lang]), el('a', { href: partner.url, rel: 'noopener' }, partner.name))
     ];
