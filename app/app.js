@@ -175,6 +175,7 @@
     const hist = state.log.filter(e => e.food === food.id).sort((a, b) => b.date.localeCompare(a.date));
     const withFood = hasRecipes() ? R.list.filter(r => r.foods.includes(food.id)) : [];
     openSheet(
+      FOOD_PHOTOS[food.id] && foodArt(food, 'hero'),
       sheetHead('', fname(food)),
       el('p', { class: 'muted' }, `${t().cat[food.cat]} · ${hist.length ? t().triedTimes(hist.length) : t().notTried}`),
       (food.allergen || food.choke || food.min12) && el('div', { class: 'badges' },
@@ -200,6 +201,23 @@
   };
 
   // ---------- pieces ----------
+  // Imagem do alimento: a foto, se existir; senão um quadrado com a inicial.
+  const FOOD_PHOTOS = window.DiaryFoodPhotos || {};
+  const foodArt = (food, cls) => {
+    const box = el('span', { class: 'art ' + cls, 'aria-hidden': 'true' });
+    if (FOOD_PHOTOS[food.id]) box.append(el('img', { src: FOOD_PHOTOS[food.id], alt: '', loading: 'lazy' }));
+    else box.append(el('span', { class: 'initial' }, fname(food).charAt(0)));
+    return box;
+  };
+  // Cartão com foto, para o ecrã Alimentos.
+  const foodTile = food => {
+    const n = countFor(food.id);
+    return el('button', { class: 'tile' + (n ? ' tried' : ''), onclick: () => openFoodDetail(food),
+      'aria-label': `${fname(food)}${food.allergen ? ', ' + t().allergenBadge : ''}, ${n ? t().triedTimes(n) : t().notTried}` },
+      foodArt(food, 'tileart'),
+      n ? el('span', { class: 'tick', 'aria-hidden': 'true' }, icon('check', 14), n > 1 ? String(n) : null) : null,
+      el('span', { class: 'tname' }, food.allergen && el('span', { class: 'dot', title: t().allergenBadge }), fname(food)));
+  };
   const foodCard = (food, onclick) => {
     const n = countFor(food.id);
     return el('button', { class: 'food' + (n ? ' tried' : ''), onclick,
@@ -212,6 +230,7 @@
   const entryRow = (e, showDate) => {
     const food = F.byId.get(e.food);
     return el('div', { class: 'entry' },
+      !showDate && foodArt(food, 'ethumb'),
       el('div', { class: 'body' },
         el('div', { class: 'name' }, showDate ? fmtDate(e.date, { day: 'numeric', month: 'short', year: 'numeric' }) : fname(food)),
         e.like !== null && el('div', { class: 'muted' }, likeLabel(e.like)),
@@ -521,7 +540,8 @@
         note && el('button', { class: 'daynote', 'aria-label': t().editNote, onclick: openNote }, icon('note', 18), el('span', {}, note)),
         !entries.length && el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => openPicker(day) }, t().addFood))),
       suggestion && el('div', { class: 'card suggest' },
-        el('div', {}, el('p', { class: 'eyebrow' }, t().suggestTitle), el('h2', {}, fname(suggestion))),
+        foodArt(suggestion, 'ethumb'),
+        el('div', { style: 'flex:1;min-width:0' }, el('p', { class: 'eyebrow' }, t().suggestTitle), el('h2', {}, fname(suggestion))),
         el('button', { class: 'primary', onclick: () => openLogForm(suggestion, day) }, t().logShort)),
       planned.length ? el('div', { class: 'card' }, el('h2', {}, t().planDay), el('div', { class: 'rlist' }, planned.map(recipeRow))) : null,
       daily && !planned.length && el('button', { class: 'card daily', onclick: () => openRecipe(daily) },
@@ -550,7 +570,7 @@
             el('span', { class: 'catcount' }, `${done} / ${all.length}`),
             el('span', { class: 'chev', 'aria-hidden': 'true' }, '›'),
             el('span', { class: 'bar' }, el('i', { style: `width:${done / all.length * 100}%` }))),
-          open && el('div', { class: 'pills' }, items.map(x => foodCard(x, () => openFoodDetail(x)))),
+          open && el('div', { class: 'tiles' }, items.map(foodTile)),
           open && items.some(x => x.allergen) && el('p', { class: 'legend' }, el('i', {}), t().allergenBadge));
       }).filter(Boolean);
       box.replaceChildren(...(rows.length ? rows : [el('p', { class: 'muted' }, t().noResults)]));
