@@ -167,3 +167,41 @@ Object.assign(window.DiaryI18n.fr, {
   reportFood: 'Aliment', reportFirst: 'Première fois', reportTimes: 'Fois', reportDateCol: 'Date', reportNoteCol: 'Note', reportAllergen: 'Allergène',
   reportFoods: 'Aliments goûtés', reportNone: 'Rien de noté pour le moment.'
 });
+
+// Semana, observação de alergénios, sugestão do dia e estatísticas.
+Object.assign(window.DiaryI18n.pt, {
+  prevWeek: 'Semana anterior', nextWeek: 'Semana seguinte',
+  checkEyebrow: 'Alergénio em observação', checkTitle: f => `${f}: houve alguma reação?`, checkNone: 'Sem reação', checkYes: 'Houve reação',
+  suggestTitle: 'Sugestão de hoje', logShort: 'Registar',
+  statLogs: n => n === 1 ? 'registo' : 'registos', statStreak: n => n === 1 ? 'dia seguido' : 'dias seguidos', statDays: n => n === 1 ? 'dia com registo' : 'dias com registo',
+  lastOffered: d => `Última vez: ${d}`,
+  allergenKeep: 'Depois de introduzido sem reação, é habitual manter o alergénio na alimentação regular. Confirme a frequência com o pediatra.',
+  retryTitle: 'Para voltar a oferecer', retryNote: 'Recusar à primeira é normal: muitos bebés precisam de provar várias vezes.'
+});
+Object.assign(window.DiaryI18n.en, {
+  prevWeek: 'Previous week', nextWeek: 'Next week',
+  checkEyebrow: 'Allergen under watch', checkTitle: f => `${f}: any reaction?`, checkNone: 'No reaction', checkYes: 'There was a reaction',
+  suggestTitle: "Today's suggestion", logShort: 'Log',
+  statLogs: n => n === 1 ? 'entry' : 'entries', statStreak: n => 'day streak', statDays: n => n === 1 ? 'day logged' : 'days logged',
+  lastOffered: d => `Last time: ${d}`,
+  allergenKeep: 'Once introduced without a reaction, allergens are usually kept in the regular diet. Check how often with your paediatrician.',
+  retryTitle: 'Worth offering again', retryNote: 'Refusing at first is normal: many babies need several tries.'
+});
+Object.assign(window.DiaryI18n.es, {
+  prevWeek: 'Semana anterior', nextWeek: 'Semana siguiente',
+  checkEyebrow: 'Alérgeno en observación', checkTitle: f => `${f}: ¿hubo alguna reacción?`, checkNone: 'Sin reacción', checkYes: 'Hubo reacción',
+  suggestTitle: 'Sugerencia de hoy', logShort: 'Registrar',
+  statLogs: n => n === 1 ? 'registro' : 'registros', statStreak: n => n === 1 ? 'día seguido' : 'días seguidos', statDays: n => n === 1 ? 'día con registro' : 'días con registro',
+  lastOffered: d => `Última vez: ${d}`,
+  allergenKeep: 'Una vez introducido sin reacción, lo habitual es mantener el alérgeno en la alimentación. Consulta la frecuencia con el pediatra.',
+  retryTitle: 'Para volver a ofrecer', retryNote: 'Rechazarlo al principio es normal: muchos bebés necesitan probarlo varias veces.'
+});
+Object.assign(window.DiaryI18n.fr, {
+  prevWeek: 'Semaine précédente', nextWeek: 'Semaine suivante',
+  checkEyebrow: 'Allergène à surveiller', checkTitle: f => `${f} : une réaction ?`, checkNone: 'Aucune réaction', checkYes: 'Il y a eu une réaction',
+  suggestTitle: 'Suggestion du jour', logShort: 'Noter',
+  statLogs: n => n === 1 ? 'note' : 'notes', statStreak: n => n === 1 ? 'jour de suite' : 'jours de suite', statDays: n => n === 1 ? 'jour noté' : 'jours notés',
+  lastOffered: d => `Dernière fois : ${d}`,
+  allergenKeep: "Une fois introduit sans réaction, l'allergène est généralement maintenu dans l'alimentation. Vérifiez la fréquence avec le pédiatre.",
+  retryTitle: 'À proposer de nouveau', retryNote: "Refuser au début est normal : beaucoup de bébés ont besoin de plusieurs essais."
+});

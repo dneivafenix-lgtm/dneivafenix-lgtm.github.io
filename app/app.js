@@ -17,7 +17,7 @@
       baby: { name: String(s.baby?.name || '').slice(0, 40), birth: /^\d{4}-\d{2}-\d{2}$/.test(s.baby?.birth) ? s.baby.birth : '' },
       log: (Array.isArray(s.log) ? s.log : []).filter(e => e && F.byId.has(e.food) && /^\d{4}-\d{2}-\d{2}$/.test(e.date)).map(e => ({
         id: String(e.id || Math.random().toString(36).slice(2)), food: e.food, date: e.date,
-        like: [1, 0, -1].includes(e.like) ? e.like : null, reaction: !!e.reaction, note: String(e.note || '').slice(0, 300)
+        like: [1, 0, -1].includes(e.like) ? e.like : null, reaction: !!e.reaction, checked: !!e.checked, note: String(e.note || '').slice(0, 300)
       }))
     };
   };
@@ -108,7 +108,7 @@
       el('div', { class: 'btnrow' },
         el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
         el('button', { class: 'primary', onclick: () => {
-          state.log.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), food: food.id, date, like, reaction: reaction.checked, note: note.value.trim() });
+          state.log.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), food: food.id, date, like, reaction: reaction.checked, checked: reaction.checked, note: note.value.trim() });
           save(); closeSheet(); render();
         } }, t().save)));
   };
@@ -161,23 +161,54 @@
 
   // ---------- views ----------
   const viewToday = () => {
+    const today = todayIso();
     const entries = state.log.filter(e => e.date === day);
-    const shift = n => { const d = parse(day); d.setDate(d.getDate() + n); day = iso(d); render(); };
+    const go = d => { day = d; render(); };
+    const shiftWeek = n => { const d = parse(day); d.setDate(d.getDate() + n * 7); const v = iso(d); go(v > today ? today : v); };
     const age = ageMonths();
     const tips = t().tips, tip = tips[parse(day).getDate() % tips.length];
     const partner = CFG.partner && CFG.partner.enabled && CFG.partner.text[state.lang] ? CFG.partner : null;
+    const long = d => fmtDate(d, { weekday: 'long', day: 'numeric', month: 'long' });
+
+    // Semana (segunda a domingo) do dia que está aberto.
+    const monday = parse(day); monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+    const week = Array.from({ length: 7 }, (_, i) => { const d = new Date(monday); d.setDate(monday.getDate() + i); return iso(d); });
+    const logged = new Set(state.log.map(e => e.date));
+    const narrow = new Intl.DateTimeFormat(state.lang, { weekday: 'narrow' });
+
+    // Alergénios oferecidos nos últimos dois dias que ainda não têm resposta.
+    const since = new Date(); since.setDate(since.getDate() - 2);
+    const pending = state.log.filter(e => !e.checked && !e.reaction && e.date >= iso(since) && e.date <= today && F.byId.get(e.food).allergen);
+    const answer = (e, reacted) => { e.checked = true; e.reaction = reacted; save(); render(); };
+
+    // Sugestão: um alimento ainda não provado. Alergénios ficam de fora, porque essa decisão é dos pais.
+    const triedSet = new Set(state.log.map(e => e.food));
+    const untried = F.foods.filter(x => !triedSet.has(x.id) && !x.allergen && !(x.min12 && (age === null || age < 12)));
+    const suggestion = day === today && untried.length ? untried[Math.floor(parse(today).getTime() / 864e5) % untried.length] : null;
+
     return [
-      el('div', { class: 'hero' },
-        el('p', { class: 'eyebrow' }, t().tagline),
-        el('div', { class: 'daynav' },
-          el('button', { 'aria-label': t().prevDay, onclick: () => shift(-1) }, '‹'),
-          el('strong', {}, day === todayIso() ? t().today : fmtDate(day, { weekday: 'short', day: 'numeric', month: 'long' })),
-          el('button', { 'aria-label': t().nextDay, disabled: day >= todayIso(), onclick: () => shift(1) }, '›')),
-        el('p', { class: 'ageline' }, state.baby.name && age !== null ? t().ageLine(state.baby.name, t().ageMonths(age))
-          : state.baby.name || (age !== null ? t().ageMonths(age) : t().setupHint))),
+      el('div', { class: 'hello' },
+        el('p', { class: 'muted' }, state.baby.name && age !== null ? t().ageLine(state.baby.name, t().ageMonths(age))
+          : state.baby.name || (age !== null ? t().ageMonths(age) : t().setupHint)),
+        el('h1', {}, day === today ? t().today : long(day))),
+      el('div', { class: 'week' },
+        el('button', { class: 'wnav', 'aria-label': t().prevWeek, onclick: () => shiftWeek(-1) }, '‹'),
+        week.map(d => el('button', { class: 'wday' + (logged.has(d) ? ' has' : ''), 'aria-pressed': String(d === day), disabled: d > today,
+          'aria-label': long(d), onclick: () => go(d) }, el('span', {}, narrow.format(parse(d))), el('b', {}, String(parse(d).getDate())))),
+        el('button', { class: 'wnav', 'aria-label': t().nextWeek, disabled: week[6] >= today, onclick: () => shiftWeek(1) }, '›')),
+      pending.map(e => el('div', { class: 'card watch' },
+        el('p', { class: 'eyebrow' }, t().checkEyebrow),
+        el('h2', {}, t().checkTitle(fname(F.byId.get(e.food)))),
+        el('p', { class: 'muted' }, long(e.date)),
+        el('div', { class: 'btnrow' },
+          el('button', { class: 'ghost', onclick: () => answer(e, false) }, t().checkNone),
+          el('button', { class: 'danger', onclick: () => answer(e, true) }, t().checkYes)))),
       el('div', { class: 'card' },
         entries.length ? entries.map(e => entryRow(e, false)) : el('p', { class: 'muted' }, t().emptyDay),
         el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => openPicker(day) }, t().addFood))),
+      suggestion && el('div', { class: 'card suggest' },
+        el('div', {}, el('p', { class: 'eyebrow' }, t().suggestTitle), el('h2', {}, fname(suggestion))),
+        el('button', { class: 'primary', onclick: () => openLogForm(suggestion, day) }, t().logShort)),
       el('div', { class: 'card tip' }, el('p', {}, tip)),
       partner && el('div', { class: 'card partner' }, el('p', {}, partner.text[state.lang]), el('a', { href: partner.url, rel: 'noopener' }, partner.name))
     ];
@@ -206,18 +237,41 @@
     ];
   };
 
+  // Anel de progresso (só números, nunca texto do utilizador).
+  const ring = (v, total) => {
+    const C = 2 * Math.PI * 52, n = el('div', { class: 'ring', role: 'img', 'aria-label': `${v} / ${total}` });
+    n.innerHTML = `<svg viewBox="0 0 120 120" width="128" height="128" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--track)" stroke-width="10"/><circle cx="60" cy="60" r="52" fill="none" stroke="var(--brand)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - v / total)}" transform="rotate(-90 60 60)"/></svg>`;
+    n.append(el('div', { class: 'ringtxt' }, el('b', {}, String(v)), el('span', {}, `/ ${total}`)));
+    return n;
+  };
+
   const viewProgress = () => {
     const tried = new Set(state.log.map(e => e.food));
     const total = F.foods.length;
     const reactions = [...new Set(state.log.filter(e => e.reaction).map(e => e.food))].map(id => F.byId.get(id));
     const next = CFG.milestones.find(m => m > tried.size);
+    const short = d => fmtDate(d, { day: 'numeric', month: 'short' });
+
+    // Dias seguidos com registo, a contar de hoje (ou de ontem, se hoje ainda não houver nada).
+    const days = new Set(state.log.map(e => e.date));
+    const cursor = new Date(); if (!days.has(iso(cursor))) cursor.setDate(cursor.getDate() - 1);
+    let streak = 0; while (days.has(iso(cursor))) { streak++; cursor.setDate(cursor.getDate() - 1); }
+
+    // Alimentos cuja última vez foi "não gostou" e que não deram reação.
+    const latest = new Map();
+    for (const e of [...state.log].sort((a, b) => a.date.localeCompare(b.date))) latest.set(e.food, e);
+    const retry = [...latest.values()].filter(e => e.like === -1 && !state.log.some(x => x.food === e.food && x.reaction)).map(e => F.byId.get(e.food));
+
     return [
       el('div', { class: 'card scard' },
-        state.baby.name && el('p', { class: 'eyebrow' }, state.baby.name),
-        el('div', { class: 'big' }, el('b', {}, String(tried.size)), el('span', {}, `/ ${total} ${t().foodsTried}`)),
-        el('div', { class: 'bar', role: 'img', 'aria-label': `${tried.size} / ${total}` }, el('i', { style: `width:${tried.size / total * 100}%` })),
-        el('div', { class: 'medals' }, CFG.milestones.map(m => el('span', { class: 'medal' + (tried.size >= m ? ' on' : '') }, String(m)))),
-        el('p', { style: 'font-size:14px;font-weight:600' }, next ? t().nextMilestone(next) : t().allDone)),
+        el('div', { class: 'ringrow' }, ring(tried.size, total),
+          el('div', {},
+            state.baby.name && el('p', { class: 'eyebrow' }, state.baby.name),
+            el('h2', {}, t().foodsTried),
+            el('p', { class: 'next' }, next ? t().nextMilestone(next) : t().allDone))),
+        el('div', { class: 'medals' }, CFG.milestones.map(m => el('span', { class: 'medal' + (tried.size >= m ? ' on' : '') }, String(m))))),
+      el('div', { class: 'stats' }, [[state.log.length, t().statLogs], [streak, t().statStreak], [days.size, t().statDays]].map(([n, label]) =>
+        el('div', { class: 'card stat' }, el('b', {}, String(n)), el('span', {}, label(n))))),
       el('button', { class: 'ghost', onclick: () => { tab = 'report'; render(); window.scrollTo(0, 0); } }, t().reportOpen),
       el('div', { class: 'card' }, el('h2', {}, t().byCategory), F.categories.map(c => {
         const all = F.foods.filter(x => x.cat === c), done = all.filter(x => tried.has(x.id)).length;
@@ -225,11 +279,16 @@
           el('div', { class: 'bar' }, el('i', { style: `width:${done / all.length * 100}%` }))];
       })),
       el('div', { class: 'card' }, el('h2', {}, t().allergensTitle), el('div', { class: 'alist' }, F.allergens.map(a => {
-        const done = F.foods.some(x => x.allergen === a && tried.has(x.id));
-        return el('div', { class: done ? 'done' : '' }, t().allergenName[a], el('small', {}, done ? t().introduced : t().pending));
-      }))),
+        const hits = state.log.filter(e => F.byId.get(e.food).allergen === a);
+        const last = hits.reduce((m, e) => e.date > m ? e.date : m, '');
+        return el('div', { class: hits.length ? 'done' : '' }, t().allergenName[a],
+          el('small', {}, hits.length ? `${t().lastOffered(short(last))} · ${hits.length}×` : t().pending));
+      })), el('p', { class: 'fine', style: 'margin-top:12px' }, t().allergenKeep)),
+      retry.length ? el('div', { class: 'card' }, el('h2', {}, t().retryTitle),
+        el('div', { class: 'pills' }, retry.map(x => el('button', { class: 'chip', onclick: () => openFoodDetail(x) }, fname(x)))),
+        el('p', { class: 'fine', style: 'margin-top:12px' }, t().retryNote)) : null,
       el('div', { class: 'card' }, el('h2', {}, t().reactionsTitle),
-        reactions.length ? [reactions.map(x => el('button', { class: 'chip', style: 'margin:0 6px 6px 0', onclick: () => openFoodDetail(x) }, fname(x))),
+        reactions.length ? [el('div', { class: 'pills' }, reactions.map(x => el('button', { class: 'chip', onclick: () => openFoodDetail(x) }, fname(x)))),
           el('p', { class: 'info' }, t().reactionAdvice)] : el('p', { class: 'muted' }, t().noReactions))
     ];
   };
@@ -323,6 +382,7 @@
   };
 
   // ---------- shell ----------
+  let shown = '';
   const TABS = [['today', 'tabToday', viewToday], ['foods', 'tabFoods', viewFoods], ['progress', 'tabProgress', viewProgress], ['settings', 'tabSettings', viewSettings]];
   const render = () => {
     const welcome = !state.onboarded;
@@ -335,7 +395,9 @@
     $('tabs').replaceChildren(...TABS.map(([id, key]) => el('button', { 'aria-current': current === id ? 'page' : null,
       onclick: () => { tab = id; render(); window.scrollTo(0, 0); } }, icon(id), t()[key])));
     const view = welcome ? viewWelcome : tab === 'report' ? viewReport : TABS.find(x => x[0] === tab)[2];
-    $('view').replaceChildren(...view().flat(Infinity).filter(Boolean));
+    const main = $('view'), key = welcome ? 'welcome' : tab;
+    main.replaceChildren(...view().flat(Infinity).filter(Boolean));
+    if (key !== shown) { shown = key; main.classList.remove('enter'); void main.offsetWidth; main.classList.add('enter'); }
   };
   // Marca: tenta a imagem do logótipo; se falhar fica a nuvem com o nome.
   $('brandName').textContent = CFG.brand.name;
