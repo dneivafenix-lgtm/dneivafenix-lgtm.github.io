@@ -1,12 +1,12 @@
 {
-  "name": "Primeiras Colheradas · Petit Nuvem",
-  "short_name": "Colheradas",
+  "name": "Bocado",
+  "short_name": "Bocado",
   "description": "Diário de introdução alimentar do bebé.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#faf6f2",
-  "theme_color": "#6b5246",
+  "background_color": "#f5f6f2",
+  "theme_color": "#1d5a4a",
   "icons": [
     { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ]
