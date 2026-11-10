@@ -16,7 +16,7 @@ window.DiaryLegal.pt = {
       "Não recebemos, não vendemos e não partilhamos os dados que introduzes."
     ]},
     {"h": "Terceiros contactados ao carregar a aplicação", "p": [
-      "Para abrir a aplicação, o teu navegador faz pedidos técnicos a terceiros, que podem registar o teu endereço IP: o fornecedor de alojamento que serve os ficheiros da aplicação, o Google Fonts (tipos de letra) e a rede de conteúdos da Shopify (imagem do logótipo da marca).",
+      "Para abrir a aplicação, o teu navegador faz pedidos técnicos a terceiros, que podem registar o teu endereço IP: o fornecedor de alojamento que serve os ficheiros da aplicação e a rede de conteúdos da Shopify (imagem do logótipo da marca).",
       "Esses pedidos não incluem os dados do diário."
     ]},
     {"h": "Dados de crianças e de saúde", "p": [

@@ -16,7 +16,7 @@ window.DiaryLegal.en = {
       "We do not receive, sell or share the data you enter."
     ]},
     {"h": "Third parties contacted when the app loads", "p": [
-      "To open the app, your browser sends technical requests to third parties, who may log your IP address: the hosting provider that serves the app's files, Google Fonts (typefaces) and the Shopify content network (the brand logo image).",
+      "To open the app, your browser sends technical requests to third parties, who may log your IP address: the hosting provider that serves the app's files and the Shopify content network (the brand logo image).",
       "These requests do not include your diary data."
     ]},
     {"h": "Children's and health data", "p": [
