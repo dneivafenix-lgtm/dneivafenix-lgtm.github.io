@@ -219,7 +219,7 @@ Object.assign(window.DiaryI18n.en, {
   ingredients: 'Ingredients', howTo: 'Method', recipeFoods: 'Foods in this recipe', recipeFoodsHint: 'Tap a food to log it for today.',
   recipesWith: 'Recipes with this food', recipesEmpty: 'No recipes found.',
   recipeNote: "Adapt the texture to your baby's stage and follow your paediatrician's guidance on new foods.",
-  bookTitle: 'More recipes in the book', bookText: 'A digital book with recipes from 6 to 12 months, organised by stage.', bookCta: 'See the book'
+  bookTitle: 'More recipes in the book “The First Spoon”', bookText: 'A digital book with recipes from 6 to 12 months, organised by stage.', bookCta: 'See the book'
 });
 Object.assign(window.DiaryI18n.es, {
   tabRecipes: 'Recetas', recipeOfDay: 'Receta del día', recipesAll: 'Todas', stage: n => `${n}+ meses`, searchRecipes: 'Buscar receta…',
@@ -234,4 +234,22 @@ Object.assign(window.DiaryI18n.fr, {
   recipesWith: 'Recettes avec cet aliment', recipesEmpty: 'Aucune recette trouvée.',
   recipeNote: "Adaptez la texture à l'étape de bébé et suivez les conseils du pédiatre sur les nouveaux aliments.",
   bookTitle: 'Plus de recettes dans le livre', bookText: 'Livre numérique avec des recettes de 6 à 12 mois, classées par étape.', bookCta: 'Voir le livre'
+});
+
+// Calorias das receitas.
+Object.assign(window.DiaryI18n.pt, {
+  kcal: { portion: n => `≈ ${n} kcal por porção`, unit: n => `≈ ${n} kcal por unidade`, family: n => `≈ ${n} kcal por porção de adulto` },
+  kcalNote: 'Calorias estimadas a partir dos ingredientes. Servem de referência, não de meta: o apetite do bebé varia de dia para dia.'
+});
+Object.assign(window.DiaryI18n.en, {
+  kcal: { portion: n => `≈ ${n} kcal per serving`, unit: n => `≈ ${n} kcal each`, family: n => `≈ ${n} kcal per adult serving` },
+  kcalNote: "Calories are estimated from the ingredients. They are a reference, not a target: a baby's appetite varies from day to day."
+});
+Object.assign(window.DiaryI18n.es, {
+  kcal: { portion: n => `≈ ${n} kcal por ración`, unit: n => `≈ ${n} kcal por unidad`, family: n => `≈ ${n} kcal por ración de adulto` },
+  kcalNote: 'Calorías estimadas a partir de los ingredientes. Sirven de referencia, no de objetivo: el apetito del bebé varía de un día a otro.'
+});
+Object.assign(window.DiaryI18n.fr, {
+  kcal: { portion: n => `≈ ${n} kcal par portion`, unit: n => `≈ ${n} kcal pièce`, family: n => `≈ ${n} kcal par portion adulte` },
+  kcalNote: "Calories estimées à partir des ingrédients. Elles servent de repère, pas d'objectif : l'appétit de bébé varie d'un jour à l'autre."
 });

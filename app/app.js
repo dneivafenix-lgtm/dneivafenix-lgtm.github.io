@@ -168,16 +168,37 @@
 
   // ---------- receitas ----------
   const recipeMeta = r => [t().stage(r.min), rx(r).tempo, rx(r).por].join(' · ');
+  const kcalLine = r => r.kcal ? t().kcal[r.per](r.kcal) : '';
+  // Imagem da receita: a foto, se existir; senão uma taça com a cor do ingrediente principal.
+  const PHOTOS = window.DiaryRecipePhotos || {};
+  const TINT = { carrot: '#f2a65a', pumpkin: '#f0a04b', sweetpotato: '#e8935a', potato: '#e6cf9a', courgette: '#a9c98a', broccoli: '#8fbf7a', cauliflower: '#eee6cf',
+    spinach: '#7fb37a', peas: '#9ccc7c', greenbeans: '#93c47d', leek: '#bcd69a', beetroot: '#c4577a', tomato: '#e5695a', mushroom: '#c9b199', cabbage: '#b5d39a',
+    banana: '#f3d86b', apple: '#e98b7a', pear: '#cfd87a', avocado: '#a9c77a', mango: '#f5b647', peach: '#f6b08a', plum: '#a977b0', blueberry: '#7f8fd0', strawberry: '#e86a7a',
+    rice: '#f1e9d6', oats: '#e3cfa6', pasta: '#f0d79a', bread: '#dfbf8f', chicken: '#edc9a0', turkey: '#e8c4a3', beef: '#b9775f', whitefish: '#cfdde6', salmon: '#f29b82',
+    egg: '#f6d977', lentils: '#d98a5a', chickpeas: '#e3c184', beans: '#b98a6a', yogurt: '#f3efe6', cheese: '#f3d88a', freshcheese: '#f5f0e2', coconut: '#efe9df' };
+  const recipeArt = (r, cls) => {
+    const box = el('span', { class: 'art ' + cls, 'aria-hidden': 'true' });
+    if (PHOTOS[r.id]) { box.append(el('img', { src: PHOTOS[r.id], alt: '', loading: 'lazy' })); return box; }
+    const main = r.foods.find(id => TINT[id] && id !== 'oliveoil'), c = TINT[main] || '#e6d9cc';
+    box.style.background = `color-mix(in srgb, ${c} 28%, var(--card))`;
+    box.innerHTML = `<svg viewBox="0 0 64 64" width="100%" height="100%"><ellipse cx="32" cy="30" rx="20" ry="7" fill="${c}"/><path d="M10 30h44a22 22 0 0 1-44 0z" fill="var(--card)" stroke="var(--edge)" stroke-width="1.5"/><ellipse cx="32" cy="30" rx="19" ry="6" fill="${c}"/><path d="M40 27l12-13" stroke="var(--brand)" stroke-width="3" stroke-linecap="round"/></svg>`;
+    return box;
+  };
   const openRecipe = r => openSheet(
+    recipeArt(r, 'hero'),
     sheetHead('', rx(r).t),
     el('p', { class: 'muted' }, recipeMeta(r)),
+    r.kcal && el('p', { class: 'kcal' }, kcalLine(r)),
     el('h3', { class: 'sub' }, t().ingredients), el('ul', { class: 'ing' }, rx(r).ing.map(x => el('li', {}, x))),
     el('h3', { class: 'sub' }, t().howTo), el('ol', { class: 'steps' }, rx(r).passos.map(x => el('li', {}, x))),
     r.foods.length ? [el('h3', { class: 'sub' }, t().recipeFoods), el('p', { class: 'fine' }, t().recipeFoodsHint),
       el('div', { class: 'pills' }, r.foods.map(id => F.byId.get(id)).map(x => foodCard(x, () => openLogForm(x, todayIso()))))] : null,
-    el('p', { class: 'fine', style: 'margin-top:16px' }, t().recipeNote));
+    el('p', { class: 'fine', style: 'margin-top:16px' }, t().recipeNote),
+    r.kcal && el('p', { class: 'fine', style: 'margin-top:8px' }, t().kcalNote));
   const recipeRow = r => el('button', { class: 'recipe', onclick: () => openRecipe(r) },
-    el('span', { class: 'rname' }, rx(r).t), el('span', { class: 'muted' }, recipeMeta(r)));
+    recipeArt(r, 'thumb'),
+    el('span', { class: 'rtxt' }, el('span', { class: 'rname' }, rx(r).t), el('span', { class: 'muted' }, recipeMeta(r)),
+      r.kcal && el('span', { class: 'kcal' }, kcalLine(r))));
   // Fase do bebé: a maior fase que já atingiu (6+ por omissão).
   const babyStage = () => { const a = ageMonths(); return a === null ? null : ([...R.stages].reverse().find(m => a >= m) || R.stages[0]); };
 
@@ -197,7 +218,7 @@
       el('div', { class: 'hello' }, el('h1', {}, t().tabRecipes)),
       el('input', { class: 'search', type: 'search', value: rquery, placeholder: t().searchRecipes, 'aria-label': t().searchRecipes, oninput: e => { rquery = e.target.value; fill(); } }),
       chips, box,
-      R.lang === state.lang && el('div', { class: 'card book' }, el('h2', {}, t().bookTitle), el('p', {}, t().bookText),
+      R.book.languages.includes(state.lang) && el('div', { class: 'card book' }, el('h2', {}, t().bookTitle), el('p', {}, t().bookText),
         el('a', { href: R.book.url, rel: 'noopener' }, t().bookCta)),
       el('p', { class: 'fine' }, t().recipeNote)
     ];
@@ -257,7 +278,9 @@
         el('div', {}, el('p', { class: 'eyebrow' }, t().suggestTitle), el('h2', {}, fname(suggestion))),
         el('button', { class: 'primary', onclick: () => openLogForm(suggestion, day) }, t().logShort)),
       daily && el('button', { class: 'card daily', onclick: () => openRecipe(daily) },
-        el('span', { class: 'eyebrow' }, t().recipeOfDay), el('span', { class: 'rname' }, rx(daily).t), el('span', { class: 'muted' }, recipeMeta(daily))),
+        recipeArt(daily, 'thumb'),
+        el('span', { class: 'rtxt' }, el('span', { class: 'eyebrow' }, t().recipeOfDay), el('span', { class: 'rname' }, rx(daily).t),
+          el('span', { class: 'muted' }, recipeMeta(daily)), daily.kcal && el('span', { class: 'kcal' }, kcalLine(daily)))),
       el('div', { class: 'card tip' }, el('p', {}, tip)),
       partner && el('div', { class: 'card partner' }, el('p', {}, partner.text[state.lang]), el('a', { href: partner.url, rel: 'noopener' }, partner.name))
     ];
