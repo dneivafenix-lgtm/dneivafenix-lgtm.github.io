@@ -339,3 +339,25 @@ Object.assign(window.DiaryI18n.fr, {
   serveTitle: 'Comment servir', serveNow: 'Maintenant', badgeAllergen: a => `Allergène : ${a}`, badgeChoke: "Risque d'étouffement", badgeMin12: 'Seulement après 12 mois',
   serveNote: 'Repères généraux. Chaque bébé avance à son rythme : adaptez et vérifiez avec le pédiatre. Bébé mange toujours assis et sous surveillance.'
 });
+
+// Calendário do mês e resumo do dia.
+Object.assign(window.DiaryI18n.pt, {
+  prevMonth: 'Mês anterior', nextMonth: 'Mês seguinte', daySummary: 'Resumo do dia', calDay: (d, n) => n ? `${d}, ${n} registos` : d,
+  sumFoods: n => n === 1 ? '1 alimento' : `${n} alimentos`, sumNew: n => n === 1 ? '1 novo' : `${n} novos`,
+  sumReactions: n => n === 1 ? '1 suspeita de reação' : `${n} suspeitas de reação`, sumPlanned: n => n === 1 ? '1 receita no plano' : `${n} receitas no plano`
+});
+Object.assign(window.DiaryI18n.en, {
+  prevMonth: 'Previous month', nextMonth: 'Next month', daySummary: 'Day summary', calDay: (d, n) => n ? `${d}, ${n} entries` : d,
+  sumFoods: n => n === 1 ? '1 food' : `${n} foods`, sumNew: n => `${n} new`,
+  sumReactions: n => n === 1 ? '1 suspected reaction' : `${n} suspected reactions`, sumPlanned: n => n === 1 ? '1 planned recipe' : `${n} planned recipes`
+});
+Object.assign(window.DiaryI18n.es, {
+  prevMonth: 'Mes anterior', nextMonth: 'Mes siguiente', daySummary: 'Resumen del día', calDay: (d, n) => n ? `${d}, ${n} registros` : d,
+  sumFoods: n => n === 1 ? '1 alimento' : `${n} alimentos`, sumNew: n => n === 1 ? '1 nuevo' : `${n} nuevos`,
+  sumReactions: n => n === 1 ? '1 sospecha de reacción' : `${n} sospechas de reacción`, sumPlanned: n => n === 1 ? '1 receta en el plan' : `${n} recetas en el plan`
+});
+Object.assign(window.DiaryI18n.fr, {
+  prevMonth: 'Mois précédent', nextMonth: 'Mois suivant', daySummary: 'Résumé du jour', calDay: (d, n) => n ? `${d}, ${n} notes` : d,
+  sumFoods: n => n === 1 ? '1 aliment' : `${n} aliments`, sumNew: n => n === 1 ? '1 nouveau' : `${n} nouveaux`,
+  sumReactions: n => n === 1 ? '1 réaction suspectée' : `${n} réactions suspectées`, sumPlanned: n => n === 1 ? '1 recette au menu' : `${n} recettes au menu`
+});
