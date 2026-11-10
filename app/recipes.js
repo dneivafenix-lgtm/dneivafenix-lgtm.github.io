@@ -1,5 +1,5 @@
 // Receitas do Clube das mães da Petit Nuvem (petitnuvem.com), por fase: 6+, 7+, 9+ e 12+ meses.
-// Sem sal, sem açúcar e sem mel. Só em português, por isso o separador Receitas só aparece nesse idioma.
+// Sem sal, sem açúcar e sem mel. Originais em português; as traduções estão em recipes.en.js, recipes.es.js e recipes.fr.js.
 window.DiaryRecipes = (() => {
   const list = [
     {"min":6,"t":"Papas de aveia com maçã","tempo":"10 min","por":"2 porções","ing":["3 colheres de sopa de flocos de aveia finos","150 ml de água","1/2 maçã ralada","Uma pitada de canela (opcional)"],"passos":["Leva a aveia e a água ao lume brando, a mexer, durante 5 minutos.","Junta a maçã ralada e deixa cozinhar mais 2 minutos.","Tempera com a canela e deixa arrefecer até ficar morno."]},
