@@ -8,7 +8,7 @@ window.DiaryLegal.en = {
       "This baby food diary is a web app by the Petit Nuvem brand. The entity responsible for it is {controller}."
     ]},
     {"h": "What data there is and where it is kept", "p": [
-      "The app records what you enter: your baby's first name (optional), date of birth, the foods tried, whether your baby liked them, suspected reactions, free-text notes, the weekly meal plan and the shopping list.",
+      "The app records what you enter: your baby's first name (optional), date of birth, the foods tried, whether your baby liked them, suspected reactions, free-text notes, your journal entries and any voice recordings you make there, the weekly meal plan and the shopping list.",
       "All of this is stored only in your browser's local storage, on your own device. There are no user accounts and no server database. We cannot see or recover your data."
     ]},
     {"h": "What we do not do", "p": [

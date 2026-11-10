@@ -198,6 +198,21 @@ main{max-width:680px;margin:auto;padding:16px 20px 28px;outline:none;display:fle
 .legallinks{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:10px}
 .linkish{border:0;background:none;padding:0;min-height:44px;font-size:14px;font-weight:600;color:var(--brand);text-decoration:underline;text-underline-offset:3px}
 
+/* Diário dos pais */
+.jentry{display:flex;flex-direction:column;gap:8px}
+.jentry h2{margin:0;font-size:19px}
+.jtext{font-size:15px;line-height:1.6;color:var(--body);white-space:pre-wrap;overflow-wrap:anywhere}
+.jactions{display:flex;gap:18px}
+.player{width:100%;height:44px;display:block}
+.recbox{display:flex;flex-direction:column;gap:8px;margin-top:14px;padding:14px;border-radius:16px;background:var(--bg)}
+.recbox .ghost,.recbox .danger{align-self:flex-start}
+.recdone{display:flex;flex-direction:column;gap:6px}
+.recording{display:flex;align-items:center;gap:8px;font-weight:600}
+.recording i{width:10px;height:10px;border-radius:50%;background:var(--warn);animation:pulse 1.2s ease-in-out infinite}
+.rectime{font-variant-numeric:tabular-nums;margin-left:auto;font-family:var(--display)}
+@keyframes pulse{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.recording i{animation:none}}
+
 /* Ficha do alimento */
 .badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .badge{font-size:12px;font-weight:600;border-radius:999px;padding:4px 10px}
