@@ -1,0 +1,13 @@
+{
+  "name": "Primeiras Colheradas · Petit Nuvem",
+  "short_name": "Colheradas",
+  "description": "Diário de introdução alimentar do bebé.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fffefa",
+  "theme_color": "#243f78",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
