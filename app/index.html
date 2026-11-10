@@ -9,14 +9,17 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Manrope:wght@500;800&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="top">
-    <div>
-      <p class="eyebrow">PETIT NUVEM</p>
-      <h1 id="appName"></h1>
-    </div>
+    <a class="brand" href="../index.html" aria-label="Petit Nuvem">
+      <span class="cloud" aria-hidden="true">☁</span>
+      <span>petit nuvem<small id="appName"></small></span>
+    </a>
     <select id="langQuick" aria-label="Language"></select>
   </header>
 

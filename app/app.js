@@ -51,14 +51,14 @@
       else if (k in n && k !== 'list') n[k] = v;
       else n.setAttribute(k, v);
     }
-    for (const kid of kids.flat()) if (kid != null && kid !== false) n.append(kid);
+    for (const kid of kids.flat(Infinity)) if (kid != null && kid !== false) n.append(kid);
     return n;
   };
   const toast = msg => { const b = $('toast'); b.textContent = msg; b.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => b.classList.remove('show'), 2200); };
 
   // ---------- sheet (dialog) ----------
   const sheet = $('sheet');
-  const openSheet = (...kids) => { $('sheetBody').replaceChildren(...kids); if (!sheet.open) sheet.showModal(); $('sheetBody').scrollTop = 0; };
+  const openSheet = (...kids) => { $('sheetBody').replaceChildren(...kids.flat(Infinity).filter(k => k != null && k !== false)); if (!sheet.open) sheet.showModal(); $('sheetBody').scrollTop = 0; };
   const closeSheet = () => sheet.open && sheet.close();
   sheet.addEventListener('click', e => { if (e.target === sheet) closeSheet(); });
   const sheetHead = (emoji, title) => el('div', { class: 'sheethead' },
@@ -155,12 +155,14 @@
     const tips = t().tips, tip = tips[parse(day).getDate() % tips.length];
     const shop = CFG.shop.enabled && CFG.shop.languages.includes(state.lang);
     return [
-      el('div', { class: 'daynav' },
-        el('button', { 'aria-label': t().prevDay, onclick: () => shift(-1) }, '‹'),
-        el('strong', {}, day === todayIso() ? t().today : fmtDate(day, { weekday: 'short', day: 'numeric', month: 'long' })),
-        el('button', { 'aria-label': t().nextDay, disabled: day >= todayIso(), onclick: () => shift(1) }, '›')),
-      el('p', { class: 'muted ageline' }, state.baby.name && age !== null ? t().ageLine(state.baby.name, t().ageMonths(age))
-        : state.baby.name || (age !== null ? t().ageMonths(age) : t().setupHint)),
+      el('div', { class: 'hero' },
+        el('p', { class: 'eyebrow' }, t().tagline),
+        el('div', { class: 'daynav' },
+          el('button', { 'aria-label': t().prevDay, onclick: () => shift(-1) }, '‹'),
+          el('strong', {}, day === todayIso() ? t().today : fmtDate(day, { weekday: 'short', day: 'numeric', month: 'long' })),
+          el('button', { 'aria-label': t().nextDay, disabled: day >= todayIso(), onclick: () => shift(1) }, '›')),
+        el('p', { class: 'muted ageline' }, state.baby.name && age !== null ? t().ageLine(state.baby.name, t().ageMonths(age))
+          : state.baby.name || (age !== null ? t().ageMonths(age) : t().setupHint))),
       el('div', { class: 'card' },
         entries.length ? entries.map(e => entryRow(e, false)) : el('p', { class: 'muted' }, t().emptyDay),
         el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => openPicker(day) }, t().addFood))),
@@ -192,7 +194,7 @@
     const total = F.foods.length;
     const reactions = [...new Set(state.log.filter(e => e.reaction).map(e => e.food))].map(id => F.byId.get(id));
     return [
-      el('div', { class: 'card' },
+      el('div', { class: 'card scard' },
         el('div', { class: 'big' }, el('b', {}, String(tried.size)), el('span', {}, `/ ${total} ${t().foodsTried}`)),
         el('div', { class: 'bar', role: 'img', 'aria-label': `${tried.size} / ${total}` }, el('i', { style: `width:${tried.size / total * 100}%` }))),
       el('div', { class: 'card' }, el('h2', {}, t().byCategory), F.categories.map(c => {
