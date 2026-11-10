@@ -321,3 +321,21 @@ Object.assign(window.DiaryI18n.fr, {
   subSoon: 'Les paiements ne sont pas encore actifs.', subTest: 'Mode test : tout est débloqué.', subActive: 'Abonnement actif.', subFree: 'Vous utilisez la formule gratuite.',
   subSee: 'Voir les formules', subscription: 'Abonnement'
 });
+
+// Ficha do alimento: como servir por idade.
+Object.assign(window.DiaryI18n.pt, {
+  serveTitle: 'Como servir', serveNow: 'Agora', badgeAllergen: a => `Alergénio: ${a}`, badgeChoke: 'Risco de engasgamento', badgeMin12: 'Só depois dos 12 meses',
+  serveNote: 'Orientações gerais. Cada bebé tem o seu ritmo: adapta e confirma com o pediatra. O bebé come sempre sentado e vigiado.'
+});
+Object.assign(window.DiaryI18n.en, {
+  serveTitle: 'How to serve', serveNow: 'Now', badgeAllergen: a => `Allergen: ${a}`, badgeChoke: 'Choking risk', badgeMin12: 'Only after 12 months',
+  serveNote: 'General guidance. Every baby is different: adapt it and check with your paediatrician. Your baby should always eat sitting up and supervised.'
+});
+Object.assign(window.DiaryI18n.es, {
+  serveTitle: 'Cómo servir', serveNow: 'Ahora', badgeAllergen: a => `Alérgeno: ${a}`, badgeChoke: 'Riesgo de atragantamiento', badgeMin12: 'Solo después de los 12 meses',
+  serveNote: 'Orientaciones generales. Cada bebé tiene su ritmo: adáptalas y confírmalas con el pediatra. El bebé come siempre sentado y vigilado.'
+});
+Object.assign(window.DiaryI18n.fr, {
+  serveTitle: 'Comment servir', serveNow: 'Maintenant', badgeAllergen: a => `Allergène : ${a}`, badgeChoke: "Risque d'étouffement", badgeMin12: 'Seulement après 12 mois',
+  serveNote: 'Repères généraux. Chaque bébé avance à son rythme : adaptez et vérifiez avec le pédiatre. Bébé mange toujours assis et sous surveillance.'
+});

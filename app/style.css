@@ -104,6 +104,18 @@ main{max-width:680px;margin:auto;padding:16px 20px 28px;outline:none;display:fle
 .legend{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
 .legend i{width:8px;height:8px;border-radius:50%;background:var(--warn)}
 
+/* Ficha do alimento */
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.badge{font-size:12px;font-weight:600;border-radius:999px;padding:4px 10px}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.serve{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.srow{border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.srow p{font-size:15px;line-height:1.5;color:var(--body);margin-top:4px}
+.sage{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:600;font-size:15px}
+.sage b{font-family:var(--text);font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:2px 8px;background:var(--brand);color:var(--on-brand)}
+.srow.now{border:2px solid var(--brand);background:var(--tint)}
+.srow.now p{color:var(--tint-ink)}
+
 /* Receitas */
 .rlist{display:flex;flex-direction:column;gap:10px}
 .recipe,.daily{display:flex;flex-direction:row;gap:14px;align-items:center;text-align:left;width:100%;border:0;background:var(--card);border-radius:20px;padding:16px 18px;box-shadow:var(--shadow);transition:transform .12s ease}

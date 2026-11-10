@@ -148,14 +148,32 @@
         } }, t().save)));
   };
 
+  // Como servir por idade: textos em serve.<idioma>.js.
+  const SERVE = window.DiaryServe || {};
+  const SERVE_STAGES = [6, 9, 12];
+  const serveSection = food => {
+    const lines = (SERVE[state.lang] || {})[food.id];
+    if (!lines) return null;
+    const age = ageMonths(), now = age === null ? -1 : age >= 12 ? 2 : age >= 9 ? 1 : 0;
+    return [el('h3', { class: 'sub' }, t().serveTitle),
+      el('div', { class: 'serve' }, lines.map((txt, i) => el('div', { class: 'srow' + (i === now ? ' now' : '') },
+        el('span', { class: 'sage' }, t().stage(SERVE_STAGES[i]), i === now && el('b', {}, t().serveNow)),
+        el('p', {}, txt)))),
+      el('p', { class: 'fine', style: 'margin-top:8px' }, t().serveNote)];
+  };
   const openFoodDetail = food => {
     const hist = state.log.filter(e => e.food === food.id).sort((a, b) => b.date.localeCompare(a.date));
     const withFood = hasRecipes() ? R.list.filter(r => r.foods.includes(food.id)) : [];
     openSheet(
       sheetHead('', fname(food)),
       el('p', { class: 'muted' }, `${t().cat[food.cat]} · ${hist.length ? t().triedTimes(hist.length) : t().notTried}`),
-      foodInfo(food),
+      (food.allergen || food.choke || food.min12) && el('div', { class: 'badges' },
+        food.allergen && el('span', { class: 'badge warn' }, t().badgeAllergen(t().allergenName[food.allergen])),
+        food.choke && el('span', { class: 'badge warn' }, t().badgeChoke),
+        food.min12 && el('span', { class: 'badge warn' }, t().badgeMin12)),
       el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => openLogForm(food, todayIso()) }, t().logThis)),
+      serveSection(food),
+      food.allergen && el('p', { class: 'info' }, t().infoAllergen(t().allergenName[food.allergen])),
       hist.length ? [el('h3', { class: 'sub' }, t().history), el('div', { class: 'card' }, hist.map(e => entryRow(e, true)))] : null,
       withFood.length ? [el('h3', { class: 'sub' }, t().recipesWith), el('div', { class: 'rlist' }, withFood.map(recipeRow))] : null);
   };
