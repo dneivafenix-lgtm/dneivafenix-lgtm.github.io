@@ -22,6 +22,16 @@ window.DiaryConfig = {
     checkout: { monthly: '', yearly: '' },
     freeStage: 6 // receitas até esta fase (meses) são gratuitas
   },
+  // Sobre o conteúdo: quem reviu (vazio até haver um profissional), quando, e as fontes usadas como base.
+  content: { reviewedBy: '', reviewedOn: '', sources: ['SPP', 'OMS', 'NHS', 'HSE'] },
+  // Páginas legais: entidade responsável, contacto e data da última atualização (AAAA-MM-DD).
+  legal: { controller: 'Petit Nuvem', contact: '', updated: '2026-11-10' },
+  // Programa de alergénios. A REVER POR PROFISSIONAL DE SAÚDE
+  // introducedAfter: número de vezes sem reação para a app dar o alergénio como introduzido.
+  // remindAfterDays: dias sem oferecer um alergénio já introduzido até a app lembrar.
+  allergens: { introducedAfter: 3, remindAfterDays: 7 },
+  // Ligação, por idioma, para formação oficial de primeiros socorros pediátricos (aparece no guia sobre engasgamento).
+  links: { firstAid: { pt: '', en: '', es: '', fr: '' } },
   // Cartão opcional de um parceiro (por exemplo uma loja), desligado por omissão.
   // text: uma frase por idioma; só aparece nos idiomas que tiverem frase.
   partner: { enabled: false, name: '', url: '', text: {} }

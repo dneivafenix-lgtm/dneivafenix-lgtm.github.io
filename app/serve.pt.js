@@ -1,4 +1,5 @@
 // Como servir cada alimento por idade: [6+ meses, 9+ meses, 12+ meses]. Orientações gerais, a rever por um profissional de saúde.
+// A REVER POR PROFISSIONAL DE SAÚDE
 window.DiaryServe = window.DiaryServe || {};
 window.DiaryServe.pt = {
   "carrot": ["Coze até ficar bem mole. Oferece em puré ou em palitos do comprimento de um dedo. Crua, só ralada fina.", "Coze até ficar mole e corta em pedaços pequenos, ou esmaga com um garfo. Crua, só ralada fina.", "Oferece cozida em pedaços pequenos, para treinar o garfo. Crua, só ralada fina ou em tiras muito finas."],

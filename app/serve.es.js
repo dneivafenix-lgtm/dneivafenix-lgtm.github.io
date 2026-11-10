@@ -1,4 +1,5 @@
 // Cómo servir cada alimento según la edad: [6+ meses, 9+ meses, 12+ meses]. Traducido de serve.pt.js.
+// A REVER POR PROFISSIONAL DE SAÚDE
 window.DiaryServe = window.DiaryServe || {};
 window.DiaryServe.es = {
   "carrot": ["Cuece hasta que esté muy blanda. Ofrece en puré o en palitos del largo de un dedo. Cruda, solo rallada fina.", "Cuece hasta que esté blanda y corta en trozos pequeños, o aplasta con un tenedor. Cruda, solo rallada fina.", "Ofrece cocida en trozos pequeños, para practicar con el tenedor. Cruda, solo rallada fina o en tiras muy finas."],

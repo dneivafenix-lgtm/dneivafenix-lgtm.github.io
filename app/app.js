@@ -161,6 +161,21 @@
   // Como servir por idade: textos em serve.<idioma>.js.
   const SERVE = window.DiaryServe || {};
   const SERVE_STAGES = [6, 9, 12];
+  const INFO = window.DiaryFoodInfo || {}, SERVE_PHOTOS = window.DiaryServePhotos || {};
+  const foodFacts = food => {
+    const info = (INFO[state.lang] || {})[food.id];
+    return el('div', { class: 'facts' },
+      el('span', { class: 'badge' }, t().fromAge(food.min12 ? 12 : 6)),
+      food.allergen && el('span', { class: 'badge warn' }, t().badgeAllergen(t().allergenName[food.allergen])),
+      info ? el('span', { class: 'badge choke-' + info.choke[0] }, t().chokeLevel[info.choke[0]]) : (food.choke && el('span', { class: 'badge warn' }, t().badgeChoke)),
+      info && el('p', { class: 'chokeline' }, info.choke[1]));
+  };
+  const foodExtras = food => {
+    const info = (INFO[state.lang] || {})[food.id];
+    return info ? [
+      el('h3', { class: 'sub' }, t().nutriTitle), el('div', { class: 'badges' }, info.nutri.map(x => el('span', { class: 'badge nutri' }, x))),
+      el('h3', { class: 'sub' }, t().tipTitle), el('p', { class: 'tipline' }, info.tip)] : null;
+  };
   const serveSection = food => {
     const lines = (SERVE[state.lang] || {})[food.id];
     if (!lines) return null;
@@ -168,6 +183,7 @@
     return [el('h3', { class: 'sub' }, t().serveTitle),
       el('div', { class: 'serve' }, lines.map((txt, i) => el('div', { class: 'srow' + (i === now ? ' now' : '') },
         el('span', { class: 'sage' }, t().stage(SERVE_STAGES[i]), i === now && el('b', {}, t().serveNow)),
+        SERVE_PHOTOS[`${food.id}-${SERVE_STAGES[i]}`] && el('img', { class: 'sphoto', src: SERVE_PHOTOS[`${food.id}-${SERVE_STAGES[i]}`], alt: '', loading: 'lazy', width: 640, height: 640 }),
         el('p', {}, txt)))),
       el('p', { class: 'fine', style: 'margin-top:8px' }, t().serveNote)];
   };
@@ -178,13 +194,12 @@
       FOOD_PHOTOS[food.id] && foodArt(food, 'hero'),
       sheetHead('', fname(food)),
       el('p', { class: 'muted' }, `${t().cat[food.cat]} · ${hist.length ? t().triedTimes(hist.length) : t().notTried}`),
-      (food.allergen || food.choke || food.min12) && el('div', { class: 'badges' },
-        food.allergen && el('span', { class: 'badge warn' }, t().badgeAllergen(t().allergenName[food.allergen])),
-        food.choke && el('span', { class: 'badge warn' }, t().badgeChoke),
-        food.min12 && el('span', { class: 'badge warn' }, t().badgeMin12)),
+      foodFacts(food),
       el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => openLogForm(food, todayIso()) }, t().logThis)),
       serveSection(food),
-      food.allergen && el('p', { class: 'info' }, t().infoAllergen(t().allergenName[food.allergen])),
+      food.allergen && [el('p', { class: 'info' }, t().infoAllergen(t().allergenName[food.allergen])), el('p', { class: 'fine', style: 'margin-top:6px' }, t().allergenKeep),
+        el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: () => { closeSheet(); tab = 'allergens'; render(); window.scrollTo(0, 0); } }, t().algTitle))],
+      foodExtras(food),
       hist.length ? [el('h3', { class: 'sub' }, t().history), el('div', { class: 'card' }, hist.map(e => entryRow(e, true)))] : null,
       withFood.length ? [el('h3', { class: 'sub' }, t().recipesWith), el('div', { class: 'rlist' }, withFood.map(recipeRow))] : null);
   };
@@ -205,7 +220,7 @@
   const FOOD_PHOTOS = window.DiaryFoodPhotos || {};
   const foodArt = (food, cls) => {
     const box = el('span', { class: 'art ' + cls, 'aria-hidden': 'true' });
-    if (FOOD_PHOTOS[food.id]) box.append(el('img', { src: FOOD_PHOTOS[food.id], alt: '', loading: 'lazy' }));
+    if (FOOD_PHOTOS[food.id]) box.append(el('img', { src: FOOD_PHOTOS[food.id], alt: '', loading: 'lazy', width: 640, height: 640 }));
     else box.append(el('span', { class: 'initial' }, fname(food).charAt(0)));
     return box;
   };
@@ -269,7 +284,8 @@
         if (url) location.href = url; else toast(t().subSoon);
       } }, t().subStart)),
       el('p', { class: 'fine', style: 'margin-top:10px;text-align:center' }, t().trialNote(SUB.trialDays)),
-      !SUB.enforce && el('p', { class: 'info' }, t().subTest));
+      !SUB.enforce && el('p', { class: 'info' }, t().subTest),
+      legalLinks());
   };
   const premium = fn => (...a) => isPremium() ? fn(...a) : openPaywall();
 
@@ -285,7 +301,7 @@
     egg: '#f6d977', lentils: '#d98a5a', chickpeas: '#e3c184', beans: '#b98a6a', yogurt: '#f3efe6', cheese: '#f3d88a', freshcheese: '#f5f0e2', coconut: '#efe9df' };
   const recipeArt = (r, cls) => {
     const box = el('span', { class: 'art ' + cls, 'aria-hidden': 'true' });
-    if (PHOTOS[r.id]) { box.append(el('img', { src: PHOTOS[r.id], alt: '', loading: 'lazy' })); return box; }
+    if (PHOTOS[r.id]) { box.append(el('img', { src: PHOTOS[r.id], alt: '', loading: 'lazy', width: 800, height: 800 })); return box; }
     const main = r.foods.find(id => TINT[id] && id !== 'oliveoil'), c = TINT[main] || '#e6d9cc';
     box.style.background = `color-mix(in srgb, ${c} 28%, var(--card))`;
     box.innerHTML = `<svg viewBox="0 0 64 64" width="100%" height="100%"><ellipse cx="32" cy="30" rx="20" ry="7" fill="${c}"/><path d="M10 30h44a22 22 0 0 1-44 0z" fill="var(--card)" stroke="var(--edge)" stroke-width="1.5"/><ellipse cx="32" cy="30" rx="19" ry="6" fill="${c}"/><path d="M40 27l12-13" stroke="var(--brand)" stroke-width="3" stroke-linecap="round"/></svg>`;
@@ -433,6 +449,67 @@
     ];
   };
 
+  // ---------- programa de alergénios ----------
+  // A REVER POR PROFISSIONAL DE SAÚDE: os limites vêm de config.js > allergens.
+  const ALG = Object.assign({ introducedAfter: 3, remindAfterDays: 7 }, CFG.allergens);
+  const allergenStatus = () => F.allergens.map(id => {
+    const hits = state.log.filter(e => F.byId.get(e.food).allergen === id).sort((a, b) => a.date.localeCompare(b.date));
+    const reacted = hits.some(e => e.reaction), n = hits.length, last = n ? hits[n - 1].date : '';
+    const state_ = reacted ? 'reaction' : n === 0 ? 'todo' : n < ALG.introducedAfter ? 'doing' : 'done';
+    const days = last ? Math.round((parse(todayIso()) - parse(last)) / 864e5) : 0;
+    return { id, n, last, days, state: state_, due: state_ === 'done' && days > ALG.remindAfterDays };
+  });
+  const goBack = to => el('button', { class: 'ghost noprint', style: 'align-self:flex-start', onclick: () => { tab = to; render(); window.scrollTo(0, 0); } }, '‹ ' + t()[TAB_LABEL[to]]);
+  const viewAllergens = () => {
+    const list = allergenStatus(), next = list.find(x => x.state === 'doing') || list.find(x => x.state === 'todo');
+    return [
+      goBack('progress'),
+      el('div', { class: 'hello' }, el('h1', {}, t().algTitle), el('p', { class: 'muted', style: 'margin-top:6px' }, t().algIntro)),
+      el('div', { class: 'card watch' }, el('p', {}, t().algBefore), el('p', { class: 'fine', style: 'margin-top:8px' }, t().algEmergency)),
+      list.map(x => el('div', { class: 'card alg ' + x.state + (x.due ? ' due' : '') },
+        el('div', { class: 'alghead' }, el('h2', {}, t().allergenName[x.id]), el('span', { class: 'badge st-' + x.state }, t().algState[x.state])),
+        next && next.id === x.id && el('p', { class: 'eyebrow' }, t().algNext),
+        el('p', { class: 'algstep' }, x.due ? t().algDue(x.days) : t().algStep[x.state]),
+        (x.state === 'doing' || x.state === 'done') && el('div', { class: 'steps3', role: 'img', 'aria-label': t().algCount(Math.min(x.n, ALG.introducedAfter), ALG.introducedAfter) },
+          Array.from({ length: ALG.introducedAfter }, (_, i) => el('i', { class: i < x.n ? 'on' : '' })),
+          el('span', { class: 'muted' }, t().algCount(Math.min(x.n, ALG.introducedAfter), ALG.introducedAfter) + (x.last ? ' · ' + t().lastOffered(fmtDate(x.last, { day: 'numeric', month: 'short' })) : ''))),
+        el('p', { class: 'fine', style: 'margin:10px 0 6px' }, t().algFoods),
+        el('div', { class: 'pills' }, F.foods.filter(f => f.allergen === x.id).map(f => foodCard(f, () => openFoodDetail(f)))))),
+      el('p', { class: 'fine' }, t().disclaimer)
+    ];
+  };
+
+  // ---------- guias ----------
+  const sourcesText = () => (CFG.content && CFG.content.sources || []).join(', ');
+  const openGuide = g => openSheet(sheetHead('', g.title), el('p', { class: 'muted' }, g.intro),
+    g.sections.map(sec => [el('h3', { class: 'sub' }, sec.h), (sec.p || []).map(x => el('p', { class: 'gp' }, x)),
+      sec.list ? el('ul', { class: 'ing' }, sec.list.map(x => el('li', {}, x))) : null]),
+    g.id === 'gagging' && CFG.links && CFG.links.firstAid && CFG.links.firstAid[state.lang]
+      ? el('div', { class: 'btnrow' }, el('a', { class: 'ghost linkbtn', href: CFG.links.firstAid[state.lang], rel: 'noopener', target: '_blank' }, t().firstAidLink)) : null,
+    el('p', { class: 'fine', style: 'margin-top:16px' }, t().guideSources(sourcesText())),
+    el('p', { class: 'fine', style: 'margin-top:6px' }, t().disclaimer));
+  const viewGuides = () => {
+    const guides = (window.DiaryGuides || {})[state.lang] || [];
+    return [goBack('today'),
+      el('div', { class: 'hello' }, el('h1', {}, t().guidesTitle), el('p', { class: 'muted', style: 'margin-top:6px' }, t().guidesHint)),
+      el('div', { class: 'rlist' }, guides.map(g => el('button', { class: 'recipe guide', onclick: () => openGuide(g) },
+        el('span', { class: 'rtxt' }, el('span', { class: 'rname' }, g.title), el('span', { class: 'muted' }, g.intro))))),
+      el('p', { class: 'fine' }, t().disclaimer)];
+  };
+
+  // ---------- páginas legais ----------
+  const openLegal = key => {
+    const page = ((window.DiaryLegal || {})[state.lang] || {})[key];
+    if (!page) return;
+    const L = Object.assign({ controller: CFG.brand.name, contact: '', updated: '' }, CFG.legal);
+    const fill = x => x.replace(/\{controller\}/g, L.controller).replace(/\{contact\}/g, L.contact || t().legalNoContact)
+      .replace(/\{date\}/g, L.updated ? fmtDate(L.updated, { day: 'numeric', month: 'long', year: 'numeric' }) : '—');
+    openSheet(sheetHead('', page.title), el('p', { class: 'badge warn', style: 'display:inline-block;margin-top:8px' }, t().legalDraft),
+      page.sections.map(sec => [el('h3', { class: 'sub' }, fill(sec.h)), sec.p.map(x => el('p', { class: 'gp' }, fill(x)))]));
+  };
+  const legalLinks = () => (window.DiaryLegal || {})[state.lang] ? el('div', { class: 'legallinks' }, [['privacy', 'legalPrivacy'], ['terms', 'legalTerms'], ['medical', 'legalMedical']].map(([k, label]) =>
+    el('button', { class: 'linkish', onclick: () => openLegal(k) }, t()[label]))) : null;
+
   // ---------- views ----------
   const viewToday = () => {
     const today = todayIso();
@@ -495,7 +572,15 @@
     const triedSet = new Set(state.log.map(e => e.food));
     const untried = F.foods.filter(x => !triedSet.has(x.id) && !x.allergen && !(x.min12 && (age === null || age < 12)));
     const dayNum = Math.floor(parse(today).getTime() / 864e5);
-    const suggestion = day === today && untried.length ? untried[dayNum % untried.length] : null;
+    // Três sugestões, de categorias diferentes, a rodar de dia para dia.
+    const nextFoods = [];
+    const core = ['veg', 'fruit', 'grain', 'protein']; // ervas, especiarias e gorduras não contam como "próximo alimento"
+    if (day === today) for (let k = 0; k < core.length && nextFoods.length < 3; k++) {
+      const pool = untried.filter(x => x.cat === core[(dayNum + k) % core.length]);
+      if (pool.length) nextFoods.push(pool[dayNum % pool.length]);
+    }
+    const due = allergenStatus().filter(x => x.due);
+    const guides = (window.DiaryGuides || {})[state.lang];
     const pool = hasRecipes() && day === today ? eligible() : [];
     const daily = pool.length ? pool[dayNum % pool.length] : null;
 
@@ -539,15 +624,19 @@
         entries.length ? entries.map(e => entryRow(e, false)) : el('p', { class: 'muted' }, t().emptyDay),
         note && el('button', { class: 'daynote', 'aria-label': t().editNote, onclick: openNote }, icon('note', 18), el('span', {}, note)),
         !entries.length && el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => openPicker(day) }, t().addFood))),
-      suggestion && el('div', { class: 'card suggest' },
-        foodArt(suggestion, 'ethumb'),
-        el('div', { style: 'flex:1;min-width:0' }, el('p', { class: 'eyebrow' }, t().suggestTitle), el('h2', {}, fname(suggestion))),
-        el('button', { class: 'primary', onclick: () => openLogForm(suggestion, day) }, t().logShort)),
+      due.length ? el('button', { class: 'card nudge', onclick: () => { tab = 'allergens'; render(); window.scrollTo(0, 0); } },
+        el('span', { class: 'eyebrow' }, t().algTitle), el('span', { class: 'rname' }, t().algDueCard(due.length)),
+        el('span', { class: 'muted' }, due.map(x => t().allergenName[x.id]).join(', '))) : null,
+      nextFoods.length ? el('div', { class: 'card' }, el('h2', { style: 'margin-bottom:2px' }, t().nextFoods), el('p', { class: 'muted', style: 'margin-bottom:12px' }, t().nextFoodsHint),
+        el('div', { class: 'tiles three' }, nextFoods.map(foodTile))) : null,
       planned.length ? el('div', { class: 'card' }, el('h2', {}, t().planDay), el('div', { class: 'rlist' }, planned.map(recipeRow))) : null,
       daily && !planned.length && el('button', { class: 'card daily', onclick: () => openRecipe(daily) },
         recipeArt(daily, 'thumb'),
         el('span', { class: 'rtxt' }, el('span', { class: 'eyebrow' }, t().recipeOfDay), el('span', { class: 'rname' }, rx(daily).t),
           el('span', { class: 'muted' }, recipeMeta(daily)), daily.kcal && el('span', { class: 'kcal' }, kcalLine(daily)))),
+      guides ? el('button', { class: 'card nudge', onclick: () => { tab = 'guides'; render(); window.scrollTo(0, 0); } },
+        el('span', { class: 'eyebrow' }, t().guidesTitle), el('span', { class: 'rname' }, t().guidesHint),
+        el('span', { class: 'muted' }, guides.map(g => g.title).slice(0, 3).join(' · '))) : null,
       el('div', { class: 'card tip' }, el('p', {}, tip)),
       partner && el('div', { class: 'card partner' }, el('p', {}, partner.text[state.lang]), el('a', { href: partner.url, rel: 'noopener' }, partner.name)),
       el('button', { class: 'fab', 'aria-label': t().add, onclick: openAdd }, icon('plus', 26))
@@ -629,7 +718,8 @@
         const last = hits.reduce((m, e) => e.date > m ? e.date : m, '');
         return el('div', { class: hits.length ? 'done' : '' }, t().allergenName[a],
           el('small', {}, hits.length ? `${t().lastOffered(short(last))} · ${hits.length}×` : t().pending));
-      })), el('p', { class: 'fine', style: 'margin-top:12px' }, t().allergenKeep)),
+      })), el('p', { class: 'fine', style: 'margin-top:12px' }, t().allergenKeep),
+        el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: () => { tab = 'allergens'; render(); window.scrollTo(0, 0); } }, t().algOpen))),
       retry.length ? el('div', { class: 'card' }, el('h2', {}, t().retryTitle),
         el('div', { class: 'pills' }, retry.map(x => el('button', { class: 'chip', onclick: () => openFoodDetail(x) }, fname(x)))),
         el('p', { class: 'fine', style: 'margin-top:12px' }, t().retryNote)) : null,
@@ -672,6 +762,11 @@
             el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
             el('button', { class: 'danger', onclick: () => { state = clean({ lang: state.lang, onboarded: true }); save(); closeSheet(); render(); } }, t().clearData))
         ) }, t().clearData))),
+      el('div', { class: 'card' }, el('h2', {}, t().aboutTitle),
+        el('p', { class: 'muted' }, t().aboutText),
+        el('p', { class: 'muted', style: 'margin-top:6px' }, CFG.content && CFG.content.reviewedBy ? t().aboutReviewed(CFG.content.reviewedBy, CFG.content.reviewedOn ? fmtDate(CFG.content.reviewedOn, { day: 'numeric', month: 'long', year: 'numeric' }) : '') : t().aboutNotReviewed),
+        el('p', { class: 'muted', style: 'margin-top:6px' }, t().aboutSources(sourcesText()))),
+      (window.DiaryLegal || {})[state.lang] ? el('div', { class: 'card' }, el('h2', {}, t().legalTitle), legalLinks()) : null,
       SUB.enabled && el('div', { class: 'card' }, el('h2', {}, t().subscription),
         el('p', { class: 'muted' }, !SUB.enforce ? t().subTest : entitled ? t().subActive : t().subFree),
         el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: openPaywall }, t().subSee))),
@@ -736,6 +831,8 @@
 
   // ---------- shell ----------
   let shown = '';
+  const TAB_LABEL = { today: 'tabToday', progress: 'tabProgress' };
+  const EXTRA = { report: [viewReport, 'progress', 'reportOpen'], allergens: [viewAllergens, 'progress', 'algTitle'], guides: [viewGuides, 'today', 'guidesTitle'] };
   const ALL_TABS = [['today', 'tabToday', viewToday], ['foods', 'tabFoods', viewFoods], ['recipes', 'tabRecipes', viewRecipes], ['progress', 'tabProgress', viewProgress], ['settings', 'tabSettings', viewSettings]];
   let TABS = ALL_TABS;
   const render = () => {
@@ -743,14 +840,14 @@
     TABS = ALL_TABS.filter(x => x[0] !== 'recipes' || hasRecipes());
     if (tab === 'recipes' && !hasRecipes()) tab = 'today';
     document.documentElement.lang = state.lang;
-    document.title = welcome || tab === 'today' ? CFG.brand.name : `${t()[tab === 'report' ? 'reportOpen' : TABS.find(x => x[0] === tab)[1]]} · ${CFG.brand.name}`;
+    document.title = welcome || tab === 'today' ? CFG.brand.name : `${t()[EXTRA[tab] ? EXTRA[tab][2] : TABS.find(x => x[0] === tab)[1]]} · ${CFG.brand.name}`;
     $('langQuick').replaceWith(Object.assign(langSelect(), { id: 'langQuick' }));
     document.body.classList.toggle('bare', welcome);
     $('tabs').hidden = welcome;
-    const current = tab === 'report' ? 'progress' : tab;
+    const current = EXTRA[tab] ? EXTRA[tab][1] : tab;
     $('tabs').replaceChildren(...TABS.map(([id, key]) => el('button', { 'aria-current': current === id ? 'page' : null,
       onclick: () => { tab = id; render(); window.scrollTo(0, 0); } }, icon(id), t()[key])));
-    const view = welcome ? viewWelcome : tab === 'report' ? viewReport : TABS.find(x => x[0] === tab)[2];
+    const view = welcome ? viewWelcome : EXTRA[tab] ? EXTRA[tab][0] : TABS.find(x => x[0] === tab)[2];
     const main = $('view'), key = welcome ? 'welcome' : tab;
     main.replaceChildren(...view().flat(Infinity).filter(Boolean));
     if (key !== shown) { shown = key; main.classList.remove('enter'); void main.offsetWidth; main.classList.add('enter'); }
