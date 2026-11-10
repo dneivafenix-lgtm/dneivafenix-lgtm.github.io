@@ -235,10 +235,12 @@
             document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
           } }, t().exportData),
           el('button', { class: 'ghost', onclick: () => file.click() }, t().importData), file),
-        el('div', { class: 'btnrow' }, el('button', { class: 'danger', onclick: () => {
-          if (!confirm(t().confirmClear)) return;
-          state = clean({ lang: state.lang }); save(); render();
-        } }, t().clearData))),
+        el('div', { class: 'btnrow' }, el('button', { class: 'danger', onclick: () => openSheet(
+          sheetHead('', t().clearData), el('p', { style: 'margin-top:10px' }, t().confirmClear),
+          el('div', { class: 'btnrow' },
+            el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
+            el('button', { class: 'danger', onclick: () => { state = clean({ lang: state.lang }); save(); closeSheet(); render(); } }, t().clearData))
+        ) }, t().clearData))),
       el('p', { class: 'muted', style: 'margin-top:16px' }, t().disclaimer)
     ];
   };
