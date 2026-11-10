@@ -205,3 +205,33 @@ Object.assign(window.DiaryI18n.fr, {
   allergenKeep: "Une fois introduit sans réaction, l'allergène est généralement maintenu dans l'alimentation. Vérifiez la fréquence avec le pédiatre.",
   retryTitle: 'À proposer de nouveau', retryNote: "Refuser au début est normal : beaucoup de bébés ont besoin de plusieurs essais."
 });
+
+// Receitas.
+Object.assign(window.DiaryI18n.pt, {
+  tabRecipes: 'Receitas', recipeOfDay: 'Receita do dia', recipesAll: 'Todas', stage: n => `${n}+ meses`, searchRecipes: 'Procurar receita…',
+  ingredients: 'Ingredientes', howTo: 'Como fazer', recipeFoods: 'Alimentos desta receita', recipeFoodsHint: 'Toque num alimento para o registar no dia de hoje.',
+  recipesWith: 'Receitas com este alimento', recipesEmpty: 'Nenhuma receita encontrada.',
+  recipeNote: 'Adapte a textura à fase do bebé e siga as orientações do pediatra sobre a introdução de novos alimentos.',
+  bookTitle: 'Mais receitas no livro «A Primeira Colher»', bookText: 'Livro digital com receitas dos 6 aos 12 meses, organizadas por fase.', bookCta: 'Ver o livro'
+});
+Object.assign(window.DiaryI18n.en, {
+  tabRecipes: 'Recipes', recipeOfDay: 'Recipe of the day', recipesAll: 'All', stage: n => `${n}+ months`, searchRecipes: 'Search recipes…',
+  ingredients: 'Ingredients', howTo: 'Method', recipeFoods: 'Foods in this recipe', recipeFoodsHint: 'Tap a food to log it for today.',
+  recipesWith: 'Recipes with this food', recipesEmpty: 'No recipes found.',
+  recipeNote: "Adapt the texture to your baby's stage and follow your paediatrician's guidance on new foods.",
+  bookTitle: 'More recipes in the book', bookText: 'A digital book with recipes from 6 to 12 months, organised by stage.', bookCta: 'See the book'
+});
+Object.assign(window.DiaryI18n.es, {
+  tabRecipes: 'Recetas', recipeOfDay: 'Receta del día', recipesAll: 'Todas', stage: n => `${n}+ meses`, searchRecipes: 'Buscar receta…',
+  ingredients: 'Ingredientes', howTo: 'Preparación', recipeFoods: 'Alimentos de esta receta', recipeFoodsHint: 'Toca un alimento para registrarlo hoy.',
+  recipesWith: 'Recetas con este alimento', recipesEmpty: 'No se encontró ninguna receta.',
+  recipeNote: 'Adapta la textura a la etapa del bebé y sigue las indicaciones del pediatra sobre los alimentos nuevos.',
+  bookTitle: 'Más recetas en el libro', bookText: 'Libro digital con recetas de los 6 a los 12 meses, organizadas por etapa.', bookCta: 'Ver el libro'
+});
+Object.assign(window.DiaryI18n.fr, {
+  tabRecipes: 'Recettes', recipeOfDay: 'Recette du jour', recipesAll: 'Toutes', stage: n => `${n}+ mois`, searchRecipes: 'Chercher une recette…',
+  ingredients: 'Ingrédients', howTo: 'Préparation', recipeFoods: 'Aliments de cette recette', recipeFoodsHint: "Touchez un aliment pour le noter aujourd'hui.",
+  recipesWith: 'Recettes avec cet aliment', recipesEmpty: 'Aucune recette trouvée.',
+  recipeNote: "Adaptez la texture à l'étape de bébé et suivez les conseils du pédiatre sur les nouveaux aliments.",
+  bookTitle: 'Plus de recettes dans le livre', bookText: 'Livre numérique avec des recettes de 6 à 12 mois, classées par étape.', bookCta: 'Voir le livre'
+});

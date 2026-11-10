@@ -1,5 +1,5 @@
 (() => {
-  const CFG = window.DiaryConfig, I18N = window.DiaryI18n, F = window.DiaryFoods;
+  const CFG = window.DiaryConfig, I18N = window.DiaryI18n, F = window.DiaryFoods, R = window.DiaryRecipes;
   const KEY = 'pn-food-diary';
   const $ = id => document.getElementById(id);
 
@@ -28,7 +28,8 @@
   const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
   const todayIso = () => iso(new Date());
-  let tab = 'today', day = todayIso(), query = '', cat = 'all';
+  let tab = 'today', day = todayIso(), query = '', cat = 'all', rquery = '', rstage = null;
+  const hasRecipes = () => !!R && R.lang === state.lang;
 
   const t = () => I18N[state.lang];
   const fname = food => F.name(food, state.lang);
@@ -62,7 +63,8 @@
     progress: '<path d="M5 20V11M12 20V4M19 20v-6"/>',
     settings: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',
     trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
-    check: '<path d="M5 12l4 4 10-10"/>'
+    check: '<path d="M5 12l4 4 10-10"/>',
+    recipes: '<path d="M4 13h16a8 8 0 0 1-16 0z"/><path d="M15 9l5-5"/>'
   };
   const icon = (name, size = 22) => {
     const n = el('span', { class: 'ico', 'aria-hidden': 'true' });
@@ -115,12 +117,14 @@
 
   const openFoodDetail = food => {
     const hist = state.log.filter(e => e.food === food.id).sort((a, b) => b.date.localeCompare(a.date));
+    const withFood = hasRecipes() ? R.list.filter(r => r.foods.includes(food.id)) : [];
     openSheet(
       sheetHead('', fname(food)),
       el('p', { class: 'muted' }, `${t().cat[food.cat]} · ${hist.length ? t().triedTimes(hist.length) : t().notTried}`),
       foodInfo(food),
       el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => openLogForm(food, todayIso()) }, t().logThis)),
-      hist.length ? [el('h3', { class: 'sub' }, t().history), el('div', { class: 'card' }, hist.map(e => entryRow(e, true)))] : null);
+      hist.length ? [el('h3', { class: 'sub' }, t().history), el('div', { class: 'card' }, hist.map(e => entryRow(e, true)))] : null,
+      withFood.length ? [el('h3', { class: 'sub' }, t().recipesWith), el('div', { class: 'rlist' }, withFood.map(recipeRow))] : null);
   };
 
   const openPicker = date => {
@@ -159,6 +163,43 @@
       } }, icon('trash', 20)));
   };
 
+  // ---------- receitas ----------
+  const recipeMeta = r => [t().stage(r.min), r.tempo, r.por].join(' · ');
+  const openRecipe = r => openSheet(
+    sheetHead('', r.t),
+    el('p', { class: 'muted' }, recipeMeta(r)),
+    el('h3', { class: 'sub' }, t().ingredients), el('ul', { class: 'ing' }, r.ing.map(x => el('li', {}, x))),
+    el('h3', { class: 'sub' }, t().howTo), el('ol', { class: 'steps' }, r.passos.map(x => el('li', {}, x))),
+    r.foods.length ? [el('h3', { class: 'sub' }, t().recipeFoods), el('p', { class: 'fine' }, t().recipeFoodsHint),
+      el('div', { class: 'pills' }, r.foods.map(id => F.byId.get(id)).map(x => foodCard(x, () => openLogForm(x, todayIso()))))] : null,
+    el('p', { class: 'fine', style: 'margin-top:16px' }, t().recipeNote));
+  const recipeRow = r => el('button', { class: 'recipe', onclick: () => openRecipe(r) },
+    el('span', { class: 'rname' }, r.t), el('span', { class: 'muted' }, recipeMeta(r)));
+  // Fase do bebé: a maior fase que já atingiu (6+ por omissão).
+  const babyStage = () => { const a = ageMonths(); return a === null ? null : ([...R.stages].reverse().find(m => a >= m) || R.stages[0]); };
+
+  const viewRecipes = () => {
+    if (rstage === null) rstage = babyStage() || 0;
+    const box = el('div', { class: 'rlist' });
+    const fill = () => {
+      const items = R.list.filter(r => (!rstage || r.min === rstage) && r.t.toLowerCase().includes(rquery.toLowerCase()));
+      box.replaceChildren(...(items.length ? items.map(recipeRow) : [el('p', { class: 'muted' }, t().recipesEmpty)]));
+    };
+    const opts = [0, ...R.stages];
+    const chips = el('div', { class: 'chips' }, opts.map(m => el('button', { class: 'chip', 'aria-pressed': String(rstage === m), onclick: () => {
+      rstage = m; [...chips.children].forEach((b, i) => b.setAttribute('aria-pressed', String(opts[i] === m))); fill();
+    } }, m ? t().stage(m) : t().recipesAll)));
+    fill();
+    return [
+      el('div', { class: 'hello' }, el('h1', {}, t().tabRecipes)),
+      el('input', { class: 'search', type: 'search', value: rquery, placeholder: t().searchRecipes, 'aria-label': t().searchRecipes, oninput: e => { rquery = e.target.value; fill(); } }),
+      chips, box,
+      el('div', { class: 'card book' }, el('h2', {}, t().bookTitle), el('p', {}, t().bookText),
+        el('a', { href: R.book.url, rel: 'noopener' }, t().bookCta)),
+      el('p', { class: 'fine' }, t().recipeNote)
+    ];
+  };
+
   // ---------- views ----------
   const viewToday = () => {
     const today = todayIso();
@@ -184,7 +225,10 @@
     // Sugestão: um alimento ainda não provado. Alergénios ficam de fora, porque essa decisão é dos pais.
     const triedSet = new Set(state.log.map(e => e.food));
     const untried = F.foods.filter(x => !triedSet.has(x.id) && !x.allergen && !(x.min12 && (age === null || age < 12)));
-    const suggestion = day === today && untried.length ? untried[Math.floor(parse(today).getTime() / 864e5) % untried.length] : null;
+    const dayNum = Math.floor(parse(today).getTime() / 864e5);
+    const suggestion = day === today && untried.length ? untried[dayNum % untried.length] : null;
+    const pool = hasRecipes() && day === today ? R.list.filter(r => r.min <= Math.max(age === null ? 6 : age, 6)) : [];
+    const daily = pool.length ? pool[dayNum % pool.length] : null;
 
     return [
       el('div', { class: 'hello' },
@@ -209,6 +253,8 @@
       suggestion && el('div', { class: 'card suggest' },
         el('div', {}, el('p', { class: 'eyebrow' }, t().suggestTitle), el('h2', {}, fname(suggestion))),
         el('button', { class: 'primary', onclick: () => openLogForm(suggestion, day) }, t().logShort)),
+      daily && el('button', { class: 'card daily', onclick: () => openRecipe(daily) },
+        el('span', { class: 'eyebrow' }, t().recipeOfDay), el('span', { class: 'rname' }, daily.t), el('span', { class: 'muted' }, recipeMeta(daily))),
       el('div', { class: 'card tip' }, el('p', {}, tip)),
       partner && el('div', { class: 'card partner' }, el('p', {}, partner.text[state.lang]), el('a', { href: partner.url, rel: 'noopener' }, partner.name))
     ];
@@ -383,9 +429,12 @@
 
   // ---------- shell ----------
   let shown = '';
-  const TABS = [['today', 'tabToday', viewToday], ['foods', 'tabFoods', viewFoods], ['progress', 'tabProgress', viewProgress], ['settings', 'tabSettings', viewSettings]];
+  const ALL_TABS = [['today', 'tabToday', viewToday], ['foods', 'tabFoods', viewFoods], ['recipes', 'tabRecipes', viewRecipes], ['progress', 'tabProgress', viewProgress], ['settings', 'tabSettings', viewSettings]];
+  let TABS = ALL_TABS;
   const render = () => {
     const welcome = !state.onboarded;
+    TABS = ALL_TABS.filter(x => x[0] !== 'recipes' || hasRecipes());
+    if (tab === 'recipes' && !hasRecipes()) tab = 'today';
     document.documentElement.lang = state.lang;
     document.title = welcome || tab === 'today' ? CFG.brand.name : `${t()[tab === 'report' ? 'reportOpen' : TABS.find(x => x[0] === tab)[1]]} · ${CFG.brand.name}`;
     $('langQuick').replaceWith(Object.assign(langSelect(), { id: 'langQuick' }));
