@@ -58,6 +58,7 @@
   const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
   const todayIso = () => iso(new Date());
+  let calMonth = null; // mês aberto no calendário (AAAA-MM); null = o mês do dia escolhido
   let tab = 'today', day = todayIso(), query = '', rquery = '', rstage = null, rseg = 'list', planOffset = 0;
   // Receitas: originais em português; os outros idiomas vêm dos ficheiros recipes.<idioma>.js.
   const RX = window.DiaryRecipesI18n || {};
@@ -408,18 +409,31 @@
   const viewToday = () => {
     const today = todayIso();
     const entries = state.log.filter(e => e.date === day);
-    const go = d => { day = d; render(); };
-    const shiftWeek = n => { const d = parse(day); d.setDate(d.getDate() + n * 7); const v = iso(d); go(v > today ? today : v); };
+    const go = d => { day = d; calMonth = null; render(); };
     const age = ageMonths();
     const tips = t().tips, tip = tips[parse(day).getDate() % tips.length];
     const partner = CFG.partner && CFG.partner.enabled && CFG.partner.text[state.lang] ? CFG.partner : null;
     const long = d => fmtDate(d, { weekday: 'long', day: 'numeric', month: 'long' });
+    const planned = hasRecipes() ? planFor(day) : [];
 
-    // Semana (segunda a domingo) do dia que está aberto.
-    const monday = parse(day); monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
-    const week = Array.from({ length: 7 }, (_, i) => { const d = new Date(monday); d.setDate(monday.getDate() + i); return iso(d); });
-    const logged = new Set(state.log.map(e => e.date));
+    // Calendário do mês: cada dia mostra se houve registos e se houve suspeita de reação.
+    const [cy, cm] = (calMonth || day.slice(0, 7)).split('-').map(Number);
+    const lead = (new Date(cy, cm - 1, 1).getDay() + 6) % 7, daysInMonth = new Date(cy, cm, 0).getDate();
+    const shiftMonth = n => { calMonth = iso(new Date(cy, cm - 1 + n, 1)).slice(0, 7); render(); };
+    const perDay = new Map(), firstSeen = new Map();
+    for (const e of state.log) {
+      const v = perDay.get(e.date) || { n: 0, reaction: false }; v.n++; v.reaction = v.reaction || e.reaction; perDay.set(e.date, v);
+      if (!firstSeen.has(e.food) || e.date < firstSeen.get(e.food)) firstSeen.set(e.food, e.date);
+    }
     const narrow = new Intl.DateTimeFormat(state.lang, { weekday: 'narrow' });
+    const weekdays = Array.from({ length: 7 }, (_, i) => narrow.format(new Date(2024, 0, 1 + i))); // 1 de janeiro de 2024 foi segunda-feira
+    const monthTitle = new Intl.DateTimeFormat(state.lang, { month: 'long', year: 'numeric' }).format(new Date(cy, cm - 1, 1));
+    const cell = n => {
+      const d = `${cy}-${String(cm).padStart(2, '0')}-${String(n).padStart(2, '0')}`, info = perDay.get(d);
+      return el('button', { class: 'cday' + (info ? ' has' : '') + (info && info.reaction ? ' react' : '') + (d === today ? ' today' : ''),
+        'aria-pressed': String(d === day), disabled: d > today, 'aria-label': t().calDay(long(d), info ? info.n : 0), onclick: () => go(d) }, String(n));
+    };
+    const fresh = entries.filter(e => firstSeen.get(e.food) === day).length, reacted = entries.filter(e => e.reaction).length;
 
     // Alergénios oferecidos nos últimos dois dias que ainda não têm resposta.
     const since = new Date(); since.setDate(since.getDate() - 2);
@@ -434,18 +448,22 @@
     const pool = hasRecipes() && day === today ? eligible() : [];
     const daily = pool.length ? pool[dayNum % pool.length] : null;
 
-    const planned = hasRecipes() ? planFor(day) : [];
     return [
       babySwitch(),
       el('div', { class: 'hello' },
         el('p', { class: 'muted' }, state.baby.name && age !== null ? t().ageLine(state.baby.name, t().ageMonths(age))
           : state.baby.name || (age !== null ? t().ageMonths(age) : t().setupHint)),
         el('h1', {}, day === today ? t().today : long(day))),
-      el('div', { class: 'week' },
-        el('button', { class: 'wnav', 'aria-label': t().prevWeek, onclick: () => shiftWeek(-1) }, '‹'),
-        week.map(d => el('button', { class: 'wday' + (logged.has(d) ? ' has' : ''), 'aria-pressed': String(d === day), disabled: d > today,
-          'aria-label': long(d), onclick: () => go(d) }, el('span', {}, narrow.format(parse(d))), el('b', {}, String(parse(d).getDate())))),
-        el('button', { class: 'wnav', 'aria-label': t().nextWeek, disabled: week[6] >= today, onclick: () => shiftWeek(1) }, '›')),
+      el('div', { class: 'card cal' },
+        el('div', { class: 'calhead' },
+          el('button', { 'aria-label': t().prevMonth, onclick: () => shiftMonth(-1) }, '‹'),
+          el('strong', {}, monthTitle),
+          day !== today && el('button', { class: 'caltoday', onclick: () => go(today) }, t().today),
+          el('button', { 'aria-label': t().nextMonth, disabled: `${cy}-${String(cm).padStart(2, '0')}` >= today.slice(0, 7), onclick: () => shiftMonth(1) }, '›')),
+        el('div', { class: 'calgrid' },
+          weekdays.map(w => el('span', { class: 'wd', 'aria-hidden': 'true' }, w)),
+          Array.from({ length: lead }, () => el('span', {})),
+          Array.from({ length: daysInMonth }, (_, i) => cell(i + 1)))),
       pending.map(e => el('div', { class: 'card watch' },
         el('p', { class: 'eyebrow' }, t().checkEyebrow),
         el('h2', {}, t().checkTitle(fname(F.byId.get(e.food)))),
@@ -454,6 +472,13 @@
           el('button', { class: 'ghost', onclick: () => answer(e, false) }, t().checkNone),
           el('button', { class: 'danger', onclick: () => answer(e, true) }, t().checkYes)))),
       el('div', { class: 'card' },
+        el('p', { class: 'eyebrow daytitle' }, long(day)),
+        el('h2', {}, t().daySummary),
+        (entries.length || planned.length) ? el('div', { class: 'sumchips' },
+          entries.length ? el('span', { class: 'sumchip' }, t().sumFoods(entries.length)) : null,
+          fresh ? el('span', { class: 'sumchip new' }, t().sumNew(fresh)) : null,
+          reacted ? el('span', { class: 'sumchip warn' }, t().sumReactions(reacted)) : null,
+          planned.length ? el('span', { class: 'sumchip' }, t().sumPlanned(planned.length)) : null) : null,
         entries.length ? entries.map(e => entryRow(e, false)) : el('p', { class: 'muted' }, t().emptyDay),
         el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => openPicker(day) }, t().addFood))),
       suggestion && el('div', { class: 'card suggest' },
