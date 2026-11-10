@@ -5,5 +5,5 @@ window.DiaryConfig = {
   languages: ['pt', 'en', 'es', 'fr'],
   fallbackLanguage: 'en',
   // Cartão da loja: só aparece nos idiomas indicados (onde a loja entrega).
-  shop: { enabled: true, url: '../index.html#colecao', languages: ['pt'] }
+  shop: { enabled: true, url: 'https://petitnuvem.com/', languages: ['pt'] }
 };
