@@ -1,5 +1,5 @@
 // Offline: serve da rede quando há ligação, da cache quando não há.
-const CACHE = 'pn-diary-v7';
+const CACHE = 'pn-diary-v8';
 const FILES = ['./', 'index.html', 'style.css', 'config.js', 'i18n.js', 'foods.js', 'recipes.js', 'recipe-photos.js', 'recipes.en.js', 'recipes.es.js', 'recipes.fr.js', 'app.js', 'icon.svg', 'manifest.webmanifest'];
 self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener('activate', e => e.waitUntil(

@@ -196,6 +196,36 @@
       } }, icon('trash', 20)));
   };
 
+  // ---------- subscrição ----------
+  // Quem pagou só pode ser confirmado por um servidor. Até existir, entitled fica a false e,
+  // com enforce desligado em config.js, tudo está desbloqueado (modo de teste).
+  const SUB = Object.assign({ enabled: false, enforce: false }, CFG.subscription);
+  let entitled = false;
+  const isPremium = () => !SUB.enabled || !SUB.enforce || entitled;
+  const locked = r => SUB.enabled && r.min > SUB.freeStage;
+  const ptag = () => SUB.enabled ? el('span', { class: 'ptag' }, t().premium) : null;
+  const money = n => new Intl.NumberFormat(state.lang === 'pt' ? 'pt-PT' : state.lang, { style: 'currency', currency: SUB.currency }).format(n);
+  const openPaywall = () => {
+    let pick = 'yearly';
+    const saving = Math.round((1 - SUB.yearly / (SUB.monthly * 12)) * 100);
+    const opt = (id, name, price, badge) => el('button', { class: 'planopt', 'aria-pressed': String(pick === id), onclick: e => {
+      pick = id; [...plans.children].forEach(b => b.setAttribute('aria-pressed', String(b === e.currentTarget)));
+    } }, el('span', {}, el('b', {}, name), el('span', { class: 'muted' }, price)), badge && el('span', { class: 'ptag' }, badge));
+    const plans = el('div', { class: 'plans', role: 'group', 'aria-label': t().subscription },
+      opt('yearly', t().planYearly, t().perYear(money(SUB.yearly)), t().subSave(saving)),
+      opt('monthly', t().planMonthly, t().perMonth(money(SUB.monthly))));
+    openSheet(sheetHead('', t().subTitle), el('p', { class: 'muted' }, t().subLead),
+      el('ul', { class: 'points', style: 'margin-top:16px' }, t().subPoints.map(x => el('li', {}, icon('check', 16), el('span', {}, x)))),
+      plans,
+      el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => {
+        const url = SUB.checkout && SUB.checkout[pick];
+        if (url) location.href = url; else toast(t().subSoon);
+      } }, t().subStart)),
+      el('p', { class: 'fine', style: 'margin-top:10px;text-align:center' }, t().trialNote(SUB.trialDays)),
+      !SUB.enforce && el('p', { class: 'info' }, t().subTest));
+  };
+  const premium = fn => (...a) => isPremium() ? fn(...a) : openPaywall();
+
   // ---------- receitas ----------
   const recipeMeta = r => [t().stage(r.min), rx(r).tempo, rx(r).por].join(' · ');
   const kcalLine = r => r.kcal ? t().kcal[r.per](r.kcal) : '';
@@ -226,9 +256,9 @@
       el('div', { class: 'pills' }, r.foods.map(id => F.byId.get(id)).map(x => foodCard(x, () => openLogForm(x, todayIso()))))] : null,
     el('p', { class: 'fine', style: 'margin-top:16px' }, t().recipeNote),
     r.kcal && el('p', { class: 'fine', style: 'margin-top:8px' }, t().kcalNote));
-  const recipeRow = r => el('button', { class: 'recipe', onclick: () => openRecipe(r) },
+  const recipeRow = r => el('button', { class: 'recipe', onclick: () => locked(r) && !isPremium() ? openPaywall() : openRecipe(r) },
     recipeArt(r, 'thumb'),
-    el('span', { class: 'rtxt' }, el('span', { class: 'rname' }, rx(r).t), el('span', { class: 'muted' }, recipeMeta(r)),
+    el('span', { class: 'rtxt' }, locked(r) && ptag(), el('span', { class: 'rname' }, rx(r).t), el('span', { class: 'muted' }, recipeMeta(r)),
       r.kcal && el('span', { class: 'kcal' }, kcalLine(r))));
   // Fase do bebé: a maior fase que já atingiu (6+ por omissão).
   const babyStage = () => { const a = ageMonths(); return a === null ? null : ([...R.stages].reverse().find(m => a >= m) || R.stages[0]); };
@@ -261,7 +291,7 @@
     return Array.from({ length: 7 }, (_, i) => { const d = new Date(m); d.setDate(m.getDate() + i); return iso(d); });
   };
   const dayLong = d => fmtDate(d, { weekday: 'long', day: 'numeric', month: 'long' });
-  const eligible = () => { const a = ageMonths(), max = Math.max(a === null ? 6 : a, 6); return R.list.filter(r => r.min <= max); };
+  const eligible = () => { const a = ageMonths(), max = Math.max(a === null ? 6 : a, 6); return R.list.filter(r => r.min <= max && (isPremium() || !locked(r))); };
   const planFor = d => (state.baby.plan[d] || []).map(id => R.list[id]).filter(Boolean);
   const addToPlan = (d, id) => { const p = state.baby.plan; p[d] = p[d] || []; if (!p[d].includes(id) && p[d].length < 8) p[d].push(id); save(); };
   const removeFromPlan = (d, id) => { const p = state.baby.plan; p[d] = (p[d] || []).filter(x => x !== id); if (!p[d].length) delete p[d]; save(); };
@@ -332,7 +362,7 @@
     const head = [
       el('div', { class: 'hello' }, el('h1', {}, t().tabRecipes)),
       el('div', { class: 'chips seg', role: 'group' }, segs.map(([id, label]) =>
-        el('button', { class: 'chip', 'aria-pressed': String(rseg === id), onclick: () => { rseg = id; render(); } }, label)))
+        el('button', { class: 'chip', 'aria-pressed': String(rseg === id), onclick: () => { if (id !== 'list' && !isPremium()) return openPaywall(); rseg = id; render(); } }, label)))
     ];
     if (rseg === 'plan') return [...head, viewPlan()];
     if (rseg === 'shop') return [...head, viewShop()];
@@ -383,7 +413,7 @@
     const untried = F.foods.filter(x => !triedSet.has(x.id) && !x.allergen && !(x.min12 && (age === null || age < 12)));
     const dayNum = Math.floor(parse(today).getTime() / 864e5);
     const suggestion = day === today && untried.length ? untried[dayNum % untried.length] : null;
-    const pool = hasRecipes() && day === today ? R.list.filter(r => r.min <= Math.max(age === null ? 6 : age, 6)) : [];
+    const pool = hasRecipes() && day === today ? eligible() : [];
     const daily = pool.length ? pool[dayNum % pool.length] : null;
 
     const planned = hasRecipes() ? planFor(day) : [];
@@ -479,7 +509,7 @@
         el('div', { class: 'medals' }, CFG.milestones.map(m => el('span', { class: 'medal' + (tried.size >= m ? ' on' : '') }, String(m))))),
       el('div', { class: 'stats' }, [[state.log.length, t().statLogs], [streak, t().statStreak], [days.size, t().statDays]].map(([n, label]) =>
         el('div', { class: 'card stat' }, el('b', {}, String(n)), el('span', {}, label(n))))),
-      el('button', { class: 'ghost', onclick: () => { tab = 'report'; render(); window.scrollTo(0, 0); } }, t().reportOpen),
+      el('button', { class: 'ghost withtag', onclick: premium(() => { tab = 'report'; render(); window.scrollTo(0, 0); }) }, t().reportOpen, ptag()),
       el('div', { class: 'card' }, el('h2', {}, t().byCategory), F.categories.map(c => {
         const all = F.foods.filter(x => x.cat === c), done = all.filter(x => tried.has(x.id)).length;
         return [el('div', { class: 'row' }, el('span', {}, t().cat[c]), el('span', { class: 'muted' }, `${done} / ${all.length}`)),
@@ -518,7 +548,7 @@
         el('label', { class: 'field' }, t().birthDate, el('input', { type: 'date', value: state.baby.birth, max: todayIso(),
           onchange: e => { state.baby.birth = e.target.value; rstage = null; save(); } })),
         el('div', { class: 'btnrow' },
-          state.babies.length < 6 && el('button', { class: 'ghost', onclick: openAddBaby }, t().addBaby),
+          state.babies.length < 6 && el('button', { class: 'ghost withtag', onclick: premium(openAddBaby) }, t().addBaby, ptag()),
           state.babies.length > 1 && el('button', { class: 'danger', onclick: openRemoveBaby }, t().removeBaby))),
       el('div', { class: 'card' }, el('h2', {}, t().data), el('p', { class: 'muted' }, t().dataNote),
         el('div', { class: 'btnrow' },
@@ -533,6 +563,9 @@
             el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
             el('button', { class: 'danger', onclick: () => { state = clean({ lang: state.lang, onboarded: true }); save(); closeSheet(); render(); } }, t().clearData))
         ) }, t().clearData))),
+      SUB.enabled && el('div', { class: 'card' }, el('h2', {}, t().subscription),
+        el('p', { class: 'muted' }, !SUB.enforce ? t().subTest : entitled ? t().subActive : t().subFree),
+        el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: openPaywall }, t().subSee))),
       el('p', { class: 'fine' }, t().disclaimer)
     ];
   };
