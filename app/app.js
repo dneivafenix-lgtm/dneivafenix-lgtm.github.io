@@ -9,17 +9,47 @@
     for (const p of prefs) { const c = p.slice(0, 2).toLowerCase(); if (CFG.languages.includes(c)) return c; }
     return CFG.fallbackLanguage;
   };
+  const DATE = /^\d{4}-\d{2}-\d{2}$/;
+  const cleanLog = arr => (Array.isArray(arr) ? arr : []).filter(e => e && F.byId.has(e.food) && DATE.test(e.date)).map(e => ({
+    id: String(e.id || Math.random().toString(36).slice(2)), food: e.food, date: e.date,
+    like: [1, 0, -1].includes(e.like) ? e.like : null, reaction: !!e.reaction, checked: !!e.checked, note: String(e.note || '').slice(0, 300)
+  }));
+  // Plano: dia -> números das receitas.
+  const cleanPlan = p => {
+    const out = {};
+    if (p && typeof p === 'object') for (const [d, ids] of Object.entries(p)) {
+      if (!DATE.test(d) || !Array.isArray(ids)) continue;
+      const ok = [...new Set(ids)].filter(n => Number.isInteger(n) && R && R.list[n]).slice(0, 8);
+      if (ok.length) out[d] = ok;
+    }
+    return out;
+  };
+  const cleanBaby = b => ({
+    id: String(b.id || ''), name: String(b.name || '').slice(0, 40), birth: DATE.test(b.birth) ? b.birth : '', log: cleanLog(b.log), plan: cleanPlan(b.plan),
+    bought: { week: DATE.test(b.bought?.week) ? b.bought.week : '', lines: (Array.isArray(b.bought?.lines) ? b.bought.lines : []).filter(x => typeof x === 'string').slice(0, 300) }
+  });
+  // O bebé ativo fica acessível em state.baby e os seus registos em state.log (não são gravados em duplicado).
+  const withCurrent = st => {
+    const cur = () => st.babies.find(b => b.id === st.current) || st.babies[0];
+    Object.defineProperty(st, 'baby', { get: cur, enumerable: false });
+    Object.defineProperty(st, 'log', { get: () => cur().log, set: v => { cur().log = v; }, enumerable: false });
+    return st;
+  };
   const clean = raw => {
     const s = raw && typeof raw === 'object' ? raw : {};
-    return {
+    // Versões antigas guardavam um só bebé em s.baby e s.log.
+    const source = Array.isArray(s.babies) && s.babies.length ? s.babies : [{ name: s.baby?.name, birth: s.baby?.birth, log: s.log }];
+    const seen = new Set();
+    const babies = source.slice(0, 6).map((b, i) => {
+      const x = cleanBaby(b && typeof b === 'object' ? b : {});
+      if (!x.id || seen.has(x.id)) x.id = 'b' + i + Math.random().toString(36).slice(2, 6);
+      seen.add(x.id); return x;
+    });
+    return withCurrent({
       lang: CFG.languages.includes(s.lang) ? s.lang : detectLang(),
       onboarded: !!s.onboarded,
-      baby: { name: String(s.baby?.name || '').slice(0, 40), birth: /^\d{4}-\d{2}-\d{2}$/.test(s.baby?.birth) ? s.baby.birth : '' },
-      log: (Array.isArray(s.log) ? s.log : []).filter(e => e && F.byId.has(e.food) && /^\d{4}-\d{2}-\d{2}$/.test(e.date)).map(e => ({
-        id: String(e.id || Math.random().toString(36).slice(2)), food: e.food, date: e.date,
-        like: [1, 0, -1].includes(e.like) ? e.like : null, reaction: !!e.reaction, checked: !!e.checked, note: String(e.note || '').slice(0, 300)
-      }))
-    };
+      babies, current: seen.has(s.current) ? s.current : babies[0].id
+    });
   };
   const load = () => { try { return clean(JSON.parse(localStorage.getItem(KEY))); } catch { return clean(null); } };
   let state = load();
@@ -28,7 +58,7 @@
   const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
   const todayIso = () => iso(new Date());
-  let tab = 'today', day = todayIso(), query = '', cat = 'all', rquery = '', rstage = null;
+  let tab = 'today', day = todayIso(), query = '', cat = 'all', rquery = '', rstage = null, rseg = 'list', planOffset = 0;
   // Receitas: originais em português; os outros idiomas vêm dos ficheiros recipes.<idioma>.js.
   const RX = window.DiaryRecipesI18n || {};
   const hasRecipes = () => !!R && (R.lang === state.lang || Array.isArray(RX[state.lang]));
@@ -189,6 +219,7 @@
     sheetHead('', rx(r).t),
     el('p', { class: 'muted' }, recipeMeta(r)),
     r.kcal && el('p', { class: 'kcal' }, kcalLine(r)),
+    el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: () => openDayPicker(r) }, t().addToPlan)),
     el('h3', { class: 'sub' }, t().ingredients), el('ul', { class: 'ing' }, rx(r).ing.map(x => el('li', {}, x))),
     el('h3', { class: 'sub' }, t().howTo), el('ol', { class: 'steps' }, rx(r).passos.map(x => el('li', {}, x))),
     r.foods.length ? [el('h3', { class: 'sub' }, t().recipeFoods), el('p', { class: 'fine' }, t().recipeFoodsHint),
@@ -202,8 +233,109 @@
   // Fase do bebé: a maior fase que já atingiu (6+ por omissão).
   const babyStage = () => { const a = ageMonths(); return a === null ? null : ([...R.stages].reverse().find(m => a >= m) || R.stages[0]); };
 
+  // ---------- vários bebés ----------
+  const babyLabel = (b, i) => b.name || `${t().babyDefault} ${i + 1}`;
+  const switchBaby = id => { state.current = id; rstage = null; save(); render(); };
+  const babySwitch = () => state.babies.length > 1 ? el('div', { class: 'chips', role: 'group', 'aria-label': t().babies }, state.babies.map((b, i) =>
+    el('button', { class: 'chip', 'aria-pressed': String(b.id === state.current), onclick: () => switchBaby(b.id) }, babyLabel(b, i)))) : null;
+  const openAddBaby = () => {
+    const name = el('input', { type: 'text', maxLength: 40, autocomplete: 'off' }), birth = el('input', { type: 'date', max: todayIso() });
+    openSheet(sheetHead('', t().addBaby.replace(/^\+\s*/, '')),
+      el('label', { class: 'field', style: 'margin-top:14px' }, t().babyName, name), el('label', { class: 'field' }, t().birthDate, birth),
+      el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
+        el('button', { class: 'primary', onclick: () => {
+          const b = cleanBaby({ id: 'b' + Date.now().toString(36), name: name.value.trim(), birth: birth.value });
+          state.babies.push(b); closeSheet(); switchBaby(b.id);
+        } }, t().save)));
+  };
+  const openRemoveBaby = () => {
+    const i = state.babies.indexOf(state.baby);
+    openSheet(sheetHead('', t().removeBaby), el('p', { style: 'margin-top:10px' }, t().confirmRemoveBaby(babyLabel(state.baby, i))),
+      el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
+        el('button', { class: 'danger', onclick: () => { state.babies.splice(i, 1); closeSheet(); switchBaby(state.babies[0].id); } }, t().removeBaby)));
+  };
+
+  // ---------- plano da semana e lista de compras ----------
+  const weekOf = off => {
+    const m = parse(todayIso()); m.setDate(m.getDate() - ((m.getDay() + 6) % 7) + off * 7);
+    return Array.from({ length: 7 }, (_, i) => { const d = new Date(m); d.setDate(m.getDate() + i); return iso(d); });
+  };
+  const dayLong = d => fmtDate(d, { weekday: 'long', day: 'numeric', month: 'long' });
+  const eligible = () => { const a = ageMonths(), max = Math.max(a === null ? 6 : a, 6); return R.list.filter(r => r.min <= max); };
+  const planFor = d => (state.baby.plan[d] || []).map(id => R.list[id]).filter(Boolean);
+  const addToPlan = (d, id) => { const p = state.baby.plan; p[d] = p[d] || []; if (!p[d].includes(id) && p[d].length < 8) p[d].push(id); save(); };
+  const removeFromPlan = (d, id) => { const p = state.baby.plan; p[d] = (p[d] || []).filter(x => x !== id); if (!p[d].length) delete p[d]; save(); };
+  const openDayPicker = r => {
+    const start = parse(todayIso()), days = Array.from({ length: 7 }, (_, i) => { const d = new Date(start); d.setDate(start.getDate() + i); return iso(d); });
+    openSheet(sheetHead('', t().chooseDay), el('p', { class: 'muted' }, rx(r).t),
+      el('div', { class: 'daylist' }, days.map(d => el('button', { class: 'ghost', onclick: () => { addToPlan(d, r.id); closeSheet(); render(); toast(t().planAdded); } }, dayLong(d)))));
+  };
+  const openRecipePicker = d => {
+    const box = el('div', { class: 'rlist' });
+    const fill = q => {
+      const items = eligible().filter(r => rx(r).t.toLowerCase().includes(q.toLowerCase()));
+      box.replaceChildren(...(items.length ? items.map(r => el('button', { class: 'recipe', onclick: () => { addToPlan(d, r.id); closeSheet(); render(); } },
+        recipeArt(r, 'thumb'), el('span', { class: 'rtxt' }, el('span', { class: 'rname' }, rx(r).t), el('span', { class: 'muted' }, recipeMeta(r))))) : [el('p', { class: 'muted' }, t().recipesEmpty)]));
+    };
+    fill('');
+    openSheet(sheetHead('', dayLong(d)), el('input', { class: 'search', type: 'search', placeholder: t().searchRecipes, 'aria-label': t().searchRecipes, oninput: e => fill(e.target.value) }), box);
+  };
+  const plannedRow = (d, r) => el('div', { class: 'prow' }, recipeRow(r),
+    el('button', { class: 'del', 'aria-label': `${t().removeFromPlan}: ${rx(r).t}`, onclick: () => { removeFromPlan(d, r.id); render(); } }, icon('trash', 20)));
+  const weekNav = week => el('div', { class: 'week' },
+    el('button', { class: 'wnav', 'aria-label': t().prevWeek, disabled: planOffset <= -4, onclick: () => { planOffset--; render(); } }, '‹'),
+    el('strong', { class: 'wlabel' }, `${fmtDate(week[0], { day: 'numeric', month: 'short' })} – ${fmtDate(week[6], { day: 'numeric', month: 'short' })}`),
+    el('button', { class: 'wnav', 'aria-label': t().nextWeek, disabled: planOffset >= 8, onclick: () => { planOffset++; render(); } }, '›'));
+
+  const viewPlan = () => {
+    const week = weekOf(planOffset);
+    const suggest = () => {
+      const pool = eligible(), used = new Set(week.flatMap(d => state.baby.plan[d] || []));
+      let k = Math.floor(parse(week[0]).getTime() / 864e5);
+      for (const d of week) {
+        if ((state.baby.plan[d] || []).length) continue;
+        for (let tries = 0; tries < pool.length; tries++) { const r = pool[k++ % pool.length]; if (!used.has(r.id)) { used.add(r.id); addToPlan(d, r.id); break; } }
+      }
+      render();
+    };
+    const clear = () => { for (const d of week) delete state.baby.plan[d]; save(); render(); };
+    return [
+      weekNav(week),
+      el('div', { class: 'btnrow', style: 'margin-top:0' }, el('button', { class: 'primary', onclick: suggest }, t().planSuggest),
+        el('button', { class: 'ghost', disabled: !week.some(d => state.baby.plan[d]), onclick: clear }, t().planClear)),
+      week.map(d => el('div', { class: 'card pday' + (d === todayIso() ? ' now' : '') },
+        el('h2', {}, dayLong(d)),
+        planFor(d).length ? planFor(d).map(r => plannedRow(d, r)) : el('p', { class: 'muted' }, t().planEmpty),
+        el('button', { class: 'ghost small', onclick: () => openRecipePicker(d) }, t().planAdd)))
+    ];
+  };
+
+  const viewShop = () => {
+    const week = weekOf(planOffset), counts = new Map();
+    for (const d of week) for (const r of planFor(d)) for (const line of rx(r).ing) counts.set(line, (counts.get(line) || 0) + 1);
+    const b = state.baby.bought, done = new Set(b.week === week[0] ? b.lines : []);
+    const toggle = (line, on) => { on ? done.add(line) : done.delete(line); state.baby.bought = { week: week[0], lines: [...done] }; save(); };
+    const lines = [...counts].sort((x, y) => x[0].localeCompare(y[0], state.lang));
+    return [
+      weekNav(week),
+      lines.length ? el('div', { class: 'card' }, el('p', { class: 'muted', style: 'margin-bottom:6px' }, t().shopNote),
+        lines.map(([line, n]) => el('label', { class: 'shopline' },
+          el('input', { type: 'checkbox', checked: done.has(line), onchange: e => toggle(line, e.target.checked) }),
+          el('span', {}, line), n > 1 ? el('b', {}, `×${n}`) : null)))
+        : el('div', { class: 'card' }, el('p', { class: 'muted' }, t().shopEmpty))
+    ];
+  };
+
   const viewRecipes = () => {
     if (rstage === null) rstage = babyStage() || 0;
+    const segs = [['list', t().tabRecipes], ['plan', t().segPlan], ['shop', t().segShop]];
+    const head = [
+      el('div', { class: 'hello' }, el('h1', {}, t().tabRecipes)),
+      el('div', { class: 'chips seg', role: 'group' }, segs.map(([id, label]) =>
+        el('button', { class: 'chip', 'aria-pressed': String(rseg === id), onclick: () => { rseg = id; render(); } }, label)))
+    ];
+    if (rseg === 'plan') return [...head, viewPlan()];
+    if (rseg === 'shop') return [...head, viewShop()];
     const box = el('div', { class: 'rlist' });
     const fill = () => {
       const items = R.list.filter(r => (!rstage || r.min === rstage) && rx(r).t.toLowerCase().includes(rquery.toLowerCase()));
@@ -215,7 +347,7 @@
     } }, m ? t().stage(m) : t().recipesAll)));
     fill();
     return [
-      el('div', { class: 'hello' }, el('h1', {}, t().tabRecipes)),
+      ...head,
       el('input', { class: 'search', type: 'search', value: rquery, placeholder: t().searchRecipes, 'aria-label': t().searchRecipes, oninput: e => { rquery = e.target.value; fill(); } }),
       chips, box,
       R.book.languages.includes(state.lang) && el('div', { class: 'card book' }, el('h2', {}, t().bookTitle), el('p', {}, t().bookText),
@@ -254,7 +386,9 @@
     const pool = hasRecipes() && day === today ? R.list.filter(r => r.min <= Math.max(age === null ? 6 : age, 6)) : [];
     const daily = pool.length ? pool[dayNum % pool.length] : null;
 
+    const planned = hasRecipes() ? planFor(day) : [];
     return [
+      babySwitch(),
       el('div', { class: 'hello' },
         el('p', { class: 'muted' }, state.baby.name && age !== null ? t().ageLine(state.baby.name, t().ageMonths(age))
           : state.baby.name || (age !== null ? t().ageMonths(age) : t().setupHint)),
@@ -277,7 +411,8 @@
       suggestion && el('div', { class: 'card suggest' },
         el('div', {}, el('p', { class: 'eyebrow' }, t().suggestTitle), el('h2', {}, fname(suggestion))),
         el('button', { class: 'primary', onclick: () => openLogForm(suggestion, day) }, t().logShort)),
-      daily && el('button', { class: 'card daily', onclick: () => openRecipe(daily) },
+      planned.length ? el('div', { class: 'card' }, el('h2', {}, t().planDay), el('div', { class: 'rlist' }, planned.map(recipeRow))) : null,
+      daily && !planned.length && el('button', { class: 'card daily', onclick: () => openRecipe(daily) },
         recipeArt(daily, 'thumb'),
         el('span', { class: 'rtxt' }, el('span', { class: 'eyebrow' }, t().recipeOfDay), el('span', { class: 'rname' }, rx(daily).t),
           el('span', { class: 'muted' }, recipeMeta(daily)), daily.kcal && el('span', { class: 'kcal' }, kcalLine(daily)))),
@@ -370,17 +505,21 @@
       const f = e.target.files[0]; if (!f) return;
       try {
         const raw = JSON.parse(await f.text());
-        if (!raw || !Array.isArray(raw.log)) throw new Error('bad');
+        if (!raw || !(Array.isArray(raw.log) || Array.isArray(raw.babies))) throw new Error('bad');
         state = clean(raw); save(); render(); toast(t().importOk);
       } catch { toast(t().importFail); }
     } });
     return [
-      el('div', { class: 'card' },
-        el('label', { class: 'field' }, t().language, langSelect()),
-        el('label', { class: 'field' }, t().babyName, el('input', { type: 'text', maxLength: 40, value: state.baby.name, autocomplete: 'off',
-          onchange: e => { state.baby.name = e.target.value.trim(); save(); } })),
+      el('div', { class: 'card' }, el('label', { class: 'field' }, t().language, langSelect())),
+      el('div', { class: 'card' }, el('h2', {}, t().babies),
+        babySwitch(),
+        el('label', { class: 'field', style: state.babies.length > 1 ? '' : 'margin-top:0' }, t().babyName, el('input', { type: 'text', maxLength: 40, value: state.baby.name, autocomplete: 'off',
+          onchange: e => { state.baby.name = e.target.value.trim(); save(); render(); } })),
         el('label', { class: 'field' }, t().birthDate, el('input', { type: 'date', value: state.baby.birth, max: todayIso(),
-          onchange: e => { state.baby.birth = e.target.value; save(); } }))),
+          onchange: e => { state.baby.birth = e.target.value; rstage = null; save(); } })),
+        el('div', { class: 'btnrow' },
+          state.babies.length < 6 && el('button', { class: 'ghost', onclick: openAddBaby }, t().addBaby),
+          state.babies.length > 1 && el('button', { class: 'danger', onclick: openRemoveBaby }, t().removeBaby))),
       el('div', { class: 'card' }, el('h2', {}, t().data), el('p', { class: 'muted' }, t().dataNote),
         el('div', { class: 'btnrow' },
           el('button', { class: 'ghost', onclick: () => {

@@ -123,6 +123,31 @@ dialog .rlist{margin-top:8px}
 .book p{font-size:15px;opacity:.85}
 .book a{display:inline-flex;align-items:center;min-height:44px;margin-top:12px;padding:0 20px;border-radius:999px;background:var(--card);color:var(--ink);font-weight:600;font-size:15px;text-decoration:none}
 
+/* Plano da semana e lista de compras */
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;overflow:visible;margin:0;padding:0}
+.seg .chip{white-space:normal;padding:6px 8px;font-size:13px;line-height:1.2;min-height:44px}
+.wlabel{flex:1;display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:17px}
+.pday{display:flex;flex-direction:column;gap:10px}
+.pday h2{margin:0;font-size:17px}
+.pday h2::first-letter{text-transform:uppercase}
+.pday.now{outline:2px solid var(--brand);outline-offset:-2px}
+.prow{display:flex;align-items:center;gap:4px}
+.prow .recipe{flex:1;min-width:0}
+.prow .del{border:0;background:none;color:var(--muted);width:44px;height:44px;display:grid;place-items:center;flex:none}
+.card .recipe{box-shadow:none;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.card .recipe .art.thumb{width:48px;height:48px;border-radius:12px}
+.card .recipe .art.thumb svg{padding:6px}
+.small{min-height:44px;align-self:flex-start;font-size:14px}
+.daylist{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.daylist button::first-letter{text-transform:uppercase}
+.shopline{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:15px;color:var(--body)}
+.shopline:first-of-type{border-top:0}
+.shopline input{width:22px;height:22px;flex:none;margin:0;accent-color:var(--brand)}
+.shopline span{flex:1}
+.shopline b{font-weight:600;color:var(--brand);font-variant-numeric:tabular-nums}
+.shopline input:checked+span{text-decoration:line-through;color:var(--muted)}
+.ghost:disabled{opacity:.45;cursor:default}
+
 /* Progresso */
 .scard{background:var(--tint);color:var(--tint-ink);box-shadow:none;display:flex;flex-direction:column;gap:12px}
 .ringrow{display:flex;align-items:center;gap:16px}
