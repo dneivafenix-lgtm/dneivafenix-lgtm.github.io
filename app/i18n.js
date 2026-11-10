@@ -287,3 +287,37 @@ Object.assign(window.DiaryI18n.fr, {
   planAdded: 'Ajoutée au menu.', shopEmpty: 'Ajoutez des recettes au menu de cette semaine pour voir ici la liste de courses.',
   shopNote: 'Ingrédients des recettes du menu de cette semaine. Cochez ce que vous avez déjà.'
 });
+
+// Subscrição.
+Object.assign(window.DiaryI18n.pt, {
+  premium: 'Premium', subTitle: 'Petit Nuvem Premium', subLead: 'Tudo o que precisas para acompanhar a alimentação do teu bebé.',
+  subPoints: ['Todas as receitas, dos 6 aos 12+ meses', 'Plano da semana com lista de compras', 'Vários bebés', 'Relatório para o pediatra', 'Cópia de segurança e partilha entre cuidadores (em breve)'],
+  planYearly: 'Anual', planMonthly: 'Mensal', perYear: p => `${p} por ano`, perMonth: p => `${p} por mês`, subSave: n => `Poupa ${n}%`,
+  trialNote: n => `Começa com ${n} dias grátis. Cancela quando quiseres.`, subStart: 'Começar o teste grátis',
+  subSoon: 'Os pagamentos ainda não estão ativos.', subTest: 'Modo de teste: está tudo desbloqueado.', subActive: 'Subscrição ativa.', subFree: 'Estás no plano gratuito.',
+  subSee: 'Ver planos', subscription: 'Subscrição'
+});
+Object.assign(window.DiaryI18n.en, {
+  premium: 'Premium', subTitle: 'Petit Nuvem Premium', subLead: "Everything you need to follow your baby's first foods.",
+  subPoints: ['Every recipe, from 6 to 12+ months', 'Weekly plan with shopping list', 'Several babies', 'Report for the paediatrician', 'Backup and sharing between caregivers (coming soon)'],
+  planYearly: 'Yearly', planMonthly: 'Monthly', perYear: p => `${p} per year`, perMonth: p => `${p} per month`, subSave: n => `Save ${n}%`,
+  trialNote: n => `Start with ${n} days free. Cancel any time.`, subStart: 'Start the free trial',
+  subSoon: 'Payments are not active yet.', subTest: 'Test mode: everything is unlocked.', subActive: 'Subscription active.', subFree: 'You are on the free plan.',
+  subSee: 'See plans', subscription: 'Subscription'
+});
+Object.assign(window.DiaryI18n.es, {
+  premium: 'Premium', subTitle: 'Petit Nuvem Premium', subLead: 'Todo lo que necesitas para seguir la alimentación de tu bebé.',
+  subPoints: ['Todas las recetas, de los 6 a los 12+ meses', 'Plan semanal con lista de la compra', 'Varios bebés', 'Informe para el pediatra', 'Copia de seguridad y uso compartido entre cuidadores (próximamente)'],
+  planYearly: 'Anual', planMonthly: 'Mensual', perYear: p => `${p} al año`, perMonth: p => `${p} al mes`, subSave: n => `Ahorra un ${n} %`,
+  trialNote: n => `Empieza con ${n} días gratis. Cancela cuando quieras.`, subStart: 'Empezar la prueba gratis',
+  subSoon: 'Los pagos aún no están activos.', subTest: 'Modo de prueba: todo está desbloqueado.', subActive: 'Suscripción activa.', subFree: 'Estás en el plan gratuito.',
+  subSee: 'Ver planes', subscription: 'Suscripción'
+});
+Object.assign(window.DiaryI18n.fr, {
+  premium: 'Premium', subTitle: 'Petit Nuvem Premium', subLead: "Tout ce qu'il faut pour suivre l'alimentation de votre bébé.",
+  subPoints: ['Toutes les recettes, de 6 à 12+ mois', 'Menu de la semaine avec liste de courses', 'Plusieurs bébés', 'Compte rendu pour le pédiatre', 'Sauvegarde et partage entre proches (bientôt)'],
+  planYearly: 'Annuel', planMonthly: 'Mensuel', perYear: p => `${p} par an`, perMonth: p => `${p} par mois`, subSave: n => `Économisez ${n} %`,
+  trialNote: n => `Commencez par ${n} jours gratuits. Résiliez quand vous voulez.`, subStart: "Commencer l'essai gratuit",
+  subSoon: 'Les paiements ne sont pas encore actifs.', subTest: 'Mode test : tout est débloqué.', subActive: 'Abonnement actif.', subFree: 'Vous utilisez la formule gratuite.',
+  subSee: 'Voir les formules', subscription: 'Abonnement'
+});

@@ -12,6 +12,16 @@ window.DiaryConfig = {
   fallbackLanguage: 'en',
   // Marcos do desafio (número de alimentos provados).
   milestones: [10, 25, 50, 75, 100],
+  // Subscrição.
+  // enforce: false = modo de teste, tudo desbloqueado. Só passar a true quando os pagamentos e as contas estiverem a funcionar,
+  // porque sem servidor a app não tem como saber quem pagou.
+  // checkout: ligações de pagamento (Stripe Payment Links) de cada plano.
+  subscription: {
+    enabled: true, enforce: false, currency: 'EUR', trialDays: 7,
+    monthly: 3.99, yearly: 29.99,
+    checkout: { monthly: '', yearly: '' },
+    freeStage: 6 // receitas até esta fase (meses) são gratuitas
+  },
   // Cartão opcional de um parceiro (por exemplo uma loja), desligado por omissão.
   // text: uma frase por idioma; só aparece nos idiomas que tiverem frase.
   partner: { enabled: false, name: '', url: '', text: {} }

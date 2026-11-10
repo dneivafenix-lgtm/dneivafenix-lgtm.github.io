@@ -148,6 +148,15 @@ dialog .rlist{margin-top:8px}
 .shopline input:checked+span{text-decoration:line-through;color:var(--muted)}
 .ghost:disabled{opacity:.45;cursor:default}
 
+/* Subscrição */
+.ptag{display:inline-block;align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:2px 8px;background:var(--accent);color:var(--on-accent);white-space:nowrap}
+.withtag{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.plans{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.planopt{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;min-height:64px;padding:10px 16px;border-radius:16px;border:1px solid var(--edge);background:var(--card)}
+.planopt>span:first-child{display:flex;flex-direction:column}
+.planopt b{font-family:var(--display);font-weight:600;font-size:17px}
+.planopt[aria-pressed=true]{border:2px solid var(--brand);background:var(--tint)}
+
 /* Progresso */
 .scard{background:var(--tint);color:var(--tint-ink);box-shadow:none;display:flex;flex-direction:column;gap:12px}
 .ringrow{display:flex;align-items:center;gap:16px}
