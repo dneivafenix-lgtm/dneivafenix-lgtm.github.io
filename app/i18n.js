@@ -253,3 +253,37 @@ Object.assign(window.DiaryI18n.fr, {
   kcal: { portion: n => `≈ ${n} kcal par portion`, unit: n => `≈ ${n} kcal pièce`, family: n => `≈ ${n} kcal par portion adulte` },
   kcalNote: "Calories estimées à partir des ingrédients. Elles servent de repère, pas d'objectif : l'appétit de bébé varie d'un jour à l'autre."
 });
+
+// Vários bebés, plano da semana e lista de compras.
+Object.assign(window.DiaryI18n.pt, {
+  babies: 'Bebés', babyDefault: 'Bebé', addBaby: '+ Adicionar bebé', removeBaby: 'Remover este bebé',
+  confirmRemoveBaby: n => `Remover ${n} e todos os seus registos? Não é possível desfazer.`,
+  segPlan: 'Plano da semana', segShop: 'Lista de compras', planAdd: '+ Adicionar receita', planSuggest: 'Sugerir a semana', planClear: 'Limpar a semana',
+  planEmpty: 'Sem receitas neste dia.', planDay: 'Plano do dia', addToPlan: 'Adicionar ao plano', chooseDay: 'Escolhe o dia', removeFromPlan: 'Remover do plano',
+  planAdded: 'Adicionada ao plano.', shopEmpty: 'Adiciona receitas ao plano desta semana para veres aqui a lista de compras.',
+  shopNote: 'Ingredientes das receitas do plano desta semana. Marca o que já tens.'
+});
+Object.assign(window.DiaryI18n.en, {
+  babies: 'Babies', babyDefault: 'Baby', addBaby: '+ Add a baby', removeBaby: 'Remove this baby',
+  confirmRemoveBaby: n => `Remove ${n} and all their records? This cannot be undone.`,
+  segPlan: 'Weekly plan', segShop: 'Shopping list', planAdd: '+ Add a recipe', planSuggest: 'Suggest a week', planClear: 'Clear the week',
+  planEmpty: 'No recipes for this day.', planDay: 'Plan for the day', addToPlan: 'Add to plan', chooseDay: 'Choose the day', removeFromPlan: 'Remove from plan',
+  planAdded: 'Added to the plan.', shopEmpty: "Add recipes to this week's plan to see the shopping list here.",
+  shopNote: "Ingredients for the recipes in this week's plan. Tick what you already have."
+});
+Object.assign(window.DiaryI18n.es, {
+  babies: 'Bebés', babyDefault: 'Bebé', addBaby: '+ Añadir bebé', removeBaby: 'Quitar este bebé',
+  confirmRemoveBaby: n => `¿Quitar a ${n} y todos sus registros? No se puede deshacer.`,
+  segPlan: 'Plan semanal', segShop: 'Lista de la compra', planAdd: '+ Añadir receta', planSuggest: 'Sugerir la semana', planClear: 'Vaciar la semana',
+  planEmpty: 'Sin recetas este día.', planDay: 'Plan del día', addToPlan: 'Añadir al plan', chooseDay: 'Elige el día', removeFromPlan: 'Quitar del plan',
+  planAdded: 'Añadida al plan.', shopEmpty: 'Añade recetas al plan de esta semana para ver aquí la lista de la compra.',
+  shopNote: 'Ingredientes de las recetas del plan de esta semana. Marca lo que ya tienes.'
+});
+Object.assign(window.DiaryI18n.fr, {
+  babies: 'Bébés', babyDefault: 'Bébé', addBaby: '+ Ajouter un bébé', removeBaby: 'Retirer ce bébé',
+  confirmRemoveBaby: n => `Retirer ${n} et toutes ses notes ? Cette action est définitive.`,
+  segPlan: 'Menu de la semaine', segShop: 'Liste de courses', planAdd: '+ Ajouter une recette', planSuggest: 'Proposer une semaine', planClear: 'Vider la semaine',
+  planEmpty: 'Aucune recette ce jour-là.', planDay: 'Menu du jour', addToPlan: 'Ajouter au menu', chooseDay: 'Choisissez le jour', removeFromPlan: 'Retirer du menu',
+  planAdded: 'Ajoutée au menu.', shopEmpty: 'Ajoutez des recettes au menu de cette semaine pour voir ici la liste de courses.',
+  shopNote: 'Ingrédients des recettes du menu de cette semaine. Cochez ce que vous avez déjà.'
+});
