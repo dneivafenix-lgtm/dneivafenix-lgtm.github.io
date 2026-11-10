@@ -16,7 +16,7 @@ window.DiaryLegal.fr = {
       "Nous ne recevons, ne vendons et ne partageons pas les données que vous saisissez."
     ]},
     {"h": "Tiers contactés au chargement de l'application", "p": [
-      "Pour ouvrir l'application, votre navigateur envoie des requêtes techniques à des tiers, qui peuvent enregistrer votre adresse IP : l'hébergeur qui fournit les fichiers de l'application, Google Fonts (polices de caractères) et le réseau de contenus de Shopify (image du logo de la marque).",
+      "Pour ouvrir l'application, votre navigateur envoie des requêtes techniques à des tiers, qui peuvent enregistrer votre adresse IP : l'hébergeur qui fournit les fichiers de l'application et le réseau de contenus de Shopify (image du logo de la marque).",
       "Ces requêtes ne contiennent pas les données du journal."
     ]},
     {"h": "Données d'enfants et de santé", "p": [
