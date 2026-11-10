@@ -54,6 +54,19 @@
     for (const kid of kids.flat(Infinity)) if (kid != null && kid !== false) n.append(kid);
     return n;
   };
+  // Ícones de traço (conteúdo estático, nunca texto do utilizador).
+  const ICONS = {
+    today: '<path d="M4 10l8-6 8 6v10H4z"/>',
+    foods: '<path d="M5 12l4 4 10-10"/>',
+    progress: '<path d="M5 20V11M12 20V4M19 20v-6"/>',
+    settings: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',
+    trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'
+  };
+  const icon = (name, size = 22) => {
+    const n = el('span', { class: 'ico', 'aria-hidden': 'true' });
+    n.innerHTML = `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
+    return n;
+  };
   const toast = msg => { const b = $('toast'); b.textContent = msg; b.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => b.classList.remove('show'), 2200); };
 
   // ---------- sheet (dialog) ----------
@@ -62,10 +75,9 @@
   const closeSheet = () => sheet.open && sheet.close();
   sheet.addEventListener('click', e => { if (e.target === sheet) closeSheet(); });
   const sheetHead = (emoji, title) => el('div', { class: 'sheethead' },
-    emoji && el('span', { class: 'emoji', 'aria-hidden': 'true' }, emoji), el('h2', {}, title),
+    el('h2', {}, title),
     el('button', { class: 'x', 'aria-label': t().close, onclick: closeSheet }, '✕'));
 
-  const likeIcon = v => v === 1 ? '😍' : v === 0 ? '😐' : v === -1 ? '😖' : '';
   const likeLabel = v => v === 1 ? t().liked : v === 0 ? t().neutral : v === -1 ? t().disliked : '';
 
   const foodInfo = food => [
@@ -81,7 +93,7 @@
         like = like === v ? null : v;
         [...likes.children].forEach(b => b.setAttribute('aria-pressed', 'false'));
         if (like !== null) e.currentTarget.setAttribute('aria-pressed', 'true');
-      } }, el('span', { 'aria-hidden': 'true' }, likeIcon(v)), likeLabel(v))));
+      } }, likeLabel(v))));
     const reaction = el('input', { type: 'checkbox' });
     const note = el('textarea', { rows: 2, maxLength: 300 });
     openSheet(
@@ -110,7 +122,7 @@
   };
 
   const openPicker = date => {
-    const list = el('div', { class: 'grid' });
+    const list = el('div', { class: 'pills' });
     const fill = q => {
       const items = F.foods.filter(x => fname(x).toLowerCase().includes(q.toLowerCase()));
       list.replaceChildren(...(items.length ? items.map(x => foodCard(x, () => openLogForm(x, date))) : [el('p', { class: 'muted' }, t().noResults)]));
@@ -126,25 +138,23 @@
     return el('button', { class: 'food' + (n ? ' tried' : ''), onclick,
       'aria-label': `${fname(food)}${food.allergen ? ', ' + t().allergenBadge : ''}, ${n ? t().triedTimes(n) : t().notTried}` },
       food.allergen && el('span', { class: 'dot', title: t().allergenBadge }),
-      n ? el('span', { class: 'count' }, String(n)) : null,
-      el('span', { class: 'emoji', 'aria-hidden': 'true' }, food.emoji),
-      el('span', { class: 'fname' }, fname(food)));
+      fname(food),
+      n > 1 ? el('span', { class: 'count' }, String(n)) : null);
   };
 
   const entryRow = (e, showDate) => {
     const food = F.byId.get(e.food);
     return el('div', { class: 'entry' },
-      el('span', { class: 'emoji', 'aria-hidden': 'true' }, showDate ? (likeIcon(e.like) || '•') : food.emoji),
       el('div', { class: 'body' },
         el('div', { class: 'name' }, showDate ? fmtDate(e.date, { day: 'numeric', month: 'short', year: 'numeric' }) : fname(food)),
-        e.like !== null && el('div', { class: 'muted' }, showDate ? likeLabel(e.like) : `${likeIcon(e.like)} ${likeLabel(e.like)}`),
+        e.like !== null && el('div', { class: 'muted' }, likeLabel(e.like)),
         e.note && el('div', { class: 'note' }, e.note),
         e.reaction && el('span', { class: 'flag' }, t().reactionFlag)),
       el('button', { class: 'del', 'aria-label': `${t().remove}: ${fname(food)}`, onclick: () => {
         state.log = state.log.filter(x => x.id !== e.id); save();
         if (sheet.open) openFoodDetail(food);
         render();
-      } }, '🗑'));
+      } }, icon('trash', 20)));
   };
 
   // ---------- views ----------
@@ -156,27 +166,33 @@
     const shop = CFG.shop.enabled && CFG.shop.languages.includes(state.lang);
     return [
       el('div', { class: 'hero' },
-        el('p', { class: 'eyebrow' }, t().tagline),
+        el('p', { class: 'eyebrow' }, t().appName),
         el('div', { class: 'daynav' },
           el('button', { 'aria-label': t().prevDay, onclick: () => shift(-1) }, '‹'),
           el('strong', {}, day === todayIso() ? t().today : fmtDate(day, { weekday: 'short', day: 'numeric', month: 'long' })),
           el('button', { 'aria-label': t().nextDay, disabled: day >= todayIso(), onclick: () => shift(1) }, '›')),
-        el('p', { class: 'muted ageline' }, state.baby.name && age !== null ? t().ageLine(state.baby.name, t().ageMonths(age))
+        el('p', { class: 'ageline' }, state.baby.name && age !== null ? t().ageLine(state.baby.name, t().ageMonths(age))
           : state.baby.name || (age !== null ? t().ageMonths(age) : t().setupHint))),
       el('div', { class: 'card' },
         entries.length ? entries.map(e => entryRow(e, false)) : el('p', { class: 'muted' }, t().emptyDay),
         el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => openPicker(day) }, t().addFood))),
-      el('div', { class: 'card tip' }, el('p', {}, '💡 ' + tip)),
+      el('div', { class: 'card tip' }, el('p', {}, tip)),
       shop && el('div', { class: 'card shop' }, el('p', { class: 'eyebrow' }, t().shopEyebrow), el('h2', {}, t().shopTitle),
         el('p', {}, t().shopText), el('a', { href: CFG.shop.url }, t().shopCta))
     ];
   };
 
   const viewFoods = () => {
-    const grid = el('div', { class: 'grid' });
+    const grid = el('div', {});
     const fill = () => {
-      const items = F.foods.filter(x => (cat === 'all' || x.cat === cat) && fname(x).toLowerCase().includes(query.toLowerCase()));
-      grid.replaceChildren(...(items.length ? items.map(x => foodCard(x, () => openFoodDetail(x))) : [el('p', { class: 'muted' }, t().noResults)]));
+      const match = x => fname(x).toLowerCase().includes(query.toLowerCase());
+      const groups = F.categories.filter(c => cat === 'all' || c === cat).map(c => {
+        const all = F.foods.filter(x => x.cat === c), items = all.filter(match);
+        return items.length ? el('section', { class: 'group' },
+          el('div', { class: 'grouphead' }, el('h2', {}, t().cat[c]), el('span', {}, `${all.filter(x => countFor(x.id)).length} / ${all.length}`)),
+          el('div', { class: 'pills' }, items.map(x => foodCard(x, () => openFoodDetail(x))))) : null;
+      }).filter(Boolean);
+      grid.replaceChildren(...(groups.length ? groups : [el('p', { class: 'muted' }, t().noResults)]));
     };
     const chips = el('div', { class: 'chips' }, ['all', ...F.categories].map(c =>
       el('button', { class: 'chip', 'aria-pressed': String(cat === c), onclick: () => {
@@ -185,7 +201,7 @@
     fill();
     return [
       el('input', { class: 'search', type: 'search', value: query, placeholder: t().search, 'aria-label': t().search, oninput: e => { query = e.target.value; fill(); } }),
-      chips, grid
+      chips, el('p', { class: 'legend' }, el('i', {}), t().allergenBadge), grid
     ];
   };
 
@@ -195,6 +211,7 @@
     const reactions = [...new Set(state.log.filter(e => e.reaction).map(e => e.food))].map(id => F.byId.get(id));
     return [
       el('div', { class: 'card scard' },
+        state.baby.name && el('p', { class: 'eyebrow' }, state.baby.name),
         el('div', { class: 'big' }, el('b', {}, String(tried.size)), el('span', {}, `/ ${total} ${t().foodsTried}`)),
         el('div', { class: 'bar', role: 'img', 'aria-label': `${tried.size} / ${total}` }, el('i', { style: `width:${tried.size / total * 100}%` }))),
       el('div', { class: 'card' }, el('h2', {}, t().byCategory), F.categories.map(c => {
@@ -204,10 +221,10 @@
       })),
       el('div', { class: 'card' }, el('h2', {}, t().allergensTitle), el('div', { class: 'alist' }, F.allergens.map(a => {
         const done = F.foods.some(x => x.allergen === a && tried.has(x.id));
-        return el('div', { class: done ? 'done' : '' }, (done ? '✓ ' : '') + t().allergenName[a], el('small', {}, done ? t().introduced : t().pending));
+        return el('div', { class: done ? 'done' : '' }, t().allergenName[a], el('small', {}, done ? t().introduced : t().pending));
       }))),
       el('div', { class: 'card' }, el('h2', {}, t().reactionsTitle),
-        reactions.length ? [reactions.map(x => el('button', { class: 'chip', style: 'margin:0 6px 6px 0', onclick: () => openFoodDetail(x) }, `${x.emoji} ${fname(x)}`)),
+        reactions.length ? [reactions.map(x => el('button', { class: 'chip', style: 'margin:0 6px 6px 0', onclick: () => openFoodDetail(x) }, fname(x))),
           el('p', { class: 'info' }, t().reactionAdvice)] : el('p', { class: 'muted' }, t().noReactions))
     ];
   };
@@ -223,7 +240,7 @@
     } });
     return [
       el('div', { class: 'card' },
-        el('label', { class: 'field', style: 'margin-top:0' }, t().language, langSelect()),
+        el('label', { class: 'field' }, t().language, langSelect()),
         el('label', { class: 'field' }, t().babyName, el('input', { type: 'text', maxLength: 40, value: state.baby.name, autocomplete: 'off',
           onchange: e => { state.baby.name = e.target.value.trim(); save(); } })),
         el('label', { class: 'field' }, t().birthDate, el('input', { type: 'date', value: state.baby.birth, max: todayIso(),
@@ -241,7 +258,7 @@
             el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
             el('button', { class: 'danger', onclick: () => { state = clean({ lang: state.lang }); save(); closeSheet(); render(); } }, t().clearData))
         ) }, t().clearData))),
-      el('p', { class: 'muted', style: 'margin-top:16px' }, t().disclaimer)
+      el('p', { class: 'fine' }, t().disclaimer)
     ];
   };
 
@@ -249,15 +266,14 @@
     CFG.languages.map(l => el('option', { value: l, selected: l === state.lang }, I18N[l].langName)));
 
   // ---------- shell ----------
-  const TABS = [['today', '🥄', 'tabToday', viewToday], ['foods', '🥕', 'tabFoods', viewFoods], ['progress', '⭐', 'tabProgress', viewProgress], ['settings', '⚙️', 'tabSettings', viewSettings]];
+  const TABS = [['today', 'tabToday', viewToday], ['foods', 'tabFoods', viewFoods], ['progress', 'tabProgress', viewProgress], ['settings', 'tabSettings', viewSettings]];
   const render = () => {
     document.documentElement.lang = state.lang;
     document.title = `${t().appName} · Petit Nuvem`;
-    $('appName').textContent = t().appName;
     $('langQuick').replaceWith(Object.assign(langSelect(), { id: 'langQuick' }));
-    $('tabs').replaceChildren(...TABS.map(([id, icon, key]) => el('button', { 'aria-current': tab === id ? 'page' : null,
-      onclick: () => { tab = id; render(); window.scrollTo(0, 0); } }, el('span', { 'aria-hidden': 'true' }, icon), t()[key])));
-    $('view').replaceChildren(...TABS.find(x => x[0] === tab)[3]().flat(Infinity).filter(Boolean));
+    $('tabs').replaceChildren(...TABS.map(([id, key]) => el('button', { 'aria-current': tab === id ? 'page' : null,
+      onclick: () => { tab = id; render(); window.scrollTo(0, 0); } }, icon(id), t()[key])));
+    $('view').replaceChildren(...TABS.find(x => x[0] === tab)[2]().flat(Infinity).filter(Boolean));
   };
   render();
 
