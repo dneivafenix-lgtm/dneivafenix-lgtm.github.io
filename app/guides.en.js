@@ -1,4 +1,5 @@
 // Guides for parents. Based on general guidance from the SPP, the WHO and the NHS.
+// A REVER POR PROFISSIONAL DE SAÚDE
 // TO BE REVIEWED BY A HEALTH PROFESSIONAL
 window.DiaryGuides = window.DiaryGuides || {};
 window.DiaryGuides.en = [

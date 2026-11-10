@@ -1,4 +1,5 @@
 // Guías para padres. Base: orientaciones generales de la SPP, la OMS y el NHS.
+// A REVER POR PROFISSIONAL DE SAÚDE
 // PENDIENTE DE REVISIÓN POR UN PROFESIONAL SANITARIO
 window.DiaryGuides = window.DiaryGuides || {};
 window.DiaryGuides.es = [

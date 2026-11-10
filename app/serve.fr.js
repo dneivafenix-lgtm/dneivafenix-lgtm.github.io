@@ -1,4 +1,5 @@
 // Comment servir chaque aliment selon l'âge : [6+ mois, 9+ mois, 12+ mois]. Traduit de serve.pt.js.
+// A REVER POR PROFISSIONAL DE SAÚDE
 window.DiaryServe = window.DiaryServe || {};
 window.DiaryServe.fr = {
   "carrot": ["Faites cuire jusqu'à ce qu'elle soit très tendre. Proposez en purée ou en bâtonnets de la longueur d'un doigt. Crue, uniquement râpée finement.", "Faites cuire jusqu'à ce qu'elle soit tendre et coupez en petits morceaux, ou écrasez à la fourchette. Crue, uniquement râpée finement.", "Proposez cuite en petits morceaux, pour s'exercer à la fourchette. Crue, uniquement râpée finement ou en lanières très fines."],

@@ -574,8 +574,9 @@
     const dayNum = Math.floor(parse(today).getTime() / 864e5);
     // Três sugestões, de categorias diferentes, a rodar de dia para dia.
     const nextFoods = [];
-    if (day === today) for (let k = 0; k < F.categories.length && nextFoods.length < 3; k++) {
-      const pool = untried.filter(x => x.cat === F.categories[(dayNum + k) % F.categories.length]);
+    const core = ['veg', 'fruit', 'grain', 'protein']; // ervas, especiarias e gorduras não contam como "próximo alimento"
+    if (day === today) for (let k = 0; k < core.length && nextFoods.length < 3; k++) {
+      const pool = untried.filter(x => x.cat === core[(dayNum + k) % core.length]);
       if (pool.length) nextFoods.push(pool[dayNum % pool.length]);
     }
     const due = allergenStatus().filter(x => x.due);

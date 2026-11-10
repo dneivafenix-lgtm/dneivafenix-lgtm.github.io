@@ -1,4 +1,5 @@
 // Guides pour les parents. Base : recommandations générales de la SPP, de l'OMS et du NHS.
+// A REVER POR PROFISSIONAL DE SAÚDE
 // À FAIRE RELIRE PAR UN PROFESSIONNEL DE SANTÉ
 window.DiaryGuides = window.DiaryGuides || {};
 window.DiaryGuides.fr = [

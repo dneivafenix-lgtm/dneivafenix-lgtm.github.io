@@ -1,4 +1,5 @@
 // How to serve each food by age: [6+ months, 9+ months, 12+ months]. Translated from serve.pt.js.
+// A REVER POR PROFISSIONAL DE SAÚDE
 window.DiaryServe = window.DiaryServe || {};
 window.DiaryServe.en = {
   "carrot": ["Cook until very soft. Offer puréed or in finger-length sticks. Raw, only finely grated.", "Cook until soft and cut into small pieces, or mash with a fork. Raw, only finely grated.", "Offer cooked in small pieces, to practise using a fork. Raw, only finely grated or in very thin strips."],
