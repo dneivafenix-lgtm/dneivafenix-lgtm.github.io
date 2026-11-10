@@ -30,8 +30,13 @@
     if (n && typeof n === 'object') for (const [d, txt] of Object.entries(n)) if (DATE.test(d) && typeof txt === 'string' && txt.trim()) out[d] = txt.slice(0, 500);
     return out;
   };
+  // Diário dos pais. O áudio de cada entrada fica à parte, no IndexedDB, com a mesma chave.
+  const cleanJournal = arr => (Array.isArray(arr) ? arr : []).filter(e => e && DATE.test(e.date)).slice(0, 500).map(e => ({
+    id: String(e.id || 'j' + Math.random().toString(36).slice(2)), date: e.date, title: String(e.title || '').slice(0, 80),
+    text: String(e.text || '').slice(0, 4000), audio: !!e.audio, secs: Math.max(0, Math.min(3600, Math.round(+e.secs || 0)))
+  }));
   const cleanBaby = b => ({
-    id: String(b.id || ''), name: String(b.name || '').slice(0, 40), birth: DATE.test(b.birth) ? b.birth : '', log: cleanLog(b.log), plan: cleanPlan(b.plan), notes: cleanNotes(b.notes),
+    id: String(b.id || ''), name: String(b.name || '').slice(0, 40), birth: DATE.test(b.birth) ? b.birth : '', log: cleanLog(b.log), plan: cleanPlan(b.plan), notes: cleanNotes(b.notes), journal: cleanJournal(b.journal),
     bought: { week: DATE.test(b.bought?.week) ? b.bought.week : '', lines: (Array.isArray(b.bought?.lines) ? b.bought.lines : []).filter(x => typeof x === 'string').slice(0, 300) }
   });
   // O bebé ativo fica acessível em state.baby e os seus registos em state.log (não são gravados em duplicado).
@@ -105,6 +110,8 @@
     settings: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',
     trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
+    mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+    journal: '<path d="M6 4h10a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2z"/><path d="M6 17a2 2 0 0 1 2-2h10M10 8h4"/>',
     note: '<path d="M6 4h9l3 3v13H6z"/><path d="M9 10h6M9 14h6"/>',
     check: '<path d="M5 12l4 4 10-10"/>',
     recipes: '<path d="M4 13h16a8 8 0 0 1-16 0z"/><path d="M15 9l5-5"/>'
@@ -345,7 +352,7 @@
     const i = state.babies.indexOf(state.baby);
     openSheet(sheetHead('', t().removeBaby), el('p', { style: 'margin-top:10px' }, t().confirmRemoveBaby(babyLabel(state.baby, i))),
       el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
-        el('button', { class: 'danger', onclick: () => { state.babies.splice(i, 1); closeSheet(); switchBaby(state.babies[0].id); } }, t().removeBaby)));
+        el('button', { class: 'danger', onclick: () => { state.baby.journal.forEach(e => e.audio && audioStore.del(e.id).catch(() => {})); state.babies.splice(i, 1); closeSheet(); switchBaby(state.babies[0].id); } }, t().removeBaby)));
   };
 
   // ---------- plano da semana e lista de compras ----------
@@ -479,6 +486,97 @@
     ];
   };
 
+  // ---------- diário dos pais ----------
+  // Gravações de voz: ficam no IndexedDB deste dispositivo, nunca saem daqui.
+  const audioStore = (() => {
+    let db;
+    const open = () => db || (db = new Promise((res, rej) => {
+      const r = indexedDB.open('pn-diary-audio', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('audio');
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    }));
+    const run = (mode, fn) => open().then(d => new Promise((res, rej) => {
+      const tx = d.transaction('audio', mode), rq = fn(tx.objectStore('audio'));
+      tx.oncomplete = () => res(rq.result); tx.onerror = tx.onabort = () => rej(tx.error);
+    }));
+    return { put: (k, v) => run('readwrite', s => s.put(v, k)), get: k => run('readonly', s => s.get(k)), del: k => run('readwrite', s => s.delete(k)) };
+  })();
+  const JMAX = (CFG.journal && CFG.journal.maxSeconds) || 180;
+  const clock = n => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`;
+  const canRecord = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+  const player = blob => el('audio', { controls: true, src: URL.createObjectURL(blob), class: 'player' });
+
+  const openJournalForm = (entry, onDay) => {
+    const e = entry || { id: 'j' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), date: onDay && onDay <= todayIso() ? onDay : todayIso(), title: '', text: '', audio: false, secs: 0 };
+    const date = el('input', { type: 'date', value: e.date, max: todayIso() });
+    const title = el('input', { type: 'text', maxLength: 80, value: e.title, autocomplete: 'off' });
+    const text = el('textarea', { rows: 6, maxLength: 4000, value: e.text, placeholder: t().journalPlaceholder });
+    let blob = null, hasAudio = e.audio, secs = e.secs, rec = null, stream = null, timer = null, started = 0;
+    const box = el('div', { class: 'recbox' });
+    const release = () => { clearInterval(timer); if (stream) stream.getTracks().forEach(x => x.stop()); stream = null; };
+    const idle = () => box.replaceChildren(...(canRecord()
+      ? [el('button', { class: 'ghost withtag', type: 'button', onclick: start }, icon('mic', 20), t().recStart), el('p', { class: 'fine' }, t().recHint(Math.round(JMAX / 60)))]
+      : [el('p', { class: 'fine' }, t().recUnsupported)]));
+    const done = () => {
+      const slot = el('div', { class: 'recdone' });
+      if (blob) slot.append(player(blob));
+      else { slot.append(el('span', { class: 'muted' }, `${t().voiceNote} · ${clock(secs)}`)); audioStore.get(e.id).then(b => { if (b && !blob && hasAudio) slot.replaceChildren(player(b)); }).catch(() => {}); }
+      box.replaceChildren(slot, el('button', { class: 'ghost', type: 'button', onclick: () => { blob = null; hasAudio = false; secs = 0; idle(); } }, t().recDelete));
+    };
+    function start() {
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(s => {
+        stream = s; const chunks = [];
+        rec = new MediaRecorder(s);
+        rec.ondataavailable = ev => { if (ev.data && ev.data.size) chunks.push(ev.data); };
+        rec.onstop = () => { secs = Math.max(1, Math.round((Date.now() - started) / 1000)); blob = new Blob(chunks, { type: rec.mimeType || 'audio/webm' }); hasAudio = true; release(); done(); };
+        rec.start(); started = Date.now();
+        const time = el('b', { class: 'rectime' }, clock(0));
+        timer = setInterval(() => { const n = Math.round((Date.now() - started) / 1000); time.textContent = clock(n); if (n >= JMAX && rec.state === 'recording') rec.stop(); }, 500);
+        box.replaceChildren(el('div', { class: 'recording', role: 'status' }, el('i', {}), el('span', {}, t().recording), time),
+          el('button', { class: 'danger', type: 'button', onclick: () => rec.state === 'recording' && rec.stop() }, t().recStop));
+      }).catch(() => toast(t().micDenied));
+    }
+    hasAudio ? done() : idle();
+    sheet.addEventListener('close', () => { if (rec && rec.state === 'recording') { rec.onstop = null; rec.stop(); } release(); }, { once: true });
+    const saveEntry = async () => {
+      if (rec && rec.state === 'recording') return toast(t().recStop);
+      const out = { id: e.id, date: DATE.test(date.value) && date.value <= todayIso() ? date.value : e.date, title: title.value.trim(), text: text.value.trim(), audio: hasAudio, secs: hasAudio ? secs : 0 };
+      if (!out.title && !out.text && !out.audio) return toast(t().journalNeed);
+      try { if (blob) await audioStore.put(e.id, blob); else if (!hasAudio && e.audio) await audioStore.del(e.id); }
+      catch { out.audio = false; out.secs = 0; toast(t().audioFail); }
+      const list = state.baby.journal, i = list.findIndex(x => x.id === e.id);
+      if (i >= 0) list[i] = out; else list.push(out);
+      save(); closeSheet(); render();
+    };
+    openSheet(sheetHead('', t().journalTitle),
+      el('label', { class: 'field', style: 'margin-top:12px' }, t().date, date),
+      el('label', { class: 'field' }, t().journalTitleField, title),
+      el('label', { class: 'field' }, t().journalText, text),
+      el('p', { class: 'fine', style: 'margin-top:6px' }, t().dictateTip),
+      box,
+      el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().cancel), el('button', { class: 'primary', onclick: saveEntry }, t().save)));
+  };
+  const deleteJournal = e => openSheet(sheetHead('', t().journalTitle), el('p', { style: 'margin-top:10px' }, t().journalDelete),
+    el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
+      el('button', { class: 'danger', onclick: () => { if (e.audio) audioStore.del(e.id).catch(() => {}); state.baby.journal = state.baby.journal.filter(x => x.id !== e.id); save(); closeSheet(); render(); } }, t().remove)));
+  const viewJournal = () => {
+    const list = [...state.baby.journal].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+    return [goBack('today'),
+      el('div', { class: 'hello' }, el('h1', {}, t().journalTitle), el('p', { class: 'muted', style: 'margin-top:6px' }, t().journalHint)),
+      el('button', { class: 'primary', onclick: () => openJournalForm(null) }, t().journalNew),
+      list.length ? list.map(e => {
+        const slot = el('div', { class: 'jaudio' }, el('button', { class: 'ghost withtag small', onclick: () => audioStore.get(e.id).then(b => { if (b) { const a = player(b); slot.replaceChildren(a); a.play().catch(() => {}); } else toast(t().audioFail); }).catch(() => toast(t().audioFail)) },
+          icon('mic', 18), `${t().listen} · ${clock(e.secs)}`));
+        return el('article', { class: 'card jentry' },
+          el('p', { class: 'eyebrow daytitle' }, fmtDate(e.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })),
+          e.title && el('h2', {}, e.title),
+          e.text && el('p', { class: 'jtext' }, e.text),
+          e.audio && slot,
+          el('div', { class: 'jactions' }, el('button', { class: 'linkish', onclick: () => openJournalForm(e) }, t().edit), el('button', { class: 'linkish', onclick: () => deleteJournal(e) }, t().remove)));
+      }) : el('div', { class: 'card' }, el('p', { class: 'muted' }, t().journalEmpty))
+    ];
+  };
+
   // ---------- guias ----------
   const sourcesText = () => (CFG.content && CFG.content.sources || []).join(', ');
   const openGuide = g => openSheet(sheetHead('', g.title), el('p', { class: 'muted' }, g.intro),
@@ -534,6 +632,8 @@
     for (const d of firstSeen.values()) info(d).fresh = true;
     if (hasRecipes()) for (const [d, ids] of Object.entries(state.baby.plan)) info(d).plan = ids.length;
     for (const d of Object.keys(state.baby.notes)) info(d).note = true;
+    for (const e of state.baby.journal) info(e.date).note = true;
+    const dayJournal = state.baby.journal.filter(e => e.date === day);
     const matches = v => calFilter === 'all' || (v && (calFilter === 'new' ? v.fresh : calFilter === 'reaction' ? v.reaction : v.note));
     const note = state.baby.notes[day] || '';
     const narrow = new Intl.DateTimeFormat(state.lang, { weekday: 'narrow' });
@@ -560,7 +660,8 @@
       el('div', { class: 'addopts' },
         opt('foods', t().optFood, t().optFoodHint, () => openPicker(day)),
         hasRecipes() ? opt('recipes', t().optRecipe, t().optRecipeHint, premium(() => openRecipePicker(day)), ptag()) : null,
-        opt('note', t().optNote, t().optNoteHint, openNote)));
+        opt('note', t().optNote, t().optNoteHint, openNote),
+        opt('journal', t().optJournal, t().optJournalHint, () => openJournalForm(null, day))));
     const fresh = entries.filter(e => firstSeen.get(e.food) === day).length, reacted = entries.filter(e => e.reaction).length;
 
     // Alergénios oferecidos nos últimos dois dias que ainda não têm resposta.
@@ -615,14 +716,17 @@
       el('div', { class: 'card' },
         el('p', { class: 'eyebrow daytitle' }, long(day)),
         el('h2', {}, t().daySummary),
-        (entries.length || planned.length || note) ? el('div', { class: 'sumchips' },
+        (entries.length || planned.length || note || dayJournal.length) ? el('div', { class: 'sumchips' },
           entries.length ? el('span', { class: 'sumchip' }, t().sumFoods(entries.length)) : null,
           fresh ? el('span', { class: 'sumchip new' }, t().sumNew(fresh)) : null,
           reacted ? el('span', { class: 'sumchip warn' }, t().sumReactions(reacted)) : null,
           planned.length ? el('span', { class: 'sumchip' }, t().sumPlanned(planned.length)) : null,
-          note ? el('span', { class: 'sumchip note' }, t().optNote) : null) : null,
+          note ? el('span', { class: 'sumchip note' }, t().optNote) : null,
+          dayJournal.length ? el('span', { class: 'sumchip note' }, t().journalTitle) : null) : null,
         entries.length ? entries.map(e => entryRow(e, false)) : el('p', { class: 'muted' }, t().emptyDay),
         note && el('button', { class: 'daynote', 'aria-label': t().editNote, onclick: openNote }, icon('note', 18), el('span', {}, note)),
+        dayJournal.map(e => el('button', { class: 'daynote', 'aria-label': t().edit, onclick: () => openJournalForm(e) }, icon(e.audio ? 'mic' : 'journal', 18),
+          el('span', {}, e.title || e.text.slice(0, 140) || t().voiceNote))),
         !entries.length && el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => openPicker(day) }, t().addFood))),
       due.length ? el('button', { class: 'card nudge', onclick: () => { tab = 'allergens'; render(); window.scrollTo(0, 0); } },
         el('span', { class: 'eyebrow' }, t().algTitle), el('span', { class: 'rname' }, t().algDueCard(due.length)),
@@ -634,6 +738,9 @@
         recipeArt(daily, 'thumb'),
         el('span', { class: 'rtxt' }, el('span', { class: 'eyebrow' }, t().recipeOfDay), el('span', { class: 'rname' }, rx(daily).t),
           el('span', { class: 'muted' }, recipeMeta(daily)), daily.kcal && el('span', { class: 'kcal' }, kcalLine(daily)))),
+      el('button', { class: 'card nudge', onclick: () => { tab = 'journal'; render(); window.scrollTo(0, 0); } },
+        el('span', { class: 'eyebrow' }, t().journalTitle), el('span', { class: 'rname' }, t().optJournalHint),
+        el('span', { class: 'muted' }, t().journalHint)),
       guides ? el('button', { class: 'card nudge', onclick: () => { tab = 'guides'; render(); window.scrollTo(0, 0); } },
         el('span', { class: 'eyebrow' }, t().guidesTitle), el('span', { class: 'rname' }, t().guidesHint),
         el('span', { class: 'muted' }, guides.map(g => g.title).slice(0, 3).join(' · '))) : null,
@@ -749,7 +856,7 @@
         el('div', { class: 'btnrow' },
           state.babies.length < 6 && el('button', { class: 'ghost withtag', onclick: premium(openAddBaby) }, t().addBaby, ptag()),
           state.babies.length > 1 && el('button', { class: 'danger', onclick: openRemoveBaby }, t().removeBaby))),
-      el('div', { class: 'card' }, el('h2', {}, t().data), el('p', { class: 'muted' }, t().dataNote),
+      el('div', { class: 'card' }, el('h2', {}, t().data), el('p', { class: 'muted' }, t().dataNote), el('p', { class: 'fine', style: 'margin-top:6px' }, t().backupNoAudio),
         el('div', { class: 'btnrow' },
           el('button', { class: 'ghost', onclick: () => {
             const a = el('a', { href: URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })), download: `diario-alimentar-${todayIso()}.json` });
@@ -760,7 +867,7 @@
           sheetHead('', t().clearData), el('p', { style: 'margin-top:10px' }, t().confirmClear),
           el('div', { class: 'btnrow' },
             el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
-            el('button', { class: 'danger', onclick: () => { state = clean({ lang: state.lang, onboarded: true }); save(); closeSheet(); render(); } }, t().clearData))
+            el('button', { class: 'danger', onclick: () => { state.babies.forEach(b => b.journal.forEach(e => e.audio && audioStore.del(e.id).catch(() => {}))); state = clean({ lang: state.lang, onboarded: true }); save(); closeSheet(); render(); } }, t().clearData))
         ) }, t().clearData))),
       el('div', { class: 'card' }, el('h2', {}, t().aboutTitle),
         el('p', { class: 'muted' }, t().aboutText),
@@ -832,7 +939,7 @@
   // ---------- shell ----------
   let shown = '';
   const TAB_LABEL = { today: 'tabToday', progress: 'tabProgress' };
-  const EXTRA = { report: [viewReport, 'progress', 'reportOpen'], allergens: [viewAllergens, 'progress', 'algTitle'], guides: [viewGuides, 'today', 'guidesTitle'] };
+  const EXTRA = { report: [viewReport, 'progress', 'reportOpen'], allergens: [viewAllergens, 'progress', 'algTitle'], guides: [viewGuides, 'today', 'guidesTitle'], journal: [viewJournal, 'today', 'journalTitle'] };
   const ALL_TABS = [['today', 'tabToday', viewToday], ['foods', 'tabFoods', viewFoods], ['recipes', 'tabRecipes', viewRecipes], ['progress', 'tabProgress', viewProgress], ['settings', 'tabSettings', viewSettings]];
   let TABS = ALL_TABS;
   const render = () => {

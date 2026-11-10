@@ -32,6 +32,8 @@ window.DiaryConfig = {
   allergens: { introducedAfter: 3, remindAfterDays: 7 },
   // Ligação, por idioma, para formação oficial de primeiros socorros pediátricos (aparece no guia sobre engasgamento).
   links: { firstAid: { pt: '', en: '', es: '', fr: '' } },
+  // Diário dos pais: duração máxima de cada gravação de voz, em segundos.
+  journal: { maxSeconds: 180 },
   // Cartão opcional de um parceiro (por exemplo uma loja), desligado por omissão.
   // text: uma frase por idioma; só aparece nos idiomas que tiverem frase.
   partner: { enabled: false, name: '', url: '', text: {} }

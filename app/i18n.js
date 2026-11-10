@@ -478,3 +478,45 @@ Object.assign(window.DiaryI18n.fr, {
   legalTitle: 'Informations légales', legalPrivacy: 'Politique de confidentialité', legalTerms: "Conditions d'utilisation", legalMedical: 'Avertissement médical',
   legalDraft: 'Brouillon, pas encore relu par un juriste.', legalNoContact: '(contact à préciser)'
 });
+
+// Diário dos pais: texto e gravações de voz.
+Object.assign(window.DiaryI18n.pt, {
+  journalTitle: 'Diário', journalHint: 'Escreve ou grava como correu. Fica só neste dispositivo.', journalNew: '+ Nova entrada',
+  journalEmpty: 'Ainda não escreveste nada. Como correu hoje?', journalTitleField: 'Título (opcional)', journalText: 'O que queres guardar?',
+  journalPlaceholder: 'A primeira colherada, uma careta, um dia difícil…', date: 'Data',
+  recStart: 'Gravar voz', recStop: 'Parar', recDelete: 'Apagar gravação', recording: 'A gravar', voiceNote: 'Gravação de voz', listen: 'Ouvir', edit: 'Editar',
+  recHint: n => `Até ${n} minutos. A gravação fica só neste dispositivo.`, recUnsupported: 'Este browser não permite gravar voz.',
+  micDenied: 'Não foi possível usar o microfone. Verifica a permissão.', journalNeed: 'Escreve algo ou grava a tua voz.', audioFail: 'Não foi possível guardar a gravação.',
+  journalDelete: 'Apagar esta entrada do diário? Não é possível desfazer.', optJournal: 'Diário', optJournalHint: 'Escreve ou fala sobre o dia',
+  backupNoAudio: 'A cópia exportada não inclui as gravações de voz.', dictateTip: 'Para ditar em vez de escrever, usa o microfone do teclado do telemóvel.'
+});
+Object.assign(window.DiaryI18n.en, {
+  journalTitle: 'Journal', journalHint: 'Write or record how it went. It stays on this device only.', journalNew: '+ New entry',
+  journalEmpty: 'Nothing written yet. How did today go?', journalTitleField: 'Title (optional)', journalText: 'What would you like to keep?',
+  journalPlaceholder: 'The first spoonful, a funny face, a hard day…', date: 'Date',
+  recStart: 'Record voice', recStop: 'Stop', recDelete: 'Delete recording', recording: 'Recording', voiceNote: 'Voice recording', listen: 'Listen', edit: 'Edit',
+  recHint: n => `Up to ${n} minutes. The recording stays on this device only.`, recUnsupported: 'This browser cannot record voice.',
+  micDenied: 'Could not use the microphone. Check the permission.', journalNeed: 'Write something or record your voice.', audioFail: 'The recording could not be saved.',
+  journalDelete: 'Delete this journal entry? This cannot be undone.', optJournal: 'Journal', optJournalHint: 'Write or talk about the day',
+  backupNoAudio: 'The exported backup does not include voice recordings.', dictateTip: "To dictate instead of typing, use the microphone on your phone's keyboard."
+});
+Object.assign(window.DiaryI18n.es, {
+  journalTitle: 'Diario', journalHint: 'Escribe o graba cómo fue. Se queda solo en este dispositivo.', journalNew: '+ Nueva entrada',
+  journalEmpty: 'Aún no has escrito nada. ¿Cómo fue hoy?', journalTitleField: 'Título (opcional)', journalText: '¿Qué quieres guardar?',
+  journalPlaceholder: 'La primera cucharada, una mueca, un día difícil…', date: 'Fecha',
+  recStart: 'Grabar voz', recStop: 'Parar', recDelete: 'Borrar grabación', recording: 'Grabando', voiceNote: 'Grabación de voz', listen: 'Escuchar', edit: 'Editar',
+  recHint: n => `Hasta ${n} minutos. La grabación se queda solo en este dispositivo.`, recUnsupported: 'Este navegador no permite grabar voz.',
+  micDenied: 'No se pudo usar el micrófono. Comprueba el permiso.', journalNeed: 'Escribe algo o graba tu voz.', audioFail: 'No se pudo guardar la grabación.',
+  journalDelete: '¿Borrar esta entrada del diario? No se puede deshacer.', optJournal: 'Diario', optJournalHint: 'Escribe o habla sobre el día',
+  backupNoAudio: 'La copia exportada no incluye las grabaciones de voz.', dictateTip: 'Para dictar en vez de escribir, usa el micrófono del teclado del móvil.'
+});
+Object.assign(window.DiaryI18n.fr, {
+  journalTitle: 'Journal', journalHint: "Écrivez ou enregistrez comment ça s'est passé. Tout reste sur cet appareil.", journalNew: '+ Nouvelle entrée',
+  journalEmpty: "Rien d'écrit pour le moment. Comment s'est passée la journée ?", journalTitleField: 'Titre (facultatif)', journalText: 'Que voulez-vous garder ?',
+  journalPlaceholder: 'La première cuillère, une grimace, une journée difficile…', date: 'Date',
+  recStart: 'Enregistrer la voix', recStop: 'Arrêter', recDelete: "Supprimer l'enregistrement", recording: 'Enregistrement', voiceNote: 'Enregistrement vocal', listen: 'Écouter', edit: 'Modifier',
+  recHint: n => `Jusqu'à ${n} minutes. L'enregistrement reste sur cet appareil.`, recUnsupported: "Ce navigateur ne permet pas d'enregistrer la voix.",
+  micDenied: "Impossible d'utiliser le micro. Vérifiez l'autorisation.", journalNeed: 'Écrivez quelque chose ou enregistrez votre voix.', audioFail: "L'enregistrement n'a pas pu être sauvegardé.",
+  journalDelete: 'Supprimer cette entrée du journal ? Cette action est définitive.', optJournal: 'Journal', optJournalHint: 'Écrivez ou parlez de la journée',
+  backupNoAudio: "La copie exportée ne contient pas les enregistrements vocaux.", dictateTip: 'Pour dicter au lieu de taper, utilisez le micro du clavier de votre téléphone.'
+});
