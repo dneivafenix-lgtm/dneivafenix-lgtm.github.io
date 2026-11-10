@@ -58,7 +58,7 @@
   const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
   const todayIso = () => iso(new Date());
-  let tab = 'today', day = todayIso(), query = '', cat = 'all', rquery = '', rstage = null, rseg = 'list', planOffset = 0;
+  let tab = 'today', day = todayIso(), query = '', rquery = '', rstage = null, rseg = 'list', planOffset = 0;
   // Receitas: originais em português; os outros idiomas vêm dos ficheiros recipes.<idioma>.js.
   const RX = window.DiaryRecipesI18n || {};
   const hasRecipes = () => !!R && (R.lang === state.lang || Array.isArray(RX[state.lang]));
@@ -451,26 +451,32 @@
     ];
   };
 
+  // Alimentos: só as categorias à vista; os alimentos aparecem ao abrir uma categoria ou ao procurar.
+  const openCats = new Set();
   const viewFoods = () => {
-    const grid = el('div', {});
+    const box = el('div', { class: 'cats' });
     const fill = () => {
-      const match = x => fname(x).toLowerCase().includes(query.toLowerCase());
-      const groups = F.categories.filter(c => cat === 'all' || c === cat).map(c => {
-        const all = F.foods.filter(x => x.cat === c), items = all.filter(match);
-        return items.length ? el('section', { class: 'group' },
-          el('div', { class: 'grouphead' }, el('h2', {}, t().cat[c]), el('span', {}, `${all.filter(x => countFor(x.id)).length} / ${all.length}`)),
-          el('div', { class: 'pills' }, items.map(x => foodCard(x, () => openFoodDetail(x))))) : null;
+      const q = query.trim().toLowerCase();
+      const rows = F.categories.map(c => {
+        const all = F.foods.filter(x => x.cat === c), items = q ? all.filter(x => fname(x).toLowerCase().includes(q)) : all;
+        if (!items.length) return null;
+        const done = all.filter(x => countFor(x.id)).length, open = q ? true : openCats.has(c);
+        return el('section', { class: 'cat' + (open ? ' open' : '') },
+          el('button', { class: 'cathead', 'aria-expanded': String(open), disabled: !!q, onclick: () => { openCats.has(c) ? openCats.delete(c) : openCats.add(c); fill(); } },
+            el('span', { class: 'catname' }, t().cat[c]),
+            el('span', { class: 'catcount' }, `${done} / ${all.length}`),
+            el('span', { class: 'chev', 'aria-hidden': 'true' }, '›'),
+            el('span', { class: 'bar' }, el('i', { style: `width:${done / all.length * 100}%` }))),
+          open && el('div', { class: 'pills' }, items.map(x => foodCard(x, () => openFoodDetail(x)))),
+          open && items.some(x => x.allergen) && el('p', { class: 'legend' }, el('i', {}), t().allergenBadge));
       }).filter(Boolean);
-      grid.replaceChildren(...(groups.length ? groups : [el('p', { class: 'muted' }, t().noResults)]));
+      box.replaceChildren(...(rows.length ? rows : [el('p', { class: 'muted' }, t().noResults)]));
     };
-    const chips = el('div', { class: 'chips' }, ['all', ...F.categories].map(c =>
-      el('button', { class: 'chip', 'aria-pressed': String(cat === c), onclick: () => {
-        cat = c; [...chips.children].forEach((b, i) => b.setAttribute('aria-pressed', String(['all', ...F.categories][i] === c))); fill();
-      } }, c === 'all' ? t().all : t().cat[c])));
     fill();
     return [
+      el('div', { class: 'hello' }, el('h1', {}, t().tabFoods)),
       el('input', { class: 'search', type: 'search', value: query, placeholder: t().search, 'aria-label': t().search, oninput: e => { query = e.target.value; fill(); } }),
-      chips, el('p', { class: 'legend' }, el('i', {}), t().allergenBadge), grid
+      box
     ];
   };
 
