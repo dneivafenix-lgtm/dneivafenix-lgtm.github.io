@@ -31,6 +31,7 @@
     return out;
   };
   // Diário dos pais. O áudio de cada entrada fica à parte, no IndexedDB, com a mesma chave.
+  const GOALS = ['safe', 'allergens', 'meals', 'what', 'browse'];
   const MOODS = ['joy', 'proud', 'tender', 'laugh', 'tired', 'worry'];
   const cleanJournal = arr => (Array.isArray(arr) ? arr : []).filter(e => e && DATE.test(e.date)).slice(0, 500).map(e => ({
     id: String(e.id || 'j' + Math.random().toString(36).slice(2)), date: e.date, title: String(e.title || '').slice(0, 80),
@@ -61,6 +62,7 @@
     return withCurrent({
       lang: CFG.languages.includes(s.lang) ? s.lang : detectLang(),
       onboarded: !!s.onboarded,
+      goals: (Array.isArray(s.goals) ? s.goals : []).filter(g => GOALS.includes(g)), started: typeof s.started === 'boolean' ? s.started : null, hideStart: !!s.hideStart,
       babies, current: seen.has(s.current) ? s.current : babies[0].id
     });
   };
@@ -757,6 +759,7 @@
         el('p', { class: 'muted' }, state.baby.name && age !== null ? t().ageLine(state.baby.name, t().ageMonths(age))
           : state.baby.name || (age !== null ? t().ageMonths(age) : t().setupHint)),
         el('h1', {}, day === today ? t().today : long(day))),
+      startCard(),
       el('div', { class: 'card cal' },
         el('div', { class: 'calhead' },
           el('button', { 'aria-label': t().prevMonth, onclick: () => shiftMonth(-1) }, '‹'),
@@ -988,20 +991,68 @@
       el('button', { class: 'primary noprint', onclick: () => window.print() }, t().reportPrint))];
   };
 
+  // Boas-vindas em passos curtos: uma pergunta por ecrã.
+  let obStep = 0;
+  const OB_STEPS = 5;
   const viewWelcome = () => {
-    const start = el('button', { class: 'primary', disabled: true, onclick: () => { state.onboarded = true; save(); render(); window.scrollTo(0, 0); } }, t().obStart);
-    return [el('div', { class: 'welcome', style: 'display:flex;flex-direction:column' },
-      el('h1', {}, t().obTitle),
-      el('p', { class: 'lead' }, t().obLead),
+    const go = n => { obStep = Math.max(0, Math.min(OB_STEPS - 1, obStep + n)); save(); render(); window.scrollTo(0, 0); };
+    const bar = el('div', { class: 'obbar', role: 'img', 'aria-label': t().stepOf(obStep + 1, OB_STEPS) }, Array.from({ length: OB_STEPS }, (_, i) => el('i', { class: i < obStep ? 'done' : i === obStep ? 'now' : '' })));
+    const nav = (nextLabel, onNext, disabled) => el('div', { class: 'obnav' },
+      obStep > 0 ? el('button', { class: 'ghost', onclick: () => go(-1) }, t().back) : null,
+      el('button', { class: 'primary', disabled: !!disabled, onclick: onNext || (() => go(1)) }, nextLabel || t().next));
+    let body;
+    if (obStep === 0) body = [
+      el('img', { class: 'obart', src: 'img/diario.jpg', alt: '', width: 960, height: 640 }),
+      el('h1', {}, t().obTitle), el('p', { class: 'lead' }, t().obLead),
       el('ul', { class: 'points' }, t().obPoints.map(x => el('li', {}, icon('check', 16), el('span', {}, x)))),
+      nav()];
+    else if (obStep === 1) body = [
+      el('h1', {}, t().obQ1), el('p', { class: 'lead' }, t().obQ1Hint),
+      el('div', { class: 'obopts' }, GOALS.map(g => el('button', { class: 'obopt', 'aria-pressed': String(state.goals.includes(g)), onclick: ev => {
+        state.goals = state.goals.includes(g) ? state.goals.filter(x => x !== g) : [...state.goals, g];
+        ev.currentTarget.setAttribute('aria-pressed', String(state.goals.includes(g))); save();
+      } }, el('span', {}, el('b', {}, t().goals[g][0]), el('span', { class: 'muted' }, t().goals[g][1])), el('span', { class: 'obtick', 'aria-hidden': 'true' }, icon('check', 16))))),
+      nav()];
+    else if (obStep === 2) body = [
+      el('h1', {}, t().obQ2), el('p', { class: 'lead' }, t().obQ2Hint),
+      el('div', { class: 'obopts' }, [[true, t().yes], [false, t().notYet]].map(([v, label]) => el('button', { class: 'obopt big', 'aria-pressed': String(state.started === v),
+        onclick: () => { state.started = v; go(1); } }, el('span', {}, el('b', {}, label)), el('span', { class: 'obtick', 'aria-hidden': 'true' }, icon('check', 16))))),
+      nav(t().next, null, state.started === null)];
+    else if (obStep === 3) body = [
+      el('h1', {}, t().obQ3), el('p', { class: 'lead' }, t().obQ3Hint),
       el('div', { class: 'card' },
         el('label', { class: 'field' }, t().babyName, el('input', { type: 'text', maxLength: 40, value: state.baby.name, autocomplete: 'off',
           oninput: e => { state.baby.name = e.target.value.trim(); save(); } })),
         el('label', { class: 'field' }, t().birthDate, el('input', { type: 'date', value: state.baby.birth, max: todayIso(),
-          onchange: e => { state.baby.birth = e.target.value; save(); } })),
-        el('label', { class: 'check' }, el('input', { type: 'checkbox', onchange: e => { start.disabled = !e.target.checked; } }), t().obAccept)),
-      start,
-      el('p', { class: 'fine' }, t().obPrivacy))];
+          onchange: e => { state.baby.birth = e.target.value; save(); } }))),
+      nav()];
+    else {
+      const start = nav(t().obStart, () => { state.onboarded = true; obStep = 0; save(); render(); window.scrollTo(0, 0); }, true);
+      body = [
+        el('h1', {}, t().obQ4),
+        el('div', { class: 'card' }, el('p', { class: 'muted' }, t().disclaimer),
+          el('label', { class: 'check' }, el('input', { type: 'checkbox', onchange: e => { start.querySelector('.primary').disabled = !e.target.checked; } }), t().obAccept)),
+        el('p', { class: 'fine' }, t().obPrivacy), legalLinks(), start];
+    }
+    return [el('div', { class: 'welcome', style: 'display:flex;flex-direction:column' }, bar, body)];
+  };
+
+  // Cartão "Para começar" no ecrã Hoje, feito a partir das respostas das boas-vindas.
+  const startCard = () => {
+    if (state.hideStart || state.log.length >= 3) return null;
+    const guides = (window.DiaryGuides || {})[state.lang] || [], guide = id => guides.find(g => g.id === id);
+    const goTab = id => () => { tab = id; render(); window.scrollTo(0, 0); };
+    const links = [], add = (label, fn) => { if (label && !links.some(x => x[0] === label)) links.push([label, fn]); };
+    const g = state.goals.length ? state.goals : ['browse'];
+    if (state.started === false && guide('ready')) add(guide('ready').title, () => openGuide(guide('ready')));
+    if (g.includes('safe')) { if (guide('gagging')) add(guide('gagging').title, () => openGuide(guide('gagging'))); if (guide('textures')) add(guide('textures').title, () => openGuide(guide('textures'))); }
+    if (g.includes('allergens')) add(t().algTitle, goTab('allergens'));
+    if (g.includes('what') || g.includes('browse')) add(t().startFoods, goTab('foods'));
+    if (g.includes('meals') && hasRecipes()) add(t().tabRecipes, goTab('recipes'));
+    if (state.started !== false) add(t().startLog, () => openPicker(todayIso()));
+    return el('div', { class: 'card startcard' },
+      el('div', { class: 'alghead' }, el('h2', {}, t().startTitle), el('button', { class: 'linkish', onclick: () => { state.hideStart = true; save(); render(); } }, t().startHide)),
+      el('div', { class: 'startlinks' }, links.slice(0, 4).map(([label, fn]) => el('button', { class: 'startlink', onclick: fn }, el('span', {}, label), el('span', { 'aria-hidden': 'true' }, '›')))));
   };
 
   // ---------- shell ----------

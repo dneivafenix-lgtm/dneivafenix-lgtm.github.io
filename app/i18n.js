@@ -562,3 +562,57 @@ Object.assign(window.DiaryI18n.fr, {
   thatDay: 'Ce jour-là, bébé a goûté', addPhoto: 'Ajouter une photo', removePhoto: 'Retirer la photo', photoFail: "Cette photo n'a pas pu être utilisée.", photoHint: 'La photo reste sur cet appareil.',
   journalFirst: 'La première page est blanche. Écrivez, enregistrez ou ajoutez une photo du moment.'
 });
+
+// Boas-vindas por passos e cartão "Para começar".
+Object.assign(window.DiaryI18n.pt, {
+  next: 'Seguinte', back: 'Voltar', yes: 'Sim', notYet: 'Ainda não', stepOf: (a, b) => `Passo ${a} de ${b}`,
+  obQ1: 'Em que precisas de mais ajuda?', obQ1Hint: 'Podes escolher mais do que uma.',
+  goals: { safe: ['Começar com segurança', 'Texturas, cortes e a diferença entre reflexo de vómito e engasgamento.'],
+    allergens: ['Introduzir alergénios', 'Um de cada vez, com um registo claro do que já foi oferecido.'],
+    meals: ['Ideias para as refeições', 'Receitas por fase, plano da semana e lista de compras.'],
+    what: ['Saber o que oferecer', 'Como servir cada alimento em cada idade.'],
+    browse: ['Só estou a ver', 'Sem pressa. Fica tudo aqui para quando precisares.'] },
+  obQ2: 'O bebé já começou a comer?', obQ2Hint: 'Purés, pedaços ou alergénios: tudo conta.',
+  obQ3: 'Como se chama o bebé?', obQ3Hint: 'Fica só neste dispositivo e serve para personalizar a app. Podes deixar em branco.',
+  obQ4: 'Só mais uma coisa',
+  startTitle: 'Para começar', startHide: 'Ocultar', startFoods: 'Ver os alimentos e como os servir', startLog: 'Regista o primeiro alimento'
+});
+Object.assign(window.DiaryI18n.en, {
+  next: 'Next', back: 'Back', yes: 'Yes', notYet: 'Not yet', stepOf: (a, b) => `Step ${a} of ${b}`,
+  obQ1: 'Where do you need the most help?', obQ1Hint: 'You can choose more than one.',
+  goals: { safe: ['Starting safely', 'Textures, shapes and the difference between gagging and choking.'],
+    allergens: ['Introducing allergens', 'One at a time, with a clear record of what has been offered.'],
+    meals: ['Meal ideas', 'Recipes by stage, a weekly plan and a shopping list.'],
+    what: ['Knowing what to offer', 'How to serve each food at each age.'],
+    browse: ['Just looking', 'No rush. It will all be here when you need it.'] },
+  obQ2: 'Has your baby started eating yet?', obQ2Hint: 'Purées, finger foods or allergens: it all counts.',
+  obQ3: "What is your baby's name?", obQ3Hint: 'It stays on this device only and is used to personalise the app. You can leave it blank.',
+  obQ4: 'One last thing',
+  startTitle: 'Getting started', startHide: 'Hide', startFoods: 'See the foods and how to serve them', startLog: 'Log the first food'
+});
+Object.assign(window.DiaryI18n.es, {
+  next: 'Siguiente', back: 'Volver', yes: 'Sí', notYet: 'Todavía no', stepOf: (a, b) => `Paso ${a} de ${b}`,
+  obQ1: '¿En qué necesitas más ayuda?', obQ1Hint: 'Puedes elegir más de una.',
+  goals: { safe: ['Empezar con seguridad', 'Texturas, cortes y la diferencia entre arcadas y atragantamiento.'],
+    allergens: ['Introducir alérgenos', 'De uno en uno, con un registro claro de lo que ya se ha ofrecido.'],
+    meals: ['Ideas para las comidas', 'Recetas por etapa, plan semanal y lista de la compra.'],
+    what: ['Saber qué ofrecer', 'Cómo servir cada alimento a cada edad.'],
+    browse: ['Solo estoy mirando', 'Sin prisa. Todo estará aquí cuando lo necesites.'] },
+  obQ2: '¿El bebé ya ha empezado a comer?', obQ2Hint: 'Purés, trozos o alérgenos: todo cuenta.',
+  obQ3: '¿Cómo se llama el bebé?', obQ3Hint: 'Se queda solo en este dispositivo y sirve para personalizar la app. Puedes dejarlo en blanco.',
+  obQ4: 'Solo una cosa más',
+  startTitle: 'Para empezar', startHide: 'Ocultar', startFoods: 'Ver los alimentos y cómo servirlos', startLog: 'Registra el primer alimento'
+});
+Object.assign(window.DiaryI18n.fr, {
+  next: 'Suivant', back: 'Retour', yes: 'Oui', notYet: 'Pas encore', stepOf: (a, b) => `Étape ${a} sur ${b}`,
+  obQ1: "Où avez-vous le plus besoin d'aide ?", obQ1Hint: 'Vous pouvez en choisir plusieurs.',
+  goals: { safe: ['Commencer en sécurité', "Textures, découpes et la différence entre haut-le-cœur et étouffement."],
+    allergens: ['Introduire les allergènes', "Un à la fois, avec une trace claire de ce qui a déjà été proposé."],
+    meals: ['Des idées de repas', 'Recettes par étape, menu de la semaine et liste de courses.'],
+    what: ['Savoir quoi proposer', 'Comment servir chaque aliment à chaque âge.'],
+    browse: ['Je regarde seulement', "Rien ne presse. Tout sera là quand vous en aurez besoin."] },
+  obQ2: 'Bébé a-t-il déjà commencé à manger ?', obQ2Hint: 'Purées, morceaux ou allergènes : tout compte.',
+  obQ3: "Comment s'appelle bébé ?", obQ3Hint: "Le prénom reste sur cet appareil et sert à personnaliser l'app. Vous pouvez laisser vide.",
+  obQ4: 'Une dernière chose',
+  startTitle: 'Pour commencer', startHide: 'Masquer', startFoods: 'Voir les aliments et comment les servir', startLog: 'Notez le premier aliment'
+});
