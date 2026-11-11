@@ -17,6 +17,7 @@ Atualizada a 11 de novembro de 2026. App de teste: https://dneivafenix-lgtm.gith
 - Perfil do bebé: método, alergias confirmadas, alimentação da família, eczema, prematuro
 - Pesquisa de receitas no ecrã Alimentos
 - Registo por refeição (pequeno-almoço, almoço, lanche, jantar), com vários alimentos de uma vez e edição de cada registo
+- Registar receitas numa refeição: cada ingrediente fica como alimento individual
 - Guias com ilustração e tempo de leitura, e cartão de guias mais visível no ecrã Hoje
 
 ## A seguir (posso fazer sem ti)
