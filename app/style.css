@@ -46,6 +46,30 @@ main{max-width:680px;margin:auto;padding:16px 20px 28px;outline:none;display:fle
 
 /* Boas-vindas */
 .welcome{padding-top:8px;gap:18px}
+/* Boas-vindas por passos */
+.obbar{display:flex;gap:6px}
+.obbar i{flex:1;height:5px;border-radius:999px;background:var(--track)}
+.obbar i.done{background:var(--ink)}
+.obbar i.now{background:var(--brand)}
+.obart{display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;object-position:50% 46%;border-radius:20px}
+.obopts{display:flex;flex-direction:column;gap:10px}
+.obopt{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;min-height:68px;padding:14px 18px;border-radius:20px;border:1px solid var(--line);background:var(--card);box-shadow:var(--shadow);transition:transform .12s,background .15s}
+.obopt>span:first-child{display:flex;flex-direction:column;gap:2px;min-width:0}
+.obopt b{font-family:var(--display);font-weight:600;font-size:17px}
+.obopt.big b{font-size:19px}
+.obtick{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--edge);display:grid;place-items:center;color:transparent;flex:none}
+.obopt[aria-pressed=true]{background:var(--tint);border-color:var(--brand)}
+.obopt[aria-pressed=true] .obtick{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.obopt:active{transform:scale(.98)}
+.obnav{display:flex;gap:8px;margin-top:4px}
+.obnav .ghost{flex:none}
+.obnav .primary{flex:1}
+.startcard h2{margin:0}
+.startlinks{display:flex;flex-direction:column;margin-top:8px}
+.startlink{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;min-height:48px;padding:8px 0;border:0;border-top:1px solid var(--line);background:none;font-size:15px;font-weight:600}
+.startlink:first-child{border-top:0}
+.startlink span:last-child{color:var(--muted);font-size:20px}
+@media (prefers-reduced-motion:reduce){.obopt{transition:none}.obopt:active{transform:none}}
 .welcome h1{font-size:clamp(30px,8vw,38px);line-height:1.08}
 .welcome .lead{font-size:17px;color:var(--body)}
 .points{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
