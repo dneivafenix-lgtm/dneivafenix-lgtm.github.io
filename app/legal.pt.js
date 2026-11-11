@@ -8,7 +8,7 @@ window.DiaryLegal.pt = {
       "Este diário alimentar do bebé é uma aplicação web da marca Petit Nuvem. A entidade responsável é {controller}."
     ]},
     {"h": "Que dados existem e onde ficam", "p": [
-      "A aplicação regista o que tu escreves: o primeiro nome do bebé (opcional), a data de nascimento, os alimentos experimentados, se gostou ou não, reações suspeitas, notas livres, as entradas do diário e as gravações de voz que lá fizeres, o plano semanal de refeições e a lista de compras.",
+      "A aplicação regista o que tu escreves: o primeiro nome do bebé (opcional), a data de nascimento, os alimentos experimentados, se gostou ou não, reações suspeitas, notas livres, as entradas do diário, com as gravações de voz e as fotos que lá juntares, o plano semanal de refeições e a lista de compras.",
       "Tudo isto fica guardado apenas no armazenamento local do navegador, no teu próprio dispositivo. Não há contas de utilizador nem base de dados em servidor. Não conseguimos ver nem recuperar os teus dados."
     ]},
     {"h": "O que não fazemos", "p": [

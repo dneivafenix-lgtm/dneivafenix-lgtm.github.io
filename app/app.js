@@ -31,9 +31,11 @@
     return out;
   };
   // Diário dos pais. O áudio de cada entrada fica à parte, no IndexedDB, com a mesma chave.
+  const MOODS = ['joy', 'proud', 'tender', 'laugh', 'tired', 'worry'];
   const cleanJournal = arr => (Array.isArray(arr) ? arr : []).filter(e => e && DATE.test(e.date)).slice(0, 500).map(e => ({
     id: String(e.id || 'j' + Math.random().toString(36).slice(2)), date: e.date, title: String(e.title || '').slice(0, 80),
-    text: String(e.text || '').slice(0, 4000), audio: !!e.audio, secs: Math.max(0, Math.min(3600, Math.round(+e.secs || 0)))
+    text: String(e.text || '').slice(0, 4000), audio: !!e.audio, secs: Math.max(0, Math.min(3600, Math.round(+e.secs || 0))),
+    mood: MOODS.includes(e.mood) ? e.mood : '', photo: !!e.photo
   }));
   const cleanBaby = b => ({
     id: String(b.id || ''), name: String(b.name || '').slice(0, 40), birth: DATE.test(b.birth) ? b.birth : '', log: cleanLog(b.log), plan: cleanPlan(b.plan), notes: cleanNotes(b.notes), journal: cleanJournal(b.journal),
@@ -111,6 +113,7 @@
     trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
     mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+    photo: '<rect x="3" y="6" width="18" height="14" rx="3"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/>',
     journal: '<path d="M6 4h10a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2z"/><path d="M6 17a2 2 0 0 1 2-2h10M10 8h4"/>',
     note: '<path d="M6 4h9l3 3v13H6z"/><path d="M9 10h6M9 14h6"/>',
     check: '<path d="M5 12l4 4 10-10"/>',
@@ -352,7 +355,7 @@
     const i = state.babies.indexOf(state.baby);
     openSheet(sheetHead('', t().removeBaby), el('p', { style: 'margin-top:10px' }, t().confirmRemoveBaby(babyLabel(state.baby, i))),
       el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
-        el('button', { class: 'danger', onclick: () => { state.baby.journal.forEach(e => e.audio && audioStore.del(e.id).catch(() => {})); state.babies.splice(i, 1); closeSheet(); switchBaby(state.babies[0].id); } }, t().removeBaby)));
+        el('button', { class: 'danger', onclick: () => { state.baby.journal.forEach(dropMedia); state.babies.splice(i, 1); closeSheet(); switchBaby(state.babies[0].id); } }, t().removeBaby)));
   };
 
   // ---------- plano da semana e lista de compras ----------
@@ -506,12 +509,57 @@
   const canRecord = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
   const player = blob => el('audio', { controls: true, src: URL.createObjectURL(blob), class: 'player' });
 
+  // Fotos e gravações de uma entrada: chave do áudio = id; chave da foto = id + ':photo'.
+  const dropMedia = e => { if (e.audio) audioStore.del(e.id).catch(() => {}); if (e.photo) audioStore.del(e.id + ':photo').catch(() => {}); };
+  // Reduz a foto no próprio dispositivo antes de a guardar.
+  const shrinkPhoto = file => createImageBitmap(file).then(bmp => {
+    const k = Math.min(1, 1280 / Math.max(bmp.width, bmp.height)), c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    return new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/jpeg', 0.82));
+  });
+  // Idade do bebé numa data, em meses e dias.
+  const ageOn = dateIso => {
+    if (!state.baby.birth || dateIso < state.baby.birth) return '';
+    const b = parse(state.baby.birth), d = parse(dateIso);
+    let m = (d.getFullYear() - b.getFullYear()) * 12 + d.getMonth() - b.getMonth();
+    if (d.getDate() < b.getDate()) m--;
+    const from = new Date(b.getFullYear(), b.getMonth() + m, b.getDate());
+    return t().ageLong(m, Math.round((d - from) / 864e5));
+  };
+
   const openJournalForm = (entry, onDay) => {
-    const e = entry || { id: 'j' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), date: onDay && onDay <= todayIso() ? onDay : todayIso(), title: '', text: '', audio: false, secs: 0 };
+    const e = entry || { id: 'j' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), date: onDay && onDay <= todayIso() ? onDay : todayIso(), title: '', text: '', audio: false, secs: 0, mood: '', photo: false };
     const date = el('input', { type: 'date', value: e.date, max: todayIso() });
     const title = el('input', { type: 'text', maxLength: 80, value: e.title, autocomplete: 'off' });
     const text = el('textarea', { rows: 6, maxLength: 4000, value: e.text, placeholder: t().journalPlaceholder });
     let blob = null, hasAudio = e.audio, secs = e.secs, rec = null, stream = null, timer = null, started = 0;
+    let mood = e.mood, photoBlob = null, hasPhoto = e.photo;
+
+    const moods = el('div', { class: 'chips', role: 'group', 'aria-label': t().moodTitle }, MOODS.map(id =>
+      el('button', { class: 'chip', type: 'button', 'aria-pressed': String(mood === id), onclick: ev => {
+        mood = mood === id ? '' : id; [...moods.children].forEach(b => b.setAttribute('aria-pressed', 'false'));
+        if (mood) ev.currentTarget.setAttribute('aria-pressed', 'true');
+      } }, t().moods[id])));
+    // Ideias para escrever: três, a rodar de dia para dia.
+    const P = t().prompts, k = Math.floor(parse(todayIso()).getTime() / 864e5);
+    const prompts = !entry ? el('div', { class: 'prompts' }, el('p', { class: 'fine' }, t().promptsTitle),
+      el('div', { class: 'chips' }, [0, 1, 2].map(n => P[(k + n) % P.length]).map(x =>
+        el('button', { class: 'chip', type: 'button', onclick: () => { title.value = x; text.focus(); } }, x)))) : null;
+
+    const photoBox = el('div', { class: 'photobox' });
+    const pick = el('input', { type: 'file', accept: 'image/*', hidden: true, onchange: ev => {
+      const f = ev.target.files[0]; if (!f) return;
+      shrinkPhoto(f).then(b => { photoBlob = b; hasPhoto = true; drawPhoto(); }).catch(() => toast(t().photoFail));
+    } });
+    const drawPhoto = () => {
+      if (!hasPhoto) return photoBox.replaceChildren(el('button', { class: 'ghost withtag', type: 'button', onclick: () => pick.click() }, icon('photo', 20), t().addPhoto), el('p', { class: 'fine' }, t().photoHint), pick);
+      const img = el('img', { class: 'jphoto', alt: '' });
+      if (photoBlob) img.src = URL.createObjectURL(photoBlob); else audioStore.get(e.id + ':photo').then(b => { if (b) img.src = URL.createObjectURL(b); }).catch(() => {});
+      photoBox.replaceChildren(img, el('button', { class: 'ghost', type: 'button', onclick: () => { photoBlob = null; hasPhoto = false; drawPhoto(); } }, t().removePhoto), pick);
+    };
+    drawPhoto();
+
     const box = el('div', { class: 'recbox' });
     const release = () => { clearInterval(timer); if (stream) stream.getTracks().forEach(x => x.stop()); stream = null; };
     const idle = () => box.replaceChildren(...(canRecord()
@@ -538,42 +586,59 @@
     }
     hasAudio ? done() : idle();
     sheet.addEventListener('close', () => { if (rec && rec.state === 'recording') { rec.onstop = null; rec.stop(); } release(); }, { once: true });
+
     const saveEntry = async () => {
       if (rec && rec.state === 'recording') return toast(t().recStop);
-      const out = { id: e.id, date: DATE.test(date.value) && date.value <= todayIso() ? date.value : e.date, title: title.value.trim(), text: text.value.trim(), audio: hasAudio, secs: hasAudio ? secs : 0 };
-      if (!out.title && !out.text && !out.audio) return toast(t().journalNeed);
+      const out = { id: e.id, date: DATE.test(date.value) && date.value <= todayIso() ? date.value : e.date, title: title.value.trim(), text: text.value.trim(),
+        audio: hasAudio, secs: hasAudio ? secs : 0, mood, photo: hasPhoto };
+      if (!out.title && !out.text && !out.audio && !out.photo) return toast(t().journalNeed);
       try { if (blob) await audioStore.put(e.id, blob); else if (!hasAudio && e.audio) await audioStore.del(e.id); }
       catch { out.audio = false; out.secs = 0; toast(t().audioFail); }
+      try { if (photoBlob) await audioStore.put(e.id + ':photo', photoBlob); else if (!hasPhoto && e.photo) await audioStore.del(e.id + ':photo'); }
+      catch { out.photo = false; toast(t().photoFail); }
       const list = state.baby.journal, i = list.findIndex(x => x.id === e.id);
       if (i >= 0) list[i] = out; else list.push(out);
       save(); closeSheet(); render();
     };
-    openSheet(sheetHead('', t().journalTitle),
+    openSheet(sheetHead('', state.baby.name ? t().journalOf(state.baby.name) : t().journalYours),
       el('label', { class: 'field', style: 'margin-top:12px' }, t().date, date),
+      el('p', { class: 'field', style: 'margin-bottom:6px' }, t().moodTitle), moods,
+      prompts,
       el('label', { class: 'field' }, t().journalTitleField, title),
       el('label', { class: 'field' }, t().journalText, text),
       el('p', { class: 'fine', style: 'margin-top:6px' }, t().dictateTip),
-      box,
+      photoBox, box,
       el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().cancel), el('button', { class: 'primary', onclick: saveEntry }, t().save)));
   };
   const deleteJournal = e => openSheet(sheetHead('', t().journalTitle), el('p', { style: 'margin-top:10px' }, t().journalDelete),
     el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
-      el('button', { class: 'danger', onclick: () => { if (e.audio) audioStore.del(e.id).catch(() => {}); state.baby.journal = state.baby.journal.filter(x => x.id !== e.id); save(); closeSheet(); render(); } }, t().remove)));
+      el('button', { class: 'danger', onclick: () => { dropMedia(e); state.baby.journal = state.baby.journal.filter(x => x.id !== e.id); save(); closeSheet(); render(); } }, t().remove)));
   const viewJournal = () => {
     const list = [...state.baby.journal].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+    const name = state.baby.name, first = list.length ? list[list.length - 1].date : '';
+    const short = d => fmtDate(d, { day: 'numeric', month: 'long', year: 'numeric' });
     return [goBack('today'),
-      el('div', { class: 'hello' }, el('h1', {}, t().journalTitle), el('p', { class: 'muted', style: 'margin-top:6px' }, t().journalHint)),
-      el('button', { class: 'primary', onclick: () => openJournalForm(null) }, t().journalNew),
-      list.length ? list.map(e => {
-        const slot = el('div', { class: 'jaudio' }, el('button', { class: 'ghost withtag small', onclick: () => audioStore.get(e.id).then(b => { if (b) { const a = player(b); slot.replaceChildren(a); a.play().catch(() => {}); } else toast(t().audioFail); }).catch(() => toast(t().audioFail)) },
+      el('div', { class: 'jcover' },
+        el('p', { class: 'hand' }, name ? t().journalOf(name) : t().journalYours),
+        el('p', { class: 'jmeta' }, list.length ? `${t().memories(list.length)} · ${t().since(short(first))}` : t().journalFirst),
+        el('button', { class: 'primary', onclick: () => openJournalForm(null) }, t().journalNew)),
+      el('div', { class: 'timeline' }, list.map(e => {
+        const age = ageOn(e.date), foods = [...new Set(state.log.filter(x => x.date === e.date).map(x => x.food))].map(id => fname(F.byId.get(id)));
+        const audio = el('div', { class: 'jaudio' }, el('button', { class: 'ghost withtag small', onclick: () => audioStore.get(e.id).then(b => { if (b) { const a = player(b); audio.replaceChildren(a); a.play().catch(() => {}); } else toast(t().audioFail); }).catch(() => toast(t().audioFail)) },
           icon('mic', 18), `${t().listen} · ${clock(e.secs)}`));
-        return el('article', { class: 'card jentry' },
-          el('p', { class: 'eyebrow daytitle' }, fmtDate(e.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })),
-          e.title && el('h2', {}, e.title),
-          e.text && el('p', { class: 'jtext' }, e.text),
-          e.audio && slot,
-          el('div', { class: 'jactions' }, el('button', { class: 'linkish', onclick: () => openJournalForm(e) }, t().edit), el('button', { class: 'linkish', onclick: () => deleteJournal(e) }, t().remove)));
-      }) : el('div', { class: 'card' }, el('p', { class: 'muted' }, t().journalEmpty))
+        const photo = e.photo ? el('img', { class: 'jphoto', alt: '', hidden: true }) : null;
+        if (photo) audioStore.get(e.id + ':photo').then(b => { if (b) { photo.src = URL.createObjectURL(b); photo.hidden = false; } }).catch(() => {});
+        return el('article', { class: 'jentry' },
+          el('p', { class: 'jdate hand' }, fmtDate(e.date, { weekday: 'long', day: 'numeric', month: 'long' })),
+          el('div', { class: 'card jcard' },
+            (age || e.mood) && el('div', { class: 'jtags' }, age && el('span', { class: 'badge' }, t().ageThen(name, age)), e.mood && el('span', { class: 'badge nutri' }, t().moods[e.mood])),
+            e.title && el('h2', {}, e.title),
+            photo,
+            e.text && el('p', { class: 'jtext' }, e.text),
+            e.audio && audio,
+            foods.length ? el('p', { class: 'jfoods' }, el('b', {}, t().thatDay + ': '), foods.join(', ')) : null,
+            el('div', { class: 'jactions' }, el('button', { class: 'linkish', onclick: () => openJournalForm(e) }, t().edit), el('button', { class: 'linkish', onclick: () => deleteJournal(e) }, t().remove))));
+      }))
     ];
   };
 
@@ -739,8 +804,8 @@
         el('span', { class: 'rtxt' }, el('span', { class: 'eyebrow' }, t().recipeOfDay), el('span', { class: 'rname' }, rx(daily).t),
           el('span', { class: 'muted' }, recipeMeta(daily)), daily.kcal && el('span', { class: 'kcal' }, kcalLine(daily)))),
       el('button', { class: 'card nudge', onclick: () => { tab = 'journal'; render(); window.scrollTo(0, 0); } },
-        el('span', { class: 'eyebrow' }, t().journalTitle), el('span', { class: 'rname' }, t().optJournalHint),
-        el('span', { class: 'muted' }, t().journalHint)),
+        el('span', { class: 'hand' }, state.baby.name ? t().journalOf(state.baby.name) : t().journalYours),
+        el('span', { class: 'muted' }, state.baby.journal.length ? t().memories(state.baby.journal.length) : t().optJournalHint)),
       guides ? el('button', { class: 'card nudge', onclick: () => { tab = 'guides'; render(); window.scrollTo(0, 0); } },
         el('span', { class: 'eyebrow' }, t().guidesTitle), el('span', { class: 'rname' }, t().guidesHint),
         el('span', { class: 'muted' }, guides.map(g => g.title).slice(0, 3).join(' · '))) : null,
@@ -867,7 +932,7 @@
           sheetHead('', t().clearData), el('p', { style: 'margin-top:10px' }, t().confirmClear),
           el('div', { class: 'btnrow' },
             el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
-            el('button', { class: 'danger', onclick: () => { state.babies.forEach(b => b.journal.forEach(e => e.audio && audioStore.del(e.id).catch(() => {}))); state = clean({ lang: state.lang, onboarded: true }); save(); closeSheet(); render(); } }, t().clearData))
+            el('button', { class: 'danger', onclick: () => { state.babies.forEach(b => b.journal.forEach(dropMedia)); state = clean({ lang: state.lang, onboarded: true }); save(); closeSheet(); render(); } }, t().clearData))
         ) }, t().clearData))),
       el('div', { class: 'card' }, el('h2', {}, t().aboutTitle),
         el('p', { class: 'muted' }, t().aboutText),
