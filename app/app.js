@@ -39,10 +39,11 @@
   const cleanJournal = arr => (Array.isArray(arr) ? arr : []).filter(e => e && DATE.test(e.date)).slice(0, 500).map(e => ({
     id: String(e.id || 'j' + Math.random().toString(36).slice(2)), date: e.date, title: String(e.title || '').slice(0, 80),
     text: String(e.text || '').slice(0, 4000), audio: !!e.audio, secs: Math.max(0, Math.min(3600, Math.round(+e.secs || 0))),
-    mood: MOODS.includes(e.mood) ? e.mood : '', photo: !!e.photo
+    mood: MOODS.includes(e.mood) ? e.mood : '', photo: !!e.photo, at: /^\d\d:\d\d$/.test(e.at) ? e.at : ''
   }));
   const cleanBaby = b => ({
     id: String(b.id || ''), name: String(b.name || '').slice(0, 40), birth: DATE.test(b.birth) ? b.birth : '', log: cleanLog(b.log), plan: cleanPlan(b.plan), notes: cleanNotes(b.notes), journal: cleanJournal(b.journal),
+    jmoods: Object.fromEntries(Object.entries(b.jmoods && typeof b.jmoods === 'object' ? b.jmoods : {}).filter(([d, m]) => DATE.test(d) && MOODS.includes(m))),
     method: METHODS.includes(b.method) ? b.method : '', premature: !!b.premature, eczema: !!b.eczema, diet: ['veg', 'vegan'].includes(b.diet) ? b.diet : '',
     avoid: (Array.isArray(b.avoid) ? b.avoid : []).filter(a => F.allergens.includes(a)),
     bought: { week: DATE.test(b.bought?.week) ? b.bought.week : '', lines: (Array.isArray(b.bought?.lines) ? b.bought.lines : []).filter(x => typeof x === 'string').slice(0, 300) }
@@ -712,8 +713,10 @@
     return t().ageLong(m, Math.round((d - from) / 864e5));
   };
 
+  const nowHM = () => { const d = new Date(); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+  let jday = null, jq = null; // página aberta no diário e pergunta escolhida (null = a do dia; -1 = sem pergunta)
   const openJournalForm = (entry, onDay) => {
-    const e = entry || { id: 'j' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), date: onDay && onDay <= todayIso() ? onDay : todayIso(), title: '', text: '', audio: false, secs: 0, mood: '', photo: false };
+    const e = entry || { id: 'j' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), date: onDay && onDay <= todayIso() ? onDay : todayIso(), title: '', text: '', audio: false, secs: 0, mood: '', photo: false, at: nowHM() };
     const date = el('input', { class: 'jpdate hand', type: 'date', value: e.date, max: todayIso(), 'aria-label': t().date });
     const text = el('textarea', { class: 'jlines', rows: 8, maxLength: 4000, value: e.text, placeholder: t().journalPlaceholder, 'aria-label': t().journalText });
     let blob = null, hasAudio = e.audio, secs = e.secs, rec = null, stream = null, timer = null, started = 0;
@@ -773,7 +776,7 @@
     const saveEntry = async () => {
       if (rec && rec.state === 'recording') return toast(t().recStop);
       const out = { id: e.id, date: DATE.test(date.value) && date.value <= todayIso() ? date.value : e.date, title: String(qText || '').slice(0, 80), text: text.value.trim(),
-        audio: hasAudio, secs: hasAudio ? secs : 0, mood, photo: hasPhoto };
+        audio: hasAudio, secs: hasAudio ? secs : 0, mood, photo: hasPhoto, at: e.at || '' };
       if (!out.text && !out.audio && !out.photo) return toast(t().journalNeed);
       try { if (blob) await audioStore.put(e.id, blob); else if (!hasAudio && e.audio) await audioStore.del(e.id); }
       catch { out.audio = false; out.secs = 0; toast(t().audioFail); }
@@ -781,44 +784,96 @@
       catch { out.photo = false; toast(t().photoFail); }
       const list = state.baby.journal, i = list.findIndex(x => x.id === e.id);
       if (i >= 0) list[i] = out; else list.push(out);
-      save(); closeSheet(); render();
+      jday = out.date; save(); closeSheet(); render();
     };
     openSheet(sheetHead('', state.baby.name ? t().journalOf(state.baby.name) : t().journalYours),
       el('div', { class: 'jpaper jwrite' }, date, qText && qLine, other, text),
       el('p', { class: 'fine', style: 'margin-top:8px' }, t().dictateTip),
-      el('p', { class: 'field', style: 'margin-bottom:6px' }, t().moodTitle), moods,
       photoBox, box,
-      el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().cancel), el('button', { class: 'primary', onclick: saveEntry }, t().save)));
+      el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().cancel), el('button', { class: 'primary', onclick: saveEntry }, t().save)),
+      entry && el('div', { class: 'btnrow' }, el('button', { class: 'danger', onclick: () => deleteJournal(e) }, t().remove)));
   };
   const deleteJournal = e => openSheet(sheetHead('', t().journalTitle), el('p', { style: 'margin-top:10px' }, t().journalDelete),
     el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
       el('button', { class: 'danger', onclick: () => { dropMedia(e); state.baby.journal = state.baby.journal.filter(x => x.id !== e.id); save(); closeSheet(); render(); } }, t().remove)));
+  // Diário: um caderno com uma página por dia. Tudo o que se escreve num dia vai para a mesma página.
   const viewJournal = () => {
-    const list = [...state.baby.journal].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
-    const name = state.baby.name, first = list.length ? list[list.length - 1].date : '';
-    const short = d => fmtDate(d, { day: 'numeric', month: 'long', year: 'numeric' });
+    const J = state.baby.journal, today = todayIso(), name = state.baby.name;
+    const days = [...new Set([...J.map(e => e.date), today, ...(jday ? [jday] : [])])].sort();
+    if (!jday || !days.includes(jday)) jday = today;
+    const at = days.indexOf(jday), short = d => fmtDate(d, { day: 'numeric', month: 'short' });
+    const go = d => { jday = d; jq = null; render(); };
+    const moments = J.filter(e => e.date === jday).sort((a, b) => (a.at || '').localeCompare(b.at || '') || a.id.localeCompare(b.id));
+    const age = ageOn(jday), foods = [...new Set(state.log.filter(x => x.date === jday).map(x => x.food))].map(id => fname(F.byId.get(id)));
+    const written = new Set(J.map(e => e.date)).size;
+
+    const moment = e => {
+      const audio = el('div', { class: 'jaudio' }, el('button', { class: 'ghost withtag small', onclick: () => audioStore.get(e.id).then(b => { if (b) { const a = player(b); audio.replaceChildren(a); a.play().catch(() => {}); } else toast(t().audioFail); }).catch(() => toast(t().audioFail)) },
+        icon('mic', 18), `${t().listen} · ${clock(e.secs)}`));
+      const photo = e.photo ? el('img', { class: 'jphoto', alt: '', hidden: true }) : null;
+      if (photo) audioStore.get(e.id + ':photo').then(b => { if (b) { photo.src = URL.createObjectURL(b); photo.hidden = false; } }).catch(() => {});
+      return el('section', { class: 'jmoment' },
+        el('div', { class: 'jmhead' }, el('span', { class: 'jtime' }, e.at || ''), el('button', { class: 'jedit', 'aria-label': t().edit, onclick: () => openJournalForm(e) }, icon('edit', 16))),
+        e.title && el('p', { class: 'jq hand' }, e.title),
+        photo && el('div', { class: 'jpolaroid' }, photo),
+        e.text && el('p', { class: 'jlines' }, e.text),
+        e.audio && audio);
+    };
+
+    // Escrever diretamente na página: o texto junta-se ao dia aberto.
+    const Q = t().questions, used = new Set(moments.map(e => e.title));
+    const base = Math.floor(parse(today).getTime() / 864e5);
+    const qIndex = jq === -1 ? -1 : (jq ?? base) % Q.length;
+    const question = qIndex >= 0 && !used.has(Q[qIndex]) ? Q[qIndex] : '';
+    const area = el('textarea', { class: 'jlines', rows: 3, maxLength: 4000, placeholder: moments.length ? t().jContinue : t().journalPlaceholder, 'aria-label': t().journalText,
+      oninput: () => { area.style.height = 'auto'; area.style.height = area.scrollHeight + 'px'; saveBtn.disabled = !area.value.trim(); } });
+    const saveBtn = el('button', { class: 'primary small', disabled: true, onclick: () => {
+      const text = area.value.trim(); if (!text) return;
+      J.push({ id: 'j' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), date: jday, title: question, text, audio: false, secs: 0, mood: '', photo: false, at: jday === today ? nowHM() : '' });
+      jq = null; save(); render(); toast(t().jSaved);
+    } }, t().jSavePage);
+    const writer = el('div', { class: 'jwriter' },
+      question && el('p', { class: 'jq hand' }, question),
+      el('div', { class: 'jqlinks' },
+        el('button', { class: 'jother', onclick: () => { jq = ((qIndex < 0 ? base : qIndex) + 1) % Q.length; render(); } }, t().otherQuestion),
+        question && el('button', { class: 'jother', onclick: () => { jq = -1; render(); } }, t().jNoQuestion)),
+      area,
+      el('div', { class: 'jtools' }, saveBtn, el('button', { class: 'ghost small withtag', onclick: () => openJournalForm(null, jday) }, icon('photo', 18), t().jMedia)));
+
+    const mood = state.baby.jmoods[jday] || '';
+    const page = el('article', { class: 'jpaper jpage' },
+      el('p', { class: 'jdate hand' }, fmtDate(jday, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })),
+      age && el('p', { class: 'jside' }, t().ageThen(name, age)),
+      moments.length ? moments.map(moment) : null,
+      foods.length ? el('p', { class: 'jfoods' }, el('b', {}, t().thatDay + ': '), foods.join(', ')) : null,
+      writer,
+      el('div', { class: 'jmoodrow' }, el('p', { class: 'jside' }, t().jDayMood),
+        el('div', { class: 'chips' }, MOODS.map(id => el('button', { class: 'chip sticker', 'aria-pressed': String(mood === id), onclick: () => {
+          if (mood === id) delete state.baby.jmoods[jday]; else state.baby.jmoods[jday] = id; save(); render();
+        } }, t().moods[id])))));
+    // Virar a página com o dedo.
+    let x0 = 0, y0 = 0;
+    page.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+    page.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+      if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.5 || e.target.closest('textarea')) return;
+      const to = days[at + (dx < 0 ? 1 : -1)]; if (to) go(to);
+    }, { passive: true });
+
+    const jump = el('input', { type: 'date', class: 'jjump', max: today, value: jday, 'aria-label': t().jGoTo, onchange: e => { if (DATE.test(e.target.value) && e.target.value <= today) go(e.target.value); } });
     return [goBack('today'),
-      el('div', { class: 'jcover' },
+      el('div', { class: 'jcover slim' },
         el('img', { class: 'jart', src: 'img/diario.jpg', alt: '', width: 960, height: 640 }),
         el('p', { class: 'hand' }, name ? t().journalOf(name) : t().journalYours),
-        el('p', { class: 'jmeta' }, list.length ? `${t().memories(list.length)} · ${t().since(short(first))}` : t().journalFirst),
-        el('button', { class: 'primary', onclick: () => openJournalForm(null) }, t().journalNew)),
-      el('div', { class: 'timeline' }, list.map(e => {
-        const age = ageOn(e.date), foods = [...new Set(state.log.filter(x => x.date === e.date).map(x => x.food))].map(id => fname(F.byId.get(id)));
-        const audio = el('div', { class: 'jaudio' }, el('button', { class: 'ghost withtag small', onclick: () => audioStore.get(e.id).then(b => { if (b) { const a = player(b); audio.replaceChildren(a); a.play().catch(() => {}); } else toast(t().audioFail); }).catch(() => toast(t().audioFail)) },
-          icon('mic', 18), `${t().listen} · ${clock(e.secs)}`));
-        const photo = e.photo ? el('img', { class: 'jphoto', alt: '', hidden: true }) : null;
-        if (photo) audioStore.get(e.id + ':photo').then(b => { if (b) { photo.src = URL.createObjectURL(b); photo.hidden = false; } }).catch(() => {});
-        return el('article', { class: 'jentry jpaper' },
-          el('p', { class: 'jdate hand' }, fmtDate(e.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })),
-          (age || e.mood) && el('p', { class: 'jside' }, [age && t().ageThen(name, age), e.mood && t().moods[e.mood]].filter(Boolean).join(' · ')),
-          e.title && el('p', { class: 'jq hand' }, e.title),
-          photo && el('div', { class: 'jpolaroid' }, photo),
-          e.text && el('p', { class: 'jlines' }, e.text),
-          e.audio && audio,
-          foods.length ? el('p', { class: 'jfoods' }, el('b', {}, t().thatDay + ': '), foods.join(', ')) : null,
-          el('div', { class: 'jactions' }, el('button', { class: 'linkish', onclick: () => openJournalForm(e) }, t().edit), el('button', { class: 'linkish', onclick: () => deleteJournal(e) }, t().remove)));
-      }))
+        el('p', { class: 'jmeta' }, written ? t().jPagesCount(written) : t().journalFirst)),
+      el('div', { class: 'jnav' },
+        el('button', { class: 'ghost jarrow', disabled: at <= 0, 'aria-label': t().jPrev, onclick: () => go(days[at - 1]) }, '‹'),
+        el('span', { class: 'jnavtxt' }, jday === today ? t().jToday : short(jday), el('small', {}, t().jPageOf(at + 1, days.length))),
+        el('button', { class: 'ghost jarrow', disabled: at >= days.length - 1, 'aria-label': t().jNext, onclick: () => go(days[at + 1]) }, '›')),
+      page,
+      el('div', { class: 'jpages' }, el('p', { class: 'eyebrow' }, t().jPages),
+        el('div', { class: 'chips catstrip', style: 'position:static;border:0;margin-top:6px' }, [...days].reverse().map(d => el('button', { class: 'chip', 'aria-pressed': String(d === jday), onclick: () => go(d) }, d === today ? t().jToday : short(d)))),
+        el('label', { class: 'field' }, t().jGoTo, jump))
     ];
   };
 
