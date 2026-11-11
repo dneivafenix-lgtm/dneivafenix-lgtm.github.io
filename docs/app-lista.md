@@ -16,11 +16,12 @@ Atualizada a 11 de novembro de 2026. App de teste: https://dneivafenix-lgtm.gith
 - Plano guiado por semanas, com um alergénio novo de cada vez
 - Perfil do bebé: método, alergias confirmadas, alimentação da família, eczema, prematuro
 - Pesquisa de receitas no ecrã Alimentos
+- Guias com ilustração e tempo de leitura, e cartão de guias mais visível no ecrã Hoje
 
 ## A seguir (posso fazer sem ti)
 
 1. Guardar alimentos e receitas como favoritos
-2. Mais guias (recusa de alimentos, água, horários das refeições, cortar alimentos), com foto e tempo de leitura
+2. Mais guias (recusa de alimentos, água, horários das refeições, cortar alimentos)
 3. Notas do diário pessoal no relatório para o pediatra
 4. Notificações com dicas por idade (no iPhone só com a app instalada no ecrã principal)
 5. Ecrã de subscrição mais forte, com "Experimenta 7 dias grátis"
@@ -31,6 +32,7 @@ Atualizada a 11 de novembro de 2026. App de teste: https://dneivafenix-lgtm.gith
 - [ ] Ficheiro do logótipo, para ficar guardado dentro da app
 - [ ] 17 fotos das receitas 40 a 56, e refazer 2 (bolachinhas, massa com bolonhesa)
 - [ ] Foto do coelho, e 5 fotos de alimentos a trocar (amêndoa, noz, iogurte, farinha de milho, alho-francês)
+- [ ] Fotos reais para os guias, se quiseres trocar as ilustrações (5 fotos)
 - [ ] Ligação para um curso oficial de primeiros socorros, por idioma
 - [ ] Dados da entidade e contacto para as páginas legais
 - [ ] Revisão por um profissional de saúde (textos, ordem do plano guiado, notas do perfil)

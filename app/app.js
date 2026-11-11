@@ -694,7 +694,27 @@
 
   // ---------- guias ----------
   const sourcesText = () => (CFG.content && CFG.content.sources || []).join(', ');
-  const openGuide = g => openSheet(sheetHead('', g.title), el('p', { class: 'muted' }, g.intro),
+  // Ilustração de cada guia (desenho fixo, sem texto do utilizador).
+  const GUIDE_ART = {
+    ready: '<path d="M44 50h72a36 36 0 0 1-72 0z" class="f"/><ellipse cx="80" cy="50" rx="36" ry="7" class="a"/><path d="M104 46l22-26" class="l"/><ellipse cx="129" cy="16" rx="6" ry="8" transform="rotate(40 129 16)" class="f"/><path d="M66 34c-4-5 4-8 0-13M80 32c-4-5 4-8 0-13M94 34c-4-5 4-8 0-13" class="l thin"/>',
+    gagging: '<circle cx="74" cy="52" r="30" class="f"/><path d="M60 46c3-4 7-4 10 0M79 46c3-4 7-4 10 0" class="l"/><ellipse cx="74" cy="64" rx="7" ry="8" class="a"/><circle cx="116" cy="28" r="17" class="b"/><path d="M116 19v18M107 28h18" class="w"/>',
+    textures: '<path d="M18 52h36a18 18 0 0 1-36 0z" class="f"/><ellipse cx="36" cy="52" rx="18" ry="4" class="a"/><rect x="68" y="30" width="11" height="42" rx="5.5" class="a"/><rect x="85" y="34" width="11" height="38" rx="5.5" class="f"/><rect x="116" y="38" width="13" height="13" rx="3" class="a"/><rect x="133" y="38" width="13" height="13" rx="3" class="f"/><rect x="116" y="55" width="13" height="13" rx="3" class="f"/><rect x="133" y="55" width="13" height="13" rx="3" class="a"/><path d="M57 86h46M97 81l6 5-6 5" class="l thin"/>',
+    avoid: '<rect x="58" y="34" width="44" height="48" rx="10" class="f"/><rect x="62" y="22" width="36" height="12" rx="4" class="a"/><path d="M68 58c6-8 18-8 24 0-6 8-18 8-24 0z" class="a"/><circle cx="110" cy="66" r="19" class="b"/><path d="M98 78l24-24" class="w"/>',
+    storage: '<rect x="30" y="38" width="46" height="42" rx="8" class="f"/><rect x="26" y="28" width="54" height="12" rx="5" class="a"/><path d="M40 56h26M40 66h16" class="l thin"/><path d="M116 30v44M97 41l38 22M97 63l38-22M110 34l6 6 6-6M110 70l6-6 6 6" class="l"/>'
+  };
+  const guideArt = (g, cls) => {
+    const box = el('span', { class: `gart g-${g.id} ${cls || ''}`, 'aria-hidden': 'true' });
+    box.innerHTML = `<svg viewBox="0 0 160 100" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">${GUIDE_ART[g.id] || GUIDE_ART.ready}</svg>`;
+    return box;
+  };
+  // Tempo de leitura, a cerca de 200 palavras por minuto.
+  const guideMinutes = g => {
+    const words = [g.intro, ...g.sections.flatMap(x => [x.h, ...(x.p || []), ...(x.list || [])])].join(' ').split(/\s+/).length;
+    return Math.max(1, Math.round(words / 200));
+  };
+  const guideCard = g => el('button', { class: 'gcard', onclick: () => openGuide(g) }, guideArt(g),
+    el('span', { class: 'gtxt' }, el('span', { class: 'rname' }, g.title), el('span', { class: 'gmin' }, icon('journal', 14), t().readMin(guideMinutes(g)))));
+  const openGuide = g => openSheet(guideArt(g, 'hero'), sheetHead('', g.title), el('p', { class: 'gmin' }, icon('journal', 14), t().readMin(guideMinutes(g))), el('p', { class: 'muted', style: 'margin-top:8px' }, g.intro),
     g.sections.map(sec => [el('h3', { class: 'sub' }, sec.h), (sec.p || []).map(x => el('p', { class: 'gp' }, x)),
       sec.list ? el('ul', { class: 'ing' }, sec.list.map(x => el('li', {}, x))) : null]),
     g.id === 'gagging' && CFG.links && CFG.links.firstAid && CFG.links.firstAid[state.lang]
@@ -705,8 +725,7 @@
     const guides = (window.DiaryGuides || {})[state.lang] || [];
     return [goBack('today'),
       el('div', { class: 'hello' }, el('h1', {}, t().guidesTitle), el('p', { class: 'muted', style: 'margin-top:6px' }, t().guidesHint)),
-      el('div', { class: 'rlist' }, guides.map(g => el('button', { class: 'recipe guide', onclick: () => openGuide(g) },
-        el('span', { class: 'rtxt' }, el('span', { class: 'rname' }, g.title), el('span', { class: 'muted' }, g.intro))))),
+      el('div', { class: 'ggrid' }, guides.map(guideCard)),
       el('p', { class: 'fine' }, t().disclaimer)];
   };
 
@@ -853,9 +872,10 @@
         el('span', { class: 'jbtxt' },
           el('span', { class: 'hand' }, state.baby.name ? t().journalOf(state.baby.name) : t().journalYours),
           el('span', { class: 'muted' }, state.baby.journal.length ? t().memories(state.baby.journal.length) : t().optJournalHint))),
-      guides ? el('button', { class: 'card nudge', onclick: () => { tab = 'guides'; render(); window.scrollTo(0, 0); } },
-        el('span', { class: 'eyebrow' }, t().guidesTitle), el('span', { class: 'rname' }, t().guidesHint),
-        el('span', { class: 'muted' }, guides.map(g => g.title).slice(0, 3).join(' · '))) : null,
+      guides ? el('div', { class: 'card gbox' },
+        el('h2', { style: 'margin-bottom:2px' }, t().guidesTitle), el('p', { class: 'muted' }, t().guidesHint),
+        el('div', { class: 'gstrip' }, guides.map(guideCard)),
+        el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => { tab = 'guides'; render(); window.scrollTo(0, 0); } }, t().guidesAll(guides.length)))) : null,
       el('div', { class: 'card tip' }, el('p', {}, tip)),
       partner && el('div', { class: 'card partner' }, el('p', {}, partner.text[state.lang]), el('a', { href: partner.url, rel: 'noopener' }, partner.name)),
       el('button', { class: 'fab', 'aria-label': t().add, onclick: openAdd }, icon('plus', 26))

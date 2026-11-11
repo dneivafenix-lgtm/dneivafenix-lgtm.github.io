@@ -695,3 +695,9 @@ Object.assign(window.DiaryI18n.fr, {
   recipeAvoid: names => `Attention : cette recette contient ${names}, indiqué comme allergie dans le profil de bébé.`,
   avoidMark: 'allergie signalée', startProfile: 'Complétez le profil de bébé'
 });
+
+// Guias com ilustração e tempo de leitura.
+Object.assign(window.DiaryI18n.pt, { readMin: n => `${n} min de leitura`, guidesAll: n => `Ver os ${n} guias` });
+Object.assign(window.DiaryI18n.en, { readMin: n => `${n} min read`, guidesAll: n => `See all ${n} guides` });
+Object.assign(window.DiaryI18n.es, { readMin: n => `${n} min de lectura`, guidesAll: n => `Ver las ${n} guías` });
+Object.assign(window.DiaryI18n.fr, { readMin: n => `${n} min de lecture`, guidesAll: n => `Voir les ${n} guides` });
