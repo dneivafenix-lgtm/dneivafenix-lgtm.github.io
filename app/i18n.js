@@ -743,3 +743,9 @@ Object.assign(window.DiaryI18n.pt, { favs: 'Favoritos', favAdd: 'Guardar nos fav
 Object.assign(window.DiaryI18n.en, { favs: 'Favourites', favAdd: 'Save to favourites', favOn: 'In favourites', allergenShort: 'Allergen' });
 Object.assign(window.DiaryI18n.es, { favs: 'Favoritos', favAdd: 'Guardar en favoritos', favOn: 'En favoritos', allergenShort: 'Alérgeno' });
 Object.assign(window.DiaryI18n.fr, { favs: 'Favoris', favAdd: 'Ajouter aux favoris', favOn: 'Dans les favoris', allergenShort: 'Allergène' });
+
+// Receitas por refeição.
+Object.assign(window.DiaryI18n.pt, { recipesShowAll: 'Ver todas as receitas' });
+Object.assign(window.DiaryI18n.en, { recipesShowAll: 'See all recipes' });
+Object.assign(window.DiaryI18n.es, { recipesShowAll: 'Ver todas las recetas' });
+Object.assign(window.DiaryI18n.fr, { recipesShowAll: 'Voir toutes les recettes' });
