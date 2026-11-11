@@ -301,7 +301,7 @@
     fresh.forEach((id, i) => state.log.push({ id: stamp + i + Math.random().toString(36).slice(2, 6), food: id, date, like: null, reaction: false, checked: false, note: '', meal, recipe: recipe ?? null }));
     save(); return fresh.length;
   };
-  let pickMode = 'foods';
+  let pickMode = 'foods', pickCat = '';
   const openPicker = (date, meal) => {
     if (!meal) return openMealPick(date);
     if (!hasRecipes()) pickMode = 'foods';
@@ -319,7 +319,7 @@
       const ql = q.toLowerCase();
       if (pickMode === 'recipes') {
         const items = eligible().filter(r => r.foods.length && rx(r).t.toLowerCase().includes(ql));
-        list.className = 'rlist';
+        list.className = 'rlist'; cats.hidden = true;
         list.replaceChildren(...(items.length ? items.map(r => el('button', { class: 'recipe rpick', 'aria-pressed': String(rpicked.has(r.id)),
           onclick: e => { rpicked.has(r.id) ? rpicked.delete(r.id) : rpicked.add(r.id); e.currentTarget.setAttribute('aria-pressed', String(rpicked.has(r.id))); sync(); } },
           recipeArt(r, 'thumb'), el('span', { class: 'rtxt' }, el('span', { class: 'rname' }, rx(r).t), el('span', { class: 'muted' }, r.foods.map(id => fname(F.byId.get(id))).join(', '))),
@@ -327,7 +327,10 @@
         return;
       }
       const fav = x => state.favFoods.includes(x.id) ? 0 : 1;
-      const items = F.foods.filter(x => fname(x).toLowerCase().includes(ql)).sort((x, y) => fav(x) - fav(y));
+      // Sem pesquisa, mostra só a categoria escolhida; a pesquisa procura em todas.
+      const items = ql ? F.foods.filter(x => fname(x).toLowerCase().includes(ql)).sort((x, y) => fav(x) - fav(y))
+        : pickCat === 'fav' ? F.foods.filter(x => !fav(x)) : F.foods.filter(x => x.cat === pickCat);
+      cats.hidden = !!ql;
       list.className = 'picklist';
       list.replaceChildren(...(items.length ? items.map(x => el('button', { class: 'pickrow', role: 'checkbox', 'aria-checked': String(picked.has(x.id)),
         'aria-label': `${fname(x)}${x.allergen ? ', ' + t().allergenBadge : ''}${avoided(x) ? ', ' + t().avoidMark : ''}`,
@@ -338,6 +341,13 @@
         el('span', { class: 'pbox', 'aria-hidden': 'true' }, icon('check', 16)))) : [el('p', { class: 'muted' }, t().noResults)]));
     };
     const input = el('input', { class: 'search', type: 'search', 'aria-label': t().search, oninput: e => { q = e.target.value; fill(); } });
+    const catIds = [...(state.favFoods.length ? ['fav'] : []), ...F.categories];
+    if (!catIds.includes(pickCat)) pickCat = catIds[0];
+    const cats = el('div', { class: 'chips catstrip', role: 'group', 'aria-label': t().byCategory }, catIds.map(c => el('button', { class: 'chip', 'aria-pressed': String(pickCat === c), onclick: () => {
+      pickCat = c; [...cats.children].forEach((b, i) => b.setAttribute('aria-pressed', String(catIds[i] === c))); fill();
+      // Se a lista já estava deslocada, volta ao início da nova categoria.
+      const gap = list.getBoundingClientRect().top - cats.getBoundingClientRect().bottom; if (gap < 0) document.getElementById('sheetBody').scrollTop += gap;
+    } }, c === 'fav' ? t().favs : t().cat[c])));
     const hint = el('p', { class: 'muted' });
     const modes = hasRecipes() ? el('div', { class: 'chips seg two', role: 'group', style: 'margin-top:12px' }, [['foods', t().tabFoods], ['recipes', t().tabRecipes]].map(([id, label]) =>
       el('button', { class: 'chip', 'aria-pressed': String(pickMode === id), onclick: () => { pickMode = id; setMode(); } }, label))) : null;
@@ -345,10 +355,10 @@
       if (modes) [...modes.children].forEach((b, i) => b.setAttribute('aria-pressed', String((i ? 'recipes' : 'foods') === pickMode)));
       hint.textContent = pickMode === 'recipes' ? t().pickRecipesHint : t().pickFoodsHint;
       input.placeholder = pickMode === 'recipes' ? t().searchRecipes : t().search;
-      input.value = q = ''; fill();
+      input.value = q = ''; fill(); cats.hidden = pickMode === 'recipes';
     };
     setMode();
-    openSheet(sheetHead('', t().meals[meal]), modes, hint, input, list, el('div', { class: 'pickbar' }, addBtn));
+    openSheet(sheetHead('', t().meals[meal]), modes, hint, input, cats, list, el('div', { class: 'pickbar' }, addBtn));
   };
   // Registar uma receita inteira numa refeição de hoje.
   const openRecipeLog = r => openSheet(sheetHead('', t().mealPick), el('p', { class: 'muted' }, rx(r).t),
