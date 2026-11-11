@@ -306,7 +306,7 @@
     if (!meal) return openMealPick(date);
     if (!hasRecipes()) pickMode = 'foods';
     const picked = new Set(), rpicked = new Set(), list = el('div', {});
-    let q = '';
+    let q = '', allRecipes = false;
     const total = () => new Set([...picked, ...[...rpicked].flatMap(n => R.list[n].foods)]).size;
     const addBtn = el('button', { class: 'primary', disabled: true, onclick: () => {
       let n = 0;
@@ -318,12 +318,16 @@
     const fill = () => {
       const ql = q.toLowerCase();
       if (pickMode === 'recipes') {
-        const items = eligible().filter(r => r.foods.length && rx(r).t.toLowerCase().includes(ql));
+        // Sem pesquisa, só as receitas próprias desta refeição; a pesquisa e "ver todas" mostram as restantes.
+        const all = eligible().filter(r => r.foods.length), fit = all.filter(r => r.meals.includes(meal));
+        const narrowed = !ql && !allRecipes && fit.length > 0 && fit.length < all.length;
+        const items = ql ? all.filter(r => rx(r).t.toLowerCase().includes(ql)) : narrowed ? fit : all;
         list.className = 'rlist'; cats.hidden = true;
         list.replaceChildren(...(items.length ? items.map(r => el('button', { class: 'recipe rpick', 'aria-pressed': String(rpicked.has(r.id)),
           onclick: e => { rpicked.has(r.id) ? rpicked.delete(r.id) : rpicked.add(r.id); e.currentTarget.setAttribute('aria-pressed', String(rpicked.has(r.id))); sync(); } },
           recipeArt(r, 'thumb'), el('span', { class: 'rtxt' }, el('span', { class: 'rname' }, rx(r).t), el('span', { class: 'muted' }, r.foods.map(id => fname(F.byId.get(id))).join(', '))),
-          el('span', { class: 'obtick', 'aria-hidden': 'true' }, icon('check', 16)))) : [el('p', { class: 'muted' }, t().recipesEmpty)]));
+          el('span', { class: 'obtick', 'aria-hidden': 'true' }, icon('check', 16)))) : [el('p', { class: 'muted' }, t().recipesEmpty)]),
+          ...(narrowed ? [el('button', { class: 'linkish', style: 'align-self:center', onclick: () => { allRecipes = true; fill(); } }, t().recipesShowAll)] : []));
         return;
       }
       const fav = x => state.favFoods.includes(x.id) ? 0 : 1;

@@ -77,6 +77,11 @@ window.DiaryRecipes = (() => {
   const norm = s => ' ' + s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[^a-z]+/).filter(Boolean)
     .map(w => w.length > 3 && w.endsWith('s') ? w.slice(0, -1) : w).join(' ') + ' ';
   const keys = Object.keys(KEYS).sort((a, b) => b.length - a.length);
+  // Refeições em que cada receita faz sentido (por número da receita). Sem indicação: almoço e jantar.
+  // B = pequeno-almoço, L = almoço, S = lanche, D = jantar.
+  const MEAL_CODE = { B: 'breakfast', L: 'lunch', S: 'snack', D: 'dinner' };
+  const MEALS = { 0: 'BS', 3: 'BS', 6: 'BS', 10: 'BS', 11: 'BS', 14: 'BS', 15: 'BS', 21: 'BS', 25: 'S', 27: 'BS', 29: 'BLD', 30: 'BS', 31: 'LSD', 32: 'LSD',
+    35: 'BS', 38: 'BS', 39: 'LSD', 41: 'BS', 49: 'BS', 53: 'BS' };
   list.forEach((r, i) => {
     let text = norm(r.ing.join(' , '));
     const ids = [];
@@ -86,6 +91,7 @@ window.DiaryRecipes = (() => {
       if (!ids.includes(KEYS[k])) ids.push(KEYS[k]);
     }
     r.id = i; r.foods = ids;
+    r.meals = [...(MEALS[i] || 'LD')].map(c => MEAL_CODE[c]);
   });
   return { list, lang: 'pt', stages: [6, 7, 9, 12],
     book: { url: 'https://petitnuvem.com/products/a-primeira-colher-livro-receitas-bebe', languages: ['pt', 'en'] } };
