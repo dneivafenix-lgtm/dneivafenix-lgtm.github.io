@@ -19,6 +19,8 @@ Atualizada a 11 de novembro de 2026. App de teste: https://dneivafenix-lgtm.gith
 - Registo por refeição (pequeno-almoço, almoço, lanche, jantar), com vários alimentos de uma vez e edição de cada registo
 - Registar receitas numa refeição: cada ingrediente fica como alimento individual
 - Receitas sugeridas conforme a refeição (pequeno-almoço e lanche, almoço e jantar)
+- Diário em forma de caderno, com pergunta do dia para responder
+- Fechar as caixas arrastando para baixo
 - Favoritos em alimentos e receitas
 - Lista de alimentos com fotos ao adicionar a uma refeição
 - 9 guias (mais 4: recusa, água, rotina das refeições, cortar alimentos)

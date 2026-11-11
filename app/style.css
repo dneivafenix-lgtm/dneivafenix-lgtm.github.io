@@ -514,3 +514,27 @@ label.field{min-width:0}
 .catstrip::-webkit-scrollbar{display:none}
 .catstrip .chip{flex:none}
 .catstrip{position:sticky;top:-12px;z-index:2;background:var(--card);padding-top:10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+/* Diário em forma de caderno */
+.jpaper{--rule:32px;position:relative;background:color-mix(in srgb,var(--accent) 7%,var(--card));border:1px solid var(--line);border-radius:6px 16px 16px 6px;padding:18px 18px 16px 46px;box-shadow:var(--shadow),inset 10px 0 12px -10px rgba(0,0,0,.14)}
+.jpaper::before{content:"";position:absolute;left:34px;top:0;bottom:0;width:1.5px;background:color-mix(in srgb,var(--warn) 45%,transparent)}
+.jpaper::after{content:"";position:absolute;left:12px;top:26px;bottom:26px;width:10px;background:radial-gradient(circle,var(--bg) 0 4px,transparent 4.5px) 0 0/10px 64px repeat-y}
+.timeline{border-left:0;margin-left:0;padding-left:0;gap:22px}
+.jentry::before{display:none}
+.jentry.jpaper::before{display:block;left:34px;top:0;width:1.5px;height:auto;border-radius:0;box-shadow:none;background:color-mix(in srgb,var(--warn) 45%,transparent)}
+.jpaper .jdate,.jpdate{font-size:26px;line-height:var(--rule);color:var(--brand)}
+.jside{font-size:12px;font-weight:600;color:var(--muted);line-height:20px;margin-bottom:6px}
+.jq{font-size:24px;line-height:var(--rule);color:var(--ink);margin:0}
+.jlines{font-family:Caveat,'Segoe Script','Bradley Hand',cursive;font-size:23px;line-height:var(--rule);color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere;
+  background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--rule) - 1px),color-mix(in srgb,var(--brand) 22%,transparent) calc(var(--rule) - 1px),color-mix(in srgb,var(--brand) 22%,transparent) var(--rule));background-attachment:local;margin:0}
+p.jlines{min-height:calc(var(--rule) * 2)}
+textarea.jlines{display:block;width:100%;min-height:calc(var(--rule) * 8);border:0;border-radius:0;padding:0;resize:none;outline-offset:6px}
+textarea.jlines::placeholder{color:var(--muted);opacity:.7}
+input.jpdate{border:0;background:none;padding:0;min-height:var(--rule);width:auto;max-width:100%;font-weight:600}
+.jother{border:0;background:none;padding:0;min-height:32px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:underline;text-underline-offset:3px;align-self:flex-start}
+.jwrite{display:flex;flex-direction:column;margin-top:12px}
+.jpolaroid{align-self:center;background:#fff;padding:8px 8px 26px;border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.18);transform:rotate(-2deg);margin:10px auto;max-width:86%}
+.jpolaroid .jphoto{display:block;border-radius:2px;margin:0;max-width:100%}
+.jpaper .jfoods,.jpaper .jactions,.jpaper .jaudio{margin-top:8px}
+dialog{touch-action:pan-y}
+textarea.jlines:focus,textarea.jlines:focus-visible{outline:none}
+.jwrite:focus-within{border-color:var(--brand)}
