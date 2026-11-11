@@ -68,6 +68,8 @@
       lang: CFG.languages.includes(s.lang) ? s.lang : detectLang(),
       onboarded: !!s.onboarded,
       goals: (Array.isArray(s.goals) ? s.goals : []).filter(g => GOALS.includes(g)), started: typeof s.started === 'boolean' ? s.started : null, hideStart: !!s.hideStart,
+      favFoods: [...new Set(Array.isArray(s.favFoods) ? s.favFoods : [])].filter(id => F.byId.has(id)),
+      favRecipes: [...new Set(Array.isArray(s.favRecipes) ? s.favRecipes : [])].filter(n => Number.isInteger(n) && R && R.list[n]),
       babies, current: seen.has(s.current) ? s.current : babies[0].id
     });
   };
@@ -165,6 +167,7 @@
     note: '<path d="M6 4h9l3 3v13H6z"/><path d="M9 10h6M9 14h6"/>',
     check: '<path d="M5 12l4 4 10-10"/>',
     edit: '<path d="M4 20h4l11-11-4-4L4 16z"/><path d="M13 7l4 4"/>',
+    heart: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
     recipes: '<path d="M4 13h16a8 8 0 0 1-16 0z"/><path d="M15 9l5-5"/>'
   };
   const icon = (name, size = 22) => {
@@ -191,6 +194,17 @@
     food.choke && el('p', { class: 'info' }, t().infoChoke)
   ];
 
+  // Favoritos: alimentos (por id) e receitas (por número).
+  const favBtn = (key, id) => {
+    const on = () => state[key].includes(id);
+    const b = el('button', { class: 'ghost favbtn', 'aria-pressed': String(on()), onclick: () => {
+      state[key] = on() ? state[key].filter(x => x !== id) : [...state[key], id];
+      save(); b.setAttribute('aria-pressed', String(on())); label.textContent = on() ? t().favOn : t().favAdd; render();
+    } }, icon('heart', 18));
+    const label = el('span', {}, on() ? t().favOn : t().favAdd);
+    b.append(label);
+    return b;
+  };
   // Refeição sugerida pela hora do dia (só para poupar um toque).
   const mealNow = () => { const h = new Date().getHours(); return h < 11 ? 'breakfast' : h < 15 ? 'lunch' : h < 18 ? 'snack' : 'dinner'; };
   // Registo de um alimento: novo, ou edição de um registo existente (entry).
@@ -266,7 +280,7 @@
       avoided(food) && el('p', { class: 'info warnbox' }, t().avoidWarn(t().allergenName[food.allergen])),
       !avoided(food) && dietOut(food) && el('p', { class: 'info' }, t().dietNote),
       foodFacts(food),
-      el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => openLogForm(food, todayIso()) }, t().logThis)),
+      el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => openLogForm(food, todayIso()) }, t().logThis), favBtn('favFoods', food.id)),
       serveSection(food),
       food.allergen && [el('p', { class: 'info' }, t().infoAllergen(t().allergenName[food.allergen])), el('p', { class: 'fine', style: 'margin-top:6px' }, t().allergenKeep),
         el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: () => { closeSheet(); tab = 'allergens'; render(); window.scrollTo(0, 0); } }, t().algTitle))],
@@ -312,12 +326,16 @@
           el('span', { class: 'obtick', 'aria-hidden': 'true' }, icon('check', 16)))) : [el('p', { class: 'muted' }, t().recipesEmpty)]));
         return;
       }
-      const items = F.foods.filter(x => fname(x).toLowerCase().includes(ql));
-      list.className = 'pills';
-      list.replaceChildren(...(items.length ? items.map(x => el('button', { class: 'chip pick', 'aria-pressed': String(picked.has(x.id)),
+      const fav = x => state.favFoods.includes(x.id) ? 0 : 1;
+      const items = F.foods.filter(x => fname(x).toLowerCase().includes(ql)).sort((x, y) => fav(x) - fav(y));
+      list.className = 'picklist';
+      list.replaceChildren(...(items.length ? items.map(x => el('button', { class: 'pickrow', role: 'checkbox', 'aria-checked': String(picked.has(x.id)),
         'aria-label': `${fname(x)}${x.allergen ? ', ' + t().allergenBadge : ''}${avoided(x) ? ', ' + t().avoidMark : ''}`,
-        onclick: e => { picked.has(x.id) ? picked.delete(x.id) : picked.add(x.id); e.currentTarget.setAttribute('aria-pressed', String(picked.has(x.id))); sync(); } },
-        x.allergen && el('span', { class: 'dot' }), fname(x), countFor(x.id) ? null : el('span', { class: 'newtag' }, t().newTag))) : [el('p', { class: 'muted' }, t().noResults)]));
+        onclick: e => { picked.has(x.id) ? picked.delete(x.id) : picked.add(x.id); e.currentTarget.setAttribute('aria-checked', String(picked.has(x.id))); sync(); } },
+        foodArt(x, 'pthumb'),
+        el('span', { class: 'pname' }, fname(x), !fav(x) && el('span', { class: 'pfav', 'aria-hidden': 'true' }, icon('heart', 14)), countFor(x.id) ? null : el('span', { class: 'newtag' }, t().newTag)),
+        x.allergen && el('span', { class: 'palg' }, el('i', {}), t().allergenShort),
+        el('span', { class: 'pbox', 'aria-hidden': 'true' }, icon('check', 16)))) : [el('p', { class: 'muted' }, t().noResults)]));
     };
     const input = el('input', { class: 'search', type: 'search', 'aria-label': t().search, oninput: e => { q = e.target.value; fill(); } });
     const hint = el('p', { class: 'muted' });
@@ -439,6 +457,7 @@
     r.kcal && el('p', { class: 'kcal' }, kcalLine(r)),
     r.foods.some(id => avoided(F.byId.get(id))) && el('p', { class: 'info warnbox' }, t().recipeAvoid([...new Set(r.foods.map(id => F.byId.get(id)).filter(avoided).map(x => t().allergenName[x.allergen]))].join(', '))),
     el('div', { class: 'btnrow' }, r.foods.length ? el('button', { class: 'primary', onclick: () => openRecipeLog(r) }, t().logRecipe) : null, el('button', { class: 'ghost', onclick: () => openDayPicker(r) }, t().addToPlan)),
+    el('div', { class: 'btnrow' }, favBtn('favRecipes', r.id)),
     el('h3', { class: 'sub' }, t().ingredients), el('ul', { class: 'ing' }, rx(r).ing.map(x => el('li', {}, x))),
     el('h3', { class: 'sub' }, t().howTo), el('ol', { class: 'steps' }, rx(r).passos.map(x => el('li', {}, x))),
     r.foods.length ? [el('h3', { class: 'sub' }, t().recipeFoods), el('p', { class: 'fine' }, t().recipeFoodsHint),
@@ -557,13 +576,14 @@
     if (rseg === 'shop') return [...head, viewShop()];
     const box = el('div', { class: 'rlist' });
     const fill = () => {
-      const items = R.list.filter(r => (!rstage || r.min === rstage) && rx(r).t.toLowerCase().includes(rquery.toLowerCase()));
+      if (rstage === 'fav' && !state.favRecipes.length) rstage = 0;
+      const items = R.list.filter(r => (rstage === 'fav' ? state.favRecipes.includes(r.id) : (!rstage || r.min === rstage)) && rx(r).t.toLowerCase().includes(rquery.toLowerCase()));
       box.replaceChildren(...(items.length ? items.map(recipeRow) : [el('p', { class: 'muted' }, t().recipesEmpty)]));
     };
-    const opts = [0, ...R.stages];
+    const opts = [0, ...R.stages, ...(state.favRecipes.length ? ['fav'] : [])];
     const chips = el('div', { class: 'chips' }, opts.map(m => el('button', { class: 'chip', 'aria-pressed': String(rstage === m), onclick: () => {
       rstage = m; [...chips.children].forEach((b, i) => b.setAttribute('aria-pressed', String(opts[i] === m))); fill();
-    } }, m ? t().stage(m) : t().recipesAll)));
+    } }, m === 'fav' ? t().favs : m ? t().stage(m) : t().recipesAll)));
     fill();
     return [
       ...head,
@@ -767,6 +787,10 @@
     gagging: '<circle cx="74" cy="52" r="30" class="f"/><path d="M60 46c3-4 7-4 10 0M79 46c3-4 7-4 10 0" class="l"/><ellipse cx="74" cy="64" rx="7" ry="8" class="a"/><circle cx="116" cy="28" r="17" class="b"/><path d="M116 19v18M107 28h18" class="w"/>',
     textures: '<path d="M18 52h36a18 18 0 0 1-36 0z" class="f"/><ellipse cx="36" cy="52" rx="18" ry="4" class="a"/><rect x="68" y="30" width="11" height="42" rx="5.5" class="a"/><rect x="85" y="34" width="11" height="38" rx="5.5" class="f"/><rect x="116" y="38" width="13" height="13" rx="3" class="a"/><rect x="133" y="38" width="13" height="13" rx="3" class="f"/><rect x="116" y="55" width="13" height="13" rx="3" class="f"/><rect x="133" y="55" width="13" height="13" rx="3" class="a"/><path d="M57 86h46M97 81l6 5-6 5" class="l thin"/>',
     avoid: '<rect x="58" y="34" width="44" height="48" rx="10" class="f"/><rect x="62" y="22" width="36" height="12" rx="4" class="a"/><path d="M68 58c6-8 18-8 24 0-6 8-18 8-24 0z" class="a"/><circle cx="110" cy="66" r="19" class="b"/><path d="M98 78l24-24" class="w"/>',
+    refusal: '<circle cx="62" cy="52" r="28" class="f"/><path d="M48 46c3 3 7 3 10 0M66 46c3 3 7 3 10 0" class="l"/><path d="M52 66h20" class="l"/><ellipse cx="108" cy="58" rx="9" ry="6" class="a"/><path d="M116 56l28-12" class="l"/><path d="M92 40l8 6M92 76l8-6" class="l thin"/>',
+    water: '<path d="M52 30h56l-7 54H59z" class="f"/><path d="M56 52h48l-4 32H60z" class="b" opacity=".28"/><path d="M92 30l14-18h10" class="l"/><path d="M126 48c5 7 8 11 8 15a8 8 0 0 1-16 0c0-4 3-8 8-15z" class="a"/>',
+    routine: '<circle cx="58" cy="50" r="30" class="f"/><path d="M58 32v18l12 8" class="l"/><circle cx="116" cy="62" r="20" class="f"/><circle cx="116" cy="62" r="11" class="a"/><path d="M144 44v36M88 30v10" class="l thin"/>',
+    cutting: '<circle cx="54" cy="52" r="26" class="a"/><path d="M54 26v52M28 52h52" class="l"/><rect x="98" y="26" width="12" height="48" rx="6" class="f"/><rect x="116" y="26" width="12" height="48" rx="6" class="a"/><rect x="134" y="26" width="12" height="48" rx="6" class="f"/>',
     storage: '<rect x="30" y="38" width="46" height="42" rx="8" class="f"/><rect x="26" y="28" width="54" height="12" rx="5" class="a"/><path d="M40 56h26M40 66h16" class="l thin"/><path d="M116 30v44M97 41l38 22M97 63l38-22M110 34l6 6 6-6M110 70l6-6 6 6" class="l"/>'
   };
   const guideArt = (g, cls) => {
@@ -975,6 +999,9 @@
           open && el('div', { class: 'tiles' }, items.map(foodTile)),
           open && items.some(x => x.allergen) && el('p', { class: 'legend' }, el('i', {}), t().allergenBadge));
       }).filter(Boolean);
+      const favs = q ? [] : F.foods.filter(x => state.favFoods.includes(x.id));
+      if (favs.length) rows.unshift(el('section', { class: 'cat open' }, el('div', { class: 'cathead', style: 'min-height:52px' }, el('span', { class: 'catname' }, t().favs), el('span', { class: 'catcount' }, String(favs.length))),
+        el('div', { class: 'tiles' }, favs.map(foodTile))));
       const found = q && hasRecipes() ? R.list.filter(r => rx(r).t.toLowerCase().includes(q)).slice(0, 12) : [];
       if (found.length) rows.push(el('h3', { class: 'sub' }, t().tabRecipes), el('div', { class: 'rlist' }, found.map(recipeRow)));
       box.replaceChildren(...(rows.length ? rows : [el('p', { class: 'muted' }, t().noResults)]));
