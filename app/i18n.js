@@ -520,3 +520,45 @@ Object.assign(window.DiaryI18n.fr, {
   journalDelete: 'Supprimer cette entrée du journal ? Cette action est définitive.', optJournal: 'Journal', optJournalHint: 'Écrivez ou parlez de la journée',
   backupNoAudio: "La copie exportée ne contient pas les enregistrements vocaux.", dictateTip: 'Pour dicter au lieu de taper, utilisez le micro du clavier de votre téléphone.'
 });
+
+// Diário com toque pessoal: capa, idade em cada memória, sentimentos, ideias para escrever e foto.
+Object.assign(window.DiaryI18n.pt, {
+  journalOf: n => `Diário de ${n}`, journalYours: 'O teu diário', memories: n => n === 1 ? '1 memória' : `${n} memórias`, since: d => `desde ${d}`,
+  ageLong: (m, d) => [m ? (m === 1 ? '1 mês' : `${m} meses`) : '', d ? (d === 1 ? '1 dia' : `${d} dias`) : ''].filter(Boolean).join(' e ') || 'recém-nascido',
+  ageThen: (n, a) => n ? `${n} tinha ${a}` : a,
+  moodTitle: 'Como te sentiste?', moods: { joy: 'Alegria', proud: 'Orgulho', tender: 'Ternura', laugh: 'Riso', tired: 'Cansaço', worry: 'Preocupação' },
+  promptsTitle: 'Sem ideias? Experimenta uma destas:',
+  prompts: ['A careta de hoje', 'O que mais me surpreendeu', 'Um momento que quero guardar', 'O que correu mal e me fez rir', 'O que aprendi hoje', 'Uma coisa que lhe quero contar um dia'],
+  thatDay: 'Nesse dia provou', addPhoto: 'Juntar uma foto', removePhoto: 'Tirar a foto', photoFail: 'Não foi possível usar essa foto.', photoHint: 'A foto fica só neste dispositivo.',
+  journalFirst: 'A primeira página está em branco. Escreve, grava ou junta uma foto do momento.'
+});
+Object.assign(window.DiaryI18n.en, {
+  journalOf: n => `${n}'s journal`, journalYours: 'Your journal', memories: n => n === 1 ? '1 memory' : `${n} memories`, since: d => `since ${d}`,
+  ageLong: (m, d) => [m ? (m === 1 ? '1 month' : `${m} months`) : '', d ? (d === 1 ? '1 day' : `${d} days`) : ''].filter(Boolean).join(' and ') || 'newborn',
+  ageThen: (n, a) => n ? `${n} was ${a} old` : a,
+  moodTitle: 'How did you feel?', moods: { joy: 'Joy', proud: 'Pride', tender: 'Tenderness', laugh: 'Laughter', tired: 'Tiredness', worry: 'Worry' },
+  promptsTitle: 'Stuck? Try one of these:',
+  prompts: ["Today's funny face", 'What surprised me most', 'A moment I want to keep', 'What went wrong and made me laugh', 'What I learned today', 'Something I want to tell them one day'],
+  thatDay: 'That day they tried', addPhoto: 'Add a photo', removePhoto: 'Remove the photo', photoFail: 'That photo could not be used.', photoHint: 'The photo stays on this device only.',
+  journalFirst: 'The first page is blank. Write, record or add a photo of the moment.'
+});
+Object.assign(window.DiaryI18n.es, {
+  journalOf: n => `Diario de ${n}`, journalYours: 'Tu diario', memories: n => n === 1 ? '1 recuerdo' : `${n} recuerdos`, since: d => `desde el ${d}`,
+  ageLong: (m, d) => [m ? (m === 1 ? '1 mes' : `${m} meses`) : '', d ? (d === 1 ? '1 día' : `${d} días`) : ''].filter(Boolean).join(' y ') || 'recién nacido',
+  ageThen: (n, a) => n ? `${n} tenía ${a}` : a,
+  moodTitle: '¿Cómo te sentiste?', moods: { joy: 'Alegría', proud: 'Orgullo', tender: 'Ternura', laugh: 'Risa', tired: 'Cansancio', worry: 'Preocupación' },
+  promptsTitle: '¿Sin ideas? Prueba una de estas:',
+  prompts: ['La mueca de hoy', 'Lo que más me sorprendió', 'Un momento que quiero guardar', 'Lo que salió mal y me hizo reír', 'Lo que aprendí hoy', 'Algo que quiero contarle algún día'],
+  thatDay: 'Ese día probó', addPhoto: 'Añadir una foto', removePhoto: 'Quitar la foto', photoFail: 'No se pudo usar esa foto.', photoHint: 'La foto se queda solo en este dispositivo.',
+  journalFirst: 'La primera página está en blanco. Escribe, graba o añade una foto del momento.'
+});
+Object.assign(window.DiaryI18n.fr, {
+  journalOf: n => `Journal de ${n}`, journalYours: 'Votre journal', memories: n => n === 1 ? '1 souvenir' : `${n} souvenirs`, since: d => `depuis le ${d}`,
+  ageLong: (m, d) => [m ? `${m} mois` : '', d ? (d === 1 ? '1 jour' : `${d} jours`) : ''].filter(Boolean).join(' et ') || 'nouveau-né',
+  ageThen: (n, a) => n ? `${n} avait ${a}` : a,
+  moodTitle: 'Comment vous sentiez-vous ?', moods: { joy: 'Joie', proud: 'Fierté', tender: 'Tendresse', laugh: 'Rire', tired: 'Fatigue', worry: 'Inquiétude' },
+  promptsTitle: "En panne d'idées ? Essayez l'une de celles-ci :",
+  prompts: ["La grimace du jour", 'Ce qui m\'a le plus surprise', 'Un moment que je veux garder', "Ce qui a raté et m'a fait rire", "Ce que j'ai appris aujourd'hui", 'Une chose que je veux lui raconter un jour'],
+  thatDay: 'Ce jour-là, bébé a goûté', addPhoto: 'Ajouter une photo', removePhoto: 'Retirer la photo', photoFail: "Cette photo n'a pas pu être utilisée.", photoHint: 'La photo reste sur cet appareil.',
+  journalFirst: 'La première page est blanche. Écrivez, enregistrez ou ajoutez une photo du moment.'
+});

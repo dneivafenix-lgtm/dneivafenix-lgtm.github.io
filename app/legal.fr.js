@@ -8,7 +8,7 @@ window.DiaryLegal.fr = {
       "Ce journal alimentaire de bébé est une application web de la marque Petit Nuvem. L'entité responsable est {controller}."
     ]},
     {"h": "Quelles données, et où elles sont conservées", "p": [
-      "L'application enregistre ce que vous saisissez : le prénom du bébé (facultatif), sa date de naissance, les aliments goûtés, s'il les a aimés ou non, les réactions suspectées, des notes libres, les entrées du journal et les enregistrements vocaux que vous y faites, le planning hebdomadaire des repas et la liste de courses.",
+      "L'application enregistre ce que vous saisissez : le prénom du bébé (facultatif), sa date de naissance, les aliments goûtés, s'il les a aimés ou non, les réactions suspectées, des notes libres, les entrées du journal, avec les enregistrements vocaux et les photos que vous y ajoutez, le planning hebdomadaire des repas et la liste de courses.",
       "Tout cela est conservé uniquement dans le stockage local du navigateur, sur votre appareil. Il n'y a ni compte utilisateur ni base de données sur un serveur. Nous ne pouvons ni voir ni récupérer vos données."
     ]},
     {"h": "Ce que nous ne faisons pas", "p": [
