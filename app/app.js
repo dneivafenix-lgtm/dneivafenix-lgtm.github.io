@@ -13,7 +13,7 @@
   const cleanLog = arr => (Array.isArray(arr) ? arr : []).filter(e => e && F.byId.has(e.food) && DATE.test(e.date)).map(e => ({
     id: String(e.id || Math.random().toString(36).slice(2)), food: e.food, date: e.date,
     like: [1, 0, -1].includes(e.like) ? e.like : null, reaction: !!e.reaction, checked: !!e.checked, note: String(e.note || '').slice(0, 300),
-    meal: MEALS.includes(e.meal) ? e.meal : ''
+    meal: MEALS.includes(e.meal) ? e.meal : '', recipe: Number.isInteger(e.recipe) && R && R.list[e.recipe] ? e.recipe : null
   }));
   // Plano: dia -> números das receitas.
   const cleanPlan = p => {
@@ -280,26 +280,62 @@
     el('div', { class: 'addopts' }, MEALS.map(m => el('button', { class: 'addopt', onclick: () => openPicker(date, m) }, icon('recipes', 22),
       el('span', {}, el('b', {}, t().meals[m]), el('span', { class: 'muted' }, mealLine(date, m) || t().mealEmpty))))));
   const mealLine = (date, m) => state.log.filter(e => e.date === date && e.meal === m).map(e => fname(F.byId.get(e.food))).join(', ');
+  // Junta alimentos a uma refeição, sem repetir os que já lá estão. Devolve quantos entraram.
+  const addFoods = (date, meal, ids, recipe) => {
+    const have = new Set(state.log.filter(e => e.date === date && e.meal === meal).map(e => e.food)), stamp = Date.now().toString(36);
+    const fresh = [...new Set(ids)].filter(id => !have.has(id));
+    fresh.forEach((id, i) => state.log.push({ id: stamp + i + Math.random().toString(36).slice(2, 6), food: id, date, like: null, reaction: false, checked: false, note: '', meal, recipe: recipe ?? null }));
+    save(); return fresh.length;
+  };
+  let pickMode = 'foods';
   const openPicker = (date, meal) => {
     if (!meal) return openMealPick(date);
-    const picked = new Set(), list = el('div', { class: 'pills' });
+    if (!hasRecipes()) pickMode = 'foods';
+    const picked = new Set(), rpicked = new Set(), list = el('div', {});
+    let q = '';
+    const total = () => new Set([...picked, ...[...rpicked].flatMap(n => R.list[n].foods)]).size;
     const addBtn = el('button', { class: 'primary', disabled: true, onclick: () => {
-      const stamp = Date.now().toString(36);
-      [...picked].forEach((id, i) => state.log.push({ id: stamp + i + Math.random().toString(36).slice(2, 6), food: id, date, like: null, reaction: false, checked: false, note: '', meal }));
-      save(); closeSheet(); render(); toast(t().mealAdded(picked.size, t().meals[meal]));
+      let n = 0;
+      for (const r of rpicked) n += addFoods(date, meal, R.list[r].foods, r);
+      n += addFoods(date, meal, [...picked]);
+      closeSheet(); render(); toast(t().mealAdded(n, t().meals[meal]));
     } }, t().addN(0));
-    const sync = () => { addBtn.disabled = !picked.size; addBtn.textContent = t().addN(picked.size); };
-    const fill = q => {
-      const items = F.foods.filter(x => fname(x).toLowerCase().includes(q.toLowerCase()));
+    const sync = () => { addBtn.disabled = !total(); addBtn.textContent = t().addN(total()); };
+    const fill = () => {
+      const ql = q.toLowerCase();
+      if (pickMode === 'recipes') {
+        const items = eligible().filter(r => r.foods.length && rx(r).t.toLowerCase().includes(ql));
+        list.className = 'rlist';
+        list.replaceChildren(...(items.length ? items.map(r => el('button', { class: 'recipe rpick', 'aria-pressed': String(rpicked.has(r.id)),
+          onclick: e => { rpicked.has(r.id) ? rpicked.delete(r.id) : rpicked.add(r.id); e.currentTarget.setAttribute('aria-pressed', String(rpicked.has(r.id))); sync(); } },
+          recipeArt(r, 'thumb'), el('span', { class: 'rtxt' }, el('span', { class: 'rname' }, rx(r).t), el('span', { class: 'muted' }, r.foods.map(id => fname(F.byId.get(id))).join(', '))),
+          el('span', { class: 'obtick', 'aria-hidden': 'true' }, icon('check', 16)))) : [el('p', { class: 'muted' }, t().recipesEmpty)]));
+        return;
+      }
+      const items = F.foods.filter(x => fname(x).toLowerCase().includes(ql));
+      list.className = 'pills';
       list.replaceChildren(...(items.length ? items.map(x => el('button', { class: 'chip pick', 'aria-pressed': String(picked.has(x.id)),
         'aria-label': `${fname(x)}${x.allergen ? ', ' + t().allergenBadge : ''}${avoided(x) ? ', ' + t().avoidMark : ''}`,
         onclick: e => { picked.has(x.id) ? picked.delete(x.id) : picked.add(x.id); e.currentTarget.setAttribute('aria-pressed', String(picked.has(x.id))); sync(); } },
         x.allergen && el('span', { class: 'dot' }), fname(x), countFor(x.id) ? null : el('span', { class: 'newtag' }, t().newTag))) : [el('p', { class: 'muted' }, t().noResults)]));
     };
-    const input = el('input', { class: 'search', type: 'search', placeholder: t().search, 'aria-label': t().search, oninput: e => fill(e.target.value) });
-    fill('');
-    openSheet(sheetHead('', t().meals[meal]), el('p', { class: 'muted' }, t().pickFoodsHint), input, list, el('div', { class: 'pickbar' }, addBtn));
+    const input = el('input', { class: 'search', type: 'search', 'aria-label': t().search, oninput: e => { q = e.target.value; fill(); } });
+    const hint = el('p', { class: 'muted' });
+    const modes = hasRecipes() ? el('div', { class: 'chips seg two', role: 'group', style: 'margin-top:12px' }, [['foods', t().tabFoods], ['recipes', t().tabRecipes]].map(([id, label]) =>
+      el('button', { class: 'chip', 'aria-pressed': String(pickMode === id), onclick: () => { pickMode = id; setMode(); } }, label))) : null;
+    const setMode = () => {
+      if (modes) [...modes.children].forEach((b, i) => b.setAttribute('aria-pressed', String((i ? 'recipes' : 'foods') === pickMode)));
+      hint.textContent = pickMode === 'recipes' ? t().pickRecipesHint : t().pickFoodsHint;
+      input.placeholder = pickMode === 'recipes' ? t().searchRecipes : t().search;
+      input.value = q = ''; fill();
+    };
+    setMode();
+    openSheet(sheetHead('', t().meals[meal]), modes, hint, input, list, el('div', { class: 'pickbar' }, addBtn));
   };
+  // Registar uma receita inteira numa refeição de hoje.
+  const openRecipeLog = r => openSheet(sheetHead('', t().mealPick), el('p', { class: 'muted' }, rx(r).t),
+    el('div', { class: 'addopts' }, MEALS.map(m => el('button', { class: 'addopt', onclick: () => { const n = addFoods(todayIso(), m, r.foods, r.id); closeSheet(); render(); toast(t().mealAdded(n, t().meals[m])); } },
+      icon('recipes', 22), el('span', {}, el('b', {}, t().meals[m]), el('span', { class: 'muted' }, mealLine(todayIso(), m) || t().mealEmpty))))));
 
   // ---------- pieces ----------
   // Imagem do alimento: a foto, se existir; senão um quadrado com a inicial.
@@ -336,6 +372,7 @@
       el('div', { class: 'body' },
         el('div', { class: 'name' }, showDate ? fmtDate(e.date, { day: 'numeric', month: 'short', year: 'numeric' }) : fname(food)),
         e.like !== null && el('div', { class: 'muted' }, likeLabel(e.like)),
+        !showDate && e.recipe != null && hasRecipes() && el('div', { class: 'fromrecipe' }, t().fromRecipe(rx(R.list[e.recipe]).t)),
         e.note && el('div', { class: 'note' }, e.note),
         e.reaction && el('span', { class: 'flag' }, t().reactionFlag)),
       !showDate && el('button', { class: 'del', 'aria-label': `${t().edit}: ${fname(food)}`, onclick: () => openLogForm(food, e.date, e.meal, e) }, icon('edit', 20)),
@@ -401,7 +438,7 @@
     el('p', { class: 'muted' }, recipeMeta(r)),
     r.kcal && el('p', { class: 'kcal' }, kcalLine(r)),
     r.foods.some(id => avoided(F.byId.get(id))) && el('p', { class: 'info warnbox' }, t().recipeAvoid([...new Set(r.foods.map(id => F.byId.get(id)).filter(avoided).map(x => t().allergenName[x.allergen]))].join(', '))),
-    el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: () => openDayPicker(r) }, t().addToPlan)),
+    el('div', { class: 'btnrow' }, r.foods.length ? el('button', { class: 'primary', onclick: () => openRecipeLog(r) }, t().logRecipe) : null, el('button', { class: 'ghost', onclick: () => openDayPicker(r) }, t().addToPlan)),
     el('h3', { class: 'sub' }, t().ingredients), el('ul', { class: 'ing' }, rx(r).ing.map(x => el('li', {}, x))),
     el('h3', { class: 'sub' }, t().howTo), el('ol', { class: 'steps' }, rx(r).passos.map(x => el('li', {}, x))),
     r.foods.length ? [el('h3', { class: 'sub' }, t().recipeFoods), el('p', { class: 'fine' }, t().recipeFoodsHint),
