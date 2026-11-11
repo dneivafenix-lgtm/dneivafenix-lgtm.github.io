@@ -16,6 +16,7 @@ Atualizada a 11 de novembro de 2026. App de teste: https://dneivafenix-lgtm.gith
 - Plano guiado por semanas, com um alergénio novo de cada vez
 - Perfil do bebé: método, alergias confirmadas, alimentação da família, eczema, prematuro
 - Pesquisa de receitas no ecrã Alimentos
+- Registo por refeição (pequeno-almoço, almoço, lanche, jantar), com vários alimentos de uma vez e edição de cada registo
 - Guias com ilustração e tempo de leitura, e cartão de guias mais visível no ecrã Hoje
 
 ## A seguir (posso fazer sem ti)

@@ -12,7 +12,8 @@
   const DATE = /^\d{4}-\d{2}-\d{2}$/;
   const cleanLog = arr => (Array.isArray(arr) ? arr : []).filter(e => e && F.byId.has(e.food) && DATE.test(e.date)).map(e => ({
     id: String(e.id || Math.random().toString(36).slice(2)), food: e.food, date: e.date,
-    like: [1, 0, -1].includes(e.like) ? e.like : null, reaction: !!e.reaction, checked: !!e.checked, note: String(e.note || '').slice(0, 300)
+    like: [1, 0, -1].includes(e.like) ? e.like : null, reaction: !!e.reaction, checked: !!e.checked, note: String(e.note || '').slice(0, 300),
+    meal: MEALS.includes(e.meal) ? e.meal : ''
   }));
   // Plano: dia -> números das receitas.
   const cleanPlan = p => {
@@ -31,6 +32,7 @@
     return out;
   };
   // Diário dos pais. O áudio de cada entrada fica à parte, no IndexedDB, com a mesma chave.
+  const MEALS = ['breakfast', 'lunch', 'snack', 'dinner'];
   const METHODS = ['blw', 'spoon', 'both', 'unsure'];
   const GOALS = ['safe', 'allergens', 'meals', 'what', 'browse'];
   const MOODS = ['joy', 'proud', 'tender', 'laugh', 'tired', 'worry'];
@@ -162,6 +164,7 @@
     journal: '<path d="M6 4h10a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2z"/><path d="M6 17a2 2 0 0 1 2-2h10M10 8h4"/>',
     note: '<path d="M6 4h9l3 3v13H6z"/><path d="M9 10h6M9 14h6"/>',
     check: '<path d="M5 12l4 4 10-10"/>',
+    edit: '<path d="M4 20h4l11-11-4-4L4 16z"/><path d="M13 7l4 4"/>',
     recipes: '<path d="M4 13h16a8 8 0 0 1-16 0z"/><path d="M15 9l5-5"/>'
   };
   const icon = (name, size = 22) => {
@@ -188,27 +191,38 @@
     food.choke && el('p', { class: 'info' }, t().infoChoke)
   ];
 
-  const openLogForm = (food, date) => {
-    let like = null;
+  // Refeição sugerida pela hora do dia (só para poupar um toque).
+  const mealNow = () => { const h = new Date().getHours(); return h < 11 ? 'breakfast' : h < 15 ? 'lunch' : h < 18 ? 'snack' : 'dinner'; };
+  // Registo de um alimento: novo, ou edição de um registo existente (entry).
+  const openLogForm = (food, date, meal, entry) => {
+    let like = entry ? entry.like : null, m = entry ? entry.meal : (meal || mealNow());
     const likes = el('div', { class: 'likes', role: 'group', 'aria-label': t().howWasIt }, [1, 0, -1].map(v =>
-      el('button', { type: 'button', 'aria-pressed': 'false', onclick: e => {
+      el('button', { type: 'button', 'aria-pressed': String(like === v), onclick: e => {
         like = like === v ? null : v;
         [...likes.children].forEach(b => b.setAttribute('aria-pressed', 'false'));
         if (like !== null) e.currentTarget.setAttribute('aria-pressed', 'true');
       } }, likeLabel(v))));
-    const reaction = el('input', { type: 'checkbox' });
-    const note = el('textarea', { rows: 2, maxLength: 300 });
+    const meals = el('div', { class: 'chips', role: 'group', 'aria-label': t().mealLabel, style: 'margin-top:8px' }, MEALS.map(v =>
+      el('button', { type: 'button', class: 'chip', 'aria-pressed': String(m === v), onclick: e => {
+        m = m === v ? '' : v;
+        [...meals.children].forEach(b => b.setAttribute('aria-pressed', 'false'));
+        if (m) e.currentTarget.setAttribute('aria-pressed', 'true');
+      } }, t().meals[v])));
+    const reaction = el('input', { type: 'checkbox', checked: !!(entry && entry.reaction) });
+    const note = el('textarea', { rows: 2, maxLength: 300, value: entry ? entry.note : '' });
     openSheet(
       sheetHead('', fname(food)),
       el('p', { class: 'muted' }, fmtDate(date, { weekday: 'long', day: 'numeric', month: 'long' })),
-      foodInfo(food),
+      !entry && foodInfo(food),
+      el('h3', { class: 'sub' }, t().mealLabel), meals,
       el('h3', { class: 'sub' }, t().howWasIt), likes,
       el('label', { class: 'check' }, reaction, t().suspectReaction),
       el('label', { class: 'field' }, t().note, note),
       el('div', { class: 'btnrow' },
         el('button', { class: 'ghost', onclick: closeSheet }, t().cancel),
         el('button', { class: 'primary', onclick: () => {
-          state.log.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), food: food.id, date, like, reaction: reaction.checked, checked: reaction.checked, note: note.value.trim() });
+          if (entry) Object.assign(entry, { like, meal: m, reaction: reaction.checked, checked: entry.checked || reaction.checked, note: note.value.trim() });
+          else state.log.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), food: food.id, date, like, reaction: reaction.checked, checked: reaction.checked, note: note.value.trim(), meal: m });
           save(); closeSheet(); render();
         } }, t().save)));
   };
@@ -261,15 +275,30 @@
       withFood.length ? [el('h3', { class: 'sub' }, t().recipesWith), el('div', { class: 'rlist' }, withFood.map(recipeRow))] : null);
   };
 
-  const openPicker = date => {
-    const list = el('div', { class: 'pills' });
+  // Escolher a refeição e, depois, os alimentos (vários de uma vez).
+  const openMealPick = date => openSheet(sheetHead('', t().mealPick), el('p', { class: 'muted' }, fmtDate(date, { weekday: 'long', day: 'numeric', month: 'long' })),
+    el('div', { class: 'addopts' }, MEALS.map(m => el('button', { class: 'addopt', onclick: () => openPicker(date, m) }, icon('recipes', 22),
+      el('span', {}, el('b', {}, t().meals[m]), el('span', { class: 'muted' }, mealLine(date, m) || t().mealEmpty))))));
+  const mealLine = (date, m) => state.log.filter(e => e.date === date && e.meal === m).map(e => fname(F.byId.get(e.food))).join(', ');
+  const openPicker = (date, meal) => {
+    if (!meal) return openMealPick(date);
+    const picked = new Set(), list = el('div', { class: 'pills' });
+    const addBtn = el('button', { class: 'primary', disabled: true, onclick: () => {
+      const stamp = Date.now().toString(36);
+      [...picked].forEach((id, i) => state.log.push({ id: stamp + i + Math.random().toString(36).slice(2, 6), food: id, date, like: null, reaction: false, checked: false, note: '', meal }));
+      save(); closeSheet(); render(); toast(t().mealAdded(picked.size, t().meals[meal]));
+    } }, t().addN(0));
+    const sync = () => { addBtn.disabled = !picked.size; addBtn.textContent = t().addN(picked.size); };
     const fill = q => {
       const items = F.foods.filter(x => fname(x).toLowerCase().includes(q.toLowerCase()));
-      list.replaceChildren(...(items.length ? items.map(x => foodCard(x, () => openLogForm(x, date))) : [el('p', { class: 'muted' }, t().noResults)]));
+      list.replaceChildren(...(items.length ? items.map(x => el('button', { class: 'chip pick', 'aria-pressed': String(picked.has(x.id)),
+        'aria-label': `${fname(x)}${x.allergen ? ', ' + t().allergenBadge : ''}${avoided(x) ? ', ' + t().avoidMark : ''}`,
+        onclick: e => { picked.has(x.id) ? picked.delete(x.id) : picked.add(x.id); e.currentTarget.setAttribute('aria-pressed', String(picked.has(x.id))); sync(); } },
+        x.allergen && el('span', { class: 'dot' }), fname(x), countFor(x.id) ? null : el('span', { class: 'newtag' }, t().newTag))) : [el('p', { class: 'muted' }, t().noResults)]));
     };
     const input = el('input', { class: 'search', type: 'search', placeholder: t().search, 'aria-label': t().search, oninput: e => fill(e.target.value) });
     fill('');
-    openSheet(sheetHead('', t().addFood.replace(/^\+\s*/, '')), input, list);
+    openSheet(sheetHead('', t().meals[meal]), el('p', { class: 'muted' }, t().pickFoodsHint), input, list, el('div', { class: 'pickbar' }, addBtn));
   };
 
   // ---------- pieces ----------
@@ -309,6 +338,7 @@
         e.like !== null && el('div', { class: 'muted' }, likeLabel(e.like)),
         e.note && el('div', { class: 'note' }, e.note),
         e.reaction && el('span', { class: 'flag' }, t().reactionFlag)),
+      !showDate && el('button', { class: 'del', 'aria-label': `${t().edit}: ${fname(food)}`, onclick: () => openLogForm(food, e.date, e.meal, e) }, icon('edit', 20)),
       el('button', { class: 'del', 'aria-label': `${t().remove}: ${fname(food)}`, onclick: () => {
         state.log = state.log.filter(x => x.id !== e.id); save();
         if (sheet.open) openFoodDetail(food);
@@ -792,8 +822,8 @@
       el('span', {}, el('b', {}, title, tag), el('span', { class: 'muted' }, hint)));
     const openAdd = () => openSheet(sheetHead('', t().addWhat), el('p', { class: 'muted' }, long(day)),
       el('div', { class: 'addopts' },
-        opt('foods', t().optFood, t().optFoodHint, () => openPicker(day)),
-        hasRecipes() ? opt('recipes', t().optRecipe, t().optRecipeHint, premium(() => openRecipePicker(day)), ptag()) : null,
+        opt('recipes', t().optMeal, t().optMealHint, () => openPicker(day)),
+        hasRecipes() ? opt('journal', t().optRecipe, t().optRecipeHint, premium(() => openRecipePicker(day)), ptag()) : null,
         opt('note', t().optNote, t().optNoteHint, openNote),
         opt('journal', t().optJournal, t().optJournalHint, () => openJournalForm(null, day))));
     const fresh = entries.filter(e => firstSeen.get(e.food) === day).length, reacted = entries.filter(e => e.reaction).length;
@@ -851,11 +881,18 @@
           planned.length ? el('span', { class: 'sumchip' }, t().sumPlanned(planned.length)) : null,
           note ? el('span', { class: 'sumchip note' }, t().optNote) : null,
           dayJournal.length ? el('span', { class: 'sumchip note' }, t().journalTitle) : null) : null,
-        entries.length ? entries.map(e => entryRow(e, false)) : el('p', { class: 'muted' }, t().emptyDay),
+        el('div', { class: 'meals' }, MEALS.map(m => {
+          const rows = entries.filter(e => e.meal === m);
+          return el('section', { class: 'meal' },
+            el('div', { class: 'mealhead' }, el('h3', {}, t().meals[m]), el('button', { class: 'mealadd', 'aria-label': t().addToMeal(t().meals[m]), onclick: () => openPicker(day, m) }, icon('plus', 20))),
+            rows.length ? el('div', { class: 'mealrows' }, rows.map(e => entryRow(e, false))) : null);
+        }),
+          entries.some(e => !e.meal) ? el('section', { class: 'meal' }, el('div', { class: 'mealhead' }, el('h3', {}, t().mealOther)),
+            el('div', { class: 'mealrows' }, entries.filter(e => !e.meal).map(e => entryRow(e, false)))) : null),
         note && el('button', { class: 'daynote', 'aria-label': t().editNote, onclick: openNote }, icon('note', 18), el('span', {}, note)),
         dayJournal.map(e => el('button', { class: 'daynote', 'aria-label': t().edit, onclick: () => openJournalForm(e) }, icon(e.audio ? 'mic' : 'journal', 18),
           el('span', {}, e.title || e.text.slice(0, 140) || t().voiceNote))),
-        !entries.length && el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => openPicker(day) }, t().addFood))),
+        ),
       due.length ? el('button', { class: 'card nudge', onclick: () => { tab = 'allergens'; render(); window.scrollTo(0, 0); } },
         el('span', { class: 'eyebrow' }, t().algTitle), el('span', { class: 'rname' }, t().algDueCard(due.length)),
         el('span', { class: 'muted' }, due.map(x => t().allergenName[x.id]).join(', '))) : null,

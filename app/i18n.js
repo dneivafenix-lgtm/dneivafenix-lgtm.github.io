@@ -701,3 +701,33 @@ Object.assign(window.DiaryI18n.pt, { readMin: n => `${n} min de leitura`, guides
 Object.assign(window.DiaryI18n.en, { readMin: n => `${n} min read`, guidesAll: n => `See all ${n} guides` });
 Object.assign(window.DiaryI18n.es, { readMin: n => `${n} min de lectura`, guidesAll: n => `Ver las ${n} guías` });
 Object.assign(window.DiaryI18n.fr, { readMin: n => `${n} min de lecture`, guidesAll: n => `Voir les ${n} guides` });
+
+// Registo por refeição.
+Object.assign(window.DiaryI18n.pt, {
+  meals: { breakfast: 'Pequeno-almoço', lunch: 'Almoço', snack: 'Lanche', dinner: 'Jantar' }, mealOther: 'Sem refeição', mealLabel: 'Refeição',
+  mealPick: 'Qual refeição?', mealEmpty: 'Ainda sem alimentos', addToMeal: name => `Adicionar alimentos: ${name}`, addN: n => n ? `Adicionar (${n})` : 'Adicionar',
+  pickFoodsHint: 'Toca nos alimentos que o bebé comeu. Depois podes dizer se gostou.', newTag: 'novo',
+  mealAdded: (n, meal) => n === 1 ? `1 alimento adicionado: ${meal}` : `${n} alimentos adicionados: ${meal}`,
+  optMeal: 'Refeição', optMealHint: 'Os alimentos que o bebé comeu'
+});
+Object.assign(window.DiaryI18n.en, {
+  meals: { breakfast: 'Breakfast', lunch: 'Lunch', snack: 'Snack', dinner: 'Dinner' }, mealOther: 'No meal', mealLabel: 'Meal',
+  mealPick: 'Which meal?', mealEmpty: 'No foods yet', addToMeal: name => `Add foods: ${name}`, addN: n => n ? `Add (${n})` : 'Add',
+  pickFoodsHint: 'Tap the foods your baby ate. You can say how it went afterwards.', newTag: 'new',
+  mealAdded: (n, meal) => n === 1 ? `1 food added: ${meal}` : `${n} foods added: ${meal}`,
+  optMeal: 'Meal', optMealHint: 'The foods your baby ate'
+});
+Object.assign(window.DiaryI18n.es, {
+  meals: { breakfast: 'Desayuno', lunch: 'Comida', snack: 'Merienda', dinner: 'Cena' }, mealOther: 'Sin comida asignada', mealLabel: 'Momento del día',
+  mealPick: '¿En qué comida?', mealEmpty: 'Aún sin alimentos', addToMeal: name => `Añadir alimentos: ${name}`, addN: n => n ? `Añadir (${n})` : 'Añadir',
+  pickFoodsHint: 'Toca los alimentos que comió el bebé. Después puedes indicar si le gustó.', newTag: 'nuevo',
+  mealAdded: (n, meal) => n === 1 ? `1 alimento añadido: ${meal}` : `${n} alimentos añadidos: ${meal}`,
+  optMeal: 'Comida', optMealHint: 'Los alimentos que comió el bebé'
+});
+Object.assign(window.DiaryI18n.fr, {
+  meals: { breakfast: 'Petit-déjeuner', lunch: 'Déjeuner', snack: 'Goûter', dinner: 'Dîner' }, mealOther: 'Sans repas', mealLabel: 'Repas',
+  mealPick: 'Quel repas ?', mealEmpty: "Pas encore d'aliments", addToMeal: name => `Ajouter des aliments : ${name}`, addN: n => n ? `Ajouter (${n})` : 'Ajouter',
+  pickFoodsHint: 'Touchez les aliments que bébé a mangés. Vous pourrez ensuite noter comment ça s\'est passé.', newTag: 'nouveau',
+  mealAdded: (n, meal) => n === 1 ? `1 aliment ajouté : ${meal}` : `${n} aliments ajoutés : ${meal}`,
+  optMeal: 'Repas', optMealHint: 'Les aliments que bébé a mangés'
+});
