@@ -206,6 +206,12 @@ main{max-width:680px;margin:auto;padding:16px 20px 28px;outline:none;display:fle
 .jcover{display:flex;flex-direction:column;gap:10px;background:var(--blushbg,color-mix(in srgb,var(--note-bg) 70%,var(--card)));border-radius:20px;padding:22px 20px}
 .jcover .hand{font-size:40px}
 .jmeta{font-size:14px;color:var(--body)}
+/* Ilustração do diário: a nuvem a escrever, no botão do ecrã Hoje e na capa. */
+.jart{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;object-position:50% 46%}
+.jbanner{padding:0;overflow:hidden;gap:0}
+.jbanner .jbtxt{display:flex;flex-direction:column;gap:2px;padding:14px 18px 16px}
+.jcover{overflow:hidden}
+.jcover .jart{aspect-ratio:3/2;width:calc(100% + 40px);max-width:none;margin:-22px -20px 6px}
 .timeline{display:flex;flex-direction:column;gap:18px;border-left:2px solid var(--line);margin-left:6px;padding-left:18px}
 .jentry{position:relative;display:flex;flex-direction:column;gap:6px}
 .jentry::before{content:"";position:absolute;left:-25px;top:10px;width:12px;height:12px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 4px var(--bg)}
