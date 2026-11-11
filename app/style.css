@@ -538,3 +538,33 @@ input.jpdate{border:0;background:none;padding:0;min-height:var(--rule);width:aut
 dialog{touch-action:pan-y}
 textarea.jlines:focus,textarea.jlines:focus-visible{outline:none}
 .jwrite:focus-within{border-color:var(--brand)}
+/* Diário: uma página por dia */
+.jcover.slim{flex-direction:row;align-items:center;flex-wrap:wrap;column-gap:14px;row-gap:2px;padding:14px 16px}
+.jcover.slim .jart{width:72px;height:72px;aspect-ratio:1;object-fit:cover;border-radius:16px;margin:0;grid-row:span 2}
+.jcover.slim .hand{font-size:32px;flex:1;min-width:0}
+.jcover.slim .jmeta{flex-basis:100%;margin:0}
+.jnav{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.jarrow{width:48px;min-height:48px;padding:0;font-size:24px;line-height:1;border-radius:50%;flex:none}
+.jarrow:disabled{opacity:.35}
+.jnavtxt{display:flex;flex-direction:column;align-items:center;font-family:var(--display);font-weight:600;font-size:17px}
+.jnavtxt small{font-family:var(--text);font-weight:500;font-size:12px;color:var(--muted)}
+.jpage{display:flex;flex-direction:column;animation:jturn .28s ease}
+@keyframes jturn{from{opacity:0;transform:translateX(14px) rotate(.4deg)}to{opacity:1;transform:none}}
+.jmoment{position:relative;display:flex;flex-direction:column;padding-bottom:6px;margin-bottom:10px;border-bottom:1px dashed color-mix(in srgb,var(--brand) 25%,transparent)}
+.jtime{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--muted);line-height:20px}
+.jmoment .jactions{gap:16px;margin-top:2px}
+.jwriter{display:flex;flex-direction:column;margin-top:4px}
+.jwriter textarea.jlines{min-height:calc(var(--rule) * 3);overflow:hidden}
+.jqlinks{display:flex;gap:16px}
+.jtools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.primary.small,.ghost.small{min-height:42px;padding:0 16px;font-size:14px;width:auto;flex:none}
+.jmoodrow{margin-top:16px;padding-top:10px;border-top:1px dashed color-mix(in srgb,var(--brand) 25%,transparent)}
+.chip.sticker{min-height:34px;padding:0 12px;font-size:13px;border-style:dashed;background:transparent}
+.chip.sticker[aria-pressed=true]{background:var(--brand);border-style:solid;transform:rotate(-3deg)}
+.jpages .field{max-width:240px}
+@media (prefers-reduced-motion:reduce){.jpage{animation:none}.chip.sticker[aria-pressed=true]{transform:none}}
+.jmoment{border-bottom:0;padding-bottom:0;margin-bottom:var(--rule)}
+.jmoment p.jlines{min-height:0}
+.jmhead{display:flex;align-items:center;justify-content:space-between;min-height:24px}
+.jedit{border:0;background:none;color:var(--muted);width:44px;height:32px;display:grid;place-items:center;margin-right:-12px}
+.jpages .catstrip{background:none;padding-top:2px}
