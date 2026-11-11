@@ -485,3 +485,27 @@ dialog[open]::backdrop{animation:fade .3s ease}
 .rpick[aria-pressed=true]{background:var(--tint);border-color:var(--brand)}
 .rpick[aria-pressed=true] .obtick{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
 .fromrecipe{font-size:12px;font-weight:600;color:var(--muted)}
+/* Campo de data: no iPhone o campo nativo ignora a largura e saía do ecrã. */
+input[type=date]{-webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;min-width:0;max-width:100%;line-height:46px;text-align:left}
+input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
+label.field{min-width:0}
+/* Lista de alimentos com foto, ao adicionar a uma refeição */
+.picklist{display:flex;flex-direction:column;margin-top:8px}
+.pickrow{display:flex;align-items:center;gap:12px;min-height:64px;padding:8px 0;border:0;border-top:1px solid var(--line);background:none;text-align:left;width:100%}
+.pickrow:first-child{border-top:0}
+.art.pthumb{width:48px;height:48px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-weight:700}
+.pname{flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:16px;font-weight:600}
+.pfav{color:var(--warn);display:inline-flex}
+.pfav svg{fill:currentColor}
+.palg{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--warn);white-space:nowrap}
+.palg i{width:8px;height:8px;border-radius:50%;background:var(--warn)}
+.pbox{width:26px;height:26px;border-radius:8px;border:1.5px solid var(--edge);display:grid;place-items:center;color:transparent;flex:none}
+.pickrow[aria-checked=true] .pbox{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.pickrow[aria-checked=true] .pname{color:var(--brand)}
+/* Favoritos */
+.favbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.favbtn[aria-pressed=true] svg{fill:var(--warn);stroke:var(--warn)}
+.g-refusal{background:var(--note-bg)}
+.g-water{background:color-mix(in srgb,#9cc3e6 34%,var(--card))}
+.g-routine{background:var(--tint)}
+.g-cutting{background:var(--note-bg)}

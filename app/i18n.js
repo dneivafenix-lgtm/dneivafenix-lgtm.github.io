@@ -737,3 +737,9 @@ Object.assign(window.DiaryI18n.pt, { pickRecipesHint: 'Escolhe a receita: cada i
 Object.assign(window.DiaryI18n.en, { pickRecipesHint: 'Choose a recipe: each ingredient is logged as a food.', fromRecipe: name => `Recipe: ${name}`, logRecipe: 'Log as a meal' });
 Object.assign(window.DiaryI18n.es, { pickRecipesHint: 'Elige la receta: cada ingrediente queda registrado como un alimento.', fromRecipe: name => `Receta: ${name}`, logRecipe: 'Registrar en una comida' });
 Object.assign(window.DiaryI18n.fr, { pickRecipesHint: 'Choisissez la recette : chaque ingrédient est noté comme un aliment.', fromRecipe: name => `Recette : ${name}`, logRecipe: 'Noter dans un repas' });
+
+// Favoritos e lista de alimentos com fotos.
+Object.assign(window.DiaryI18n.pt, { favs: 'Favoritos', favAdd: 'Guardar nos favoritos', favOn: 'Nos favoritos', allergenShort: 'Alergénio' });
+Object.assign(window.DiaryI18n.en, { favs: 'Favourites', favAdd: 'Save to favourites', favOn: 'In favourites', allergenShort: 'Allergen' });
+Object.assign(window.DiaryI18n.es, { favs: 'Favoritos', favAdd: 'Guardar en favoritos', favOn: 'En favoritos', allergenShort: 'Alérgeno' });
+Object.assign(window.DiaryI18n.fr, { favs: 'Favoris', favAdd: 'Ajouter aux favoris', favOn: 'Dans les favoris', allergenShort: 'Allergène' });
