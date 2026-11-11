@@ -568,3 +568,9 @@ textarea.jlines:focus,textarea.jlines:focus-visible{outline:none}
 .jmhead{display:flex;align-items:center;justify-content:space-between;min-height:24px}
 .jedit{border:0;background:none;color:var(--muted);width:44px;height:32px;display:grid;place-items:center;margin-right:-12px}
 .jpages .catstrip{background:none;padding-top:2px}
+/* Ilustração suave no topo da página do diário, a desvanecer para o papel */
+.jpage{--paper:color-mix(in srgb,var(--accent) 7%,var(--card));--veil:18%;padding-top:150px;
+  background:linear-gradient(to bottom,color-mix(in srgb,var(--paper) var(--veil),transparent) 0,color-mix(in srgb,var(--paper) 55%,transparent) 120px,var(--paper) 232px),url(img/diario-fundo.jpg) center top/100% auto no-repeat,var(--paper)}
+.jpage::before,.jpage::after{top:236px}
+@media (prefers-color-scheme:dark){.jpage{--veil:58%}}
+:root[data-theme="dark"] .jpage{--veil:58%}
