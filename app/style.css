@@ -509,3 +509,8 @@ label.field{min-width:0}
 .g-water{background:color-mix(in srgb,#9cc3e6 34%,var(--card))}
 .g-routine{background:var(--tint)}
 .g-cutting{background:var(--note-bg)}
+/* Categorias na lista de alimentos de uma refeição */
+.catstrip{flex-wrap:nowrap;overflow-x:auto;margin:12px -20px 0;padding:2px 20px 6px;scrollbar-width:none}
+.catstrip::-webkit-scrollbar{display:none}
+.catstrip .chip{flex:none}
+.catstrip{position:sticky;top:-12px;z-index:2;background:var(--card);padding-top:10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
