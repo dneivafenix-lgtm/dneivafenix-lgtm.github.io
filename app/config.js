@@ -30,6 +30,11 @@ window.DiaryConfig = {
   // introducedAfter: número de vezes sem reação para a app dar o alergénio como introduzido.
   // remindAfterDays: dias sem oferecer um alergénio já introduzido até a app lembrar.
   allergens: { introducedAfter: 3, remindAfterDays: 7 },
+  // Plano guiado. A REVER POR PROFISSIONAL DE SAÚDE
+  // perWeek: alimentos novos sugeridos por semana. allergensFromWeek: semana a partir da qual o plano inclui alergénios
+  // (nunca mais do que um grupo novo por semana). freeWeeks: semanas abertas a quem não tem subscrição.
+  // early: alimentos puxados para o início da sua categoria, para não ficarem para o fim do plano.
+  plan: { perWeek: 5, allergensFromWeek: 2, freeWeeks: 2, early: ['egg', 'whitefish'] },
   // Ligação, por idioma, para formação oficial de primeiros socorros pediátricos (aparece no guia sobre engasgamento).
   links: { firstAid: { pt: '', en: '', es: '', fr: '' } },
   // Diário dos pais: duração máxima de cada gravação de voz, em segundos.
