@@ -616,3 +616,82 @@ Object.assign(window.DiaryI18n.fr, {
   obQ4: 'Une dernière chose',
   startTitle: 'Pour commencer', startHide: 'Masquer', startFoods: 'Voir les aliments et comment les servir', startLog: 'Notez le premier aliment'
 });
+
+// Plano guiado, perfil do bebé e pesquisa de receitas no ecrã Alimentos.
+// A REVER POR PROFISSIONAL DE SAÚDE: notas sobre eczema, prematuridade e alergias.
+Object.assign(window.DiaryI18n.pt, {
+  pathTitle: 'Plano guiado', pathIntro: n => `Uma ordem sugerida para o bebé ir provando os alimentos: cerca de ${n} novos por semana e, no máximo, um alergénio novo de cada vez.`,
+  pathNote: 'É só uma sugestão. Vai ao ritmo do bebé e segue as indicações do pediatra.',
+  pathWeekN: n => `Semana ${n}`, pathNow: 'Atual', pathOpen: 'Ver o plano', pathToday: n => `Plano guiado · semana ${n}`, pathTodayHint: 'Os próximos alimentos a provar.',
+  pathLate: 'Depois dos 12 meses', pathDone: 'Plano completo. Parabéns!', pathCount: (a, b) => `${a} de ${b} alimentos provados`,
+  pathExcluded: n => n === 1 ? '1 alimento fica fora do plano por causa do perfil do bebé.' : `${n} alimentos ficam fora do plano por causa do perfil do bebé.`,
+  profTitle: 'Perfil do bebé', profOpen: 'Perfil do bebé', profHint: 'Opcional. Serve para adaptar o plano e avisar nos alimentos certos. Fica só neste dispositivo.',
+  obQm: 'Como preferes oferecer os alimentos?', obQmHint: 'Não há resposta certa, e podes mudar quando quiseres.',
+  methods: { blw: ['Pedaços (BLW)', 'O bebé pega nos alimentos e come sozinho.'], spoon: ['Colher', 'Purés e papas dados à colher.'], both: ['As duas', 'Umas vezes pedaços, outras vezes colher.'], unsure: ['Ainda não sei', 'Podes decidir mais tarde.'] },
+  profAvoid: 'Alergias já confirmadas', profAvoidHint: 'Os alimentos destes grupos saem do plano e ficam assinalados.',
+  profDiet: 'Alimentação da família', diets: { none: 'Sem restrições', veg: 'Vegetariana', vegan: 'Vegana' },
+  profPremature: 'Nasceu antes das 37 semanas', profPrematureNote: 'Nos bebés prematuros, o momento certo para começar pode ser diferente. Fala com o pediatra.',
+  profEczema: 'Tem eczema', profEczemaNote: 'Bebés com eczema, sobretudo se for grave, podem ter maior risco de alergia alimentar. Fala com o pediatra antes de introduzir os alergénios.',
+  profVeganNote: 'Uma alimentação vegana no primeiro ano deve ser acompanhada por um profissional de saúde.',
+  avoidWarn: name => `Marcaste alergia a ${name} no perfil do bebé. Segue as indicações do médico antes de oferecer este alimento.`,
+  dietNote: 'Este alimento não faz parte da alimentação que escolheste no perfil do bebé.',
+  recipeAvoid: names => `Atenção: esta receita leva ${names}, que marcaste como alergia no perfil do bebé.`,
+  avoidMark: 'alergia assinalada', startProfile: 'Completa o perfil do bebé'
+});
+Object.assign(window.DiaryI18n.en, {
+  pathTitle: 'Guided plan', pathIntro: n => `A suggested order for your baby to try foods: about ${n} new ones a week and no more than one new allergen at a time.`,
+  pathNote: "It is only a suggestion. Go at your baby's pace and follow your paediatrician's advice.",
+  pathWeekN: n => `Week ${n}`, pathNow: 'Current', pathOpen: 'See the plan', pathToday: n => `Guided plan · week ${n}`, pathTodayHint: 'The next foods to try.',
+  pathLate: 'After 12 months', pathDone: 'Plan complete. Well done!', pathCount: (a, b) => `${a} of ${b} foods tried`,
+  pathExcluded: n => n === 1 ? "1 food is left out of the plan because of your baby's profile." : `${n} foods are left out of the plan because of your baby's profile.`,
+  profTitle: "Baby's profile", profOpen: "Baby's profile", profHint: 'Optional. It adapts the plan and flags the right foods. It stays on this device only.',
+  obQm: 'How would you like to offer food?', obQmHint: 'There is no right answer, and you can change it any time.',
+  methods: { blw: ['Finger foods (BLW)', 'Your baby picks food up and feeds themselves.'], spoon: ['Spoon', 'Purées and porridge offered on a spoon.'], both: ['Both', 'Sometimes finger foods, sometimes the spoon.'], unsure: ["I'm not sure yet", 'You can decide later.'] },
+  profAvoid: 'Confirmed allergies', profAvoidHint: 'Foods in these groups are left out of the plan and flagged.',
+  profDiet: 'Family diet', diets: { none: 'No restrictions', veg: 'Vegetarian', vegan: 'Vegan' },
+  profPremature: 'Born before 37 weeks', profPrematureNote: 'For babies born early, the right time to start may be different. Talk to your paediatrician.',
+  profEczema: 'Has eczema', profEczemaNote: 'Babies with eczema, especially severe eczema, may be at higher risk of food allergy. Talk to your paediatrician before introducing allergens.',
+  profVeganNote: 'A vegan diet in the first year should be supervised by a health professional.',
+  avoidWarn: name => `You marked an allergy to ${name} in your baby's profile. Follow your doctor's advice before offering this food.`,
+  dietNote: "This food is not part of the diet you chose in your baby's profile.",
+  recipeAvoid: names => `Note: this recipe contains ${names}, which you marked as an allergy in your baby's profile.`,
+  avoidMark: 'allergy flagged', startProfile: "Complete your baby's profile"
+});
+Object.assign(window.DiaryI18n.es, {
+  pathTitle: 'Plan guiado', pathIntro: n => `Un orden sugerido para que el bebé vaya probando alimentos: unos ${n} nuevos por semana y, como máximo, un alérgeno nuevo cada vez.`,
+  pathNote: 'Es solo una sugerencia. Ve al ritmo del bebé y sigue las indicaciones del pediatra.',
+  pathWeekN: n => `Semana ${n}`, pathNow: 'Actual', pathOpen: 'Ver el plan', pathToday: n => `Plan guiado · semana ${n}`, pathTodayHint: 'Los próximos alimentos por probar.',
+  pathLate: 'Después de los 12 meses', pathDone: 'Plan completo. ¡Enhorabuena!', pathCount: (a, b) => `${a} de ${b} alimentos probados`,
+  pathExcluded: n => n === 1 ? '1 alimento queda fuera del plan por el perfil del bebé.' : `${n} alimentos quedan fuera del plan por el perfil del bebé.`,
+  profTitle: 'Perfil del bebé', profOpen: 'Perfil del bebé', profHint: 'Opcional. Sirve para adaptar el plan y avisar en los alimentos adecuados. Se queda solo en este dispositivo.',
+  obQm: '¿Cómo prefieres ofrecer los alimentos?', obQmHint: 'No hay respuesta correcta, y puedes cambiarla cuando quieras.',
+  methods: { blw: ['Trozos (BLW)', 'El bebé coge los alimentos y come solo.'], spoon: ['Cuchara', 'Purés y papillas con cuchara.'], both: ['Las dos', 'Unas veces trozos, otras veces cuchara.'], unsure: ['Todavía no lo sé', 'Puedes decidirlo más adelante.'] },
+  profAvoid: 'Alergias ya confirmadas', profAvoidHint: 'Los alimentos de estos grupos salen del plan y quedan señalados.',
+  profDiet: 'Alimentación de la familia', diets: { none: 'Sin restricciones', veg: 'Vegetariana', vegan: 'Vegana' },
+  profPremature: 'Nació antes de las 37 semanas', profPrematureNote: 'En los bebés prematuros, el momento adecuado para empezar puede ser distinto. Habla con el pediatra.',
+  profEczema: 'Tiene eccema', profEczemaNote: 'Los bebés con eccema, sobre todo si es grave, pueden tener más riesgo de alergia alimentaria. Habla con el pediatra antes de introducir los alérgenos.',
+  profVeganNote: 'Una alimentación vegana en el primer año debe estar supervisada por un profesional de la salud.',
+  avoidWarn: name => `Has marcado alergia a ${name} en el perfil del bebé. Sigue las indicaciones del médico antes de ofrecer este alimento.`,
+  dietNote: 'Este alimento no forma parte de la alimentación que elegiste en el perfil del bebé.',
+  recipeAvoid: names => `Atención: esta receta lleva ${names}, que marcaste como alergia en el perfil del bebé.`,
+  avoidMark: 'alergia señalada', startProfile: 'Completa el perfil del bebé'
+});
+Object.assign(window.DiaryI18n.fr, {
+  pathTitle: 'Plan guidé', pathIntro: n => `Un ordre suggéré pour faire découvrir les aliments à bébé : environ ${n} nouveaux par semaine et, au plus, un nouvel allergène à la fois.`,
+  pathNote: "Ce n'est qu'une suggestion. Allez au rythme de bébé et suivez les conseils du pédiatre.",
+  pathWeekN: n => `Semaine ${n}`, pathNow: 'En cours', pathOpen: 'Voir le plan', pathToday: n => `Plan guidé · semaine ${n}`, pathTodayHint: 'Les prochains aliments à découvrir.',
+  pathLate: 'Après 12 mois', pathDone: 'Plan terminé. Bravo !', pathCount: (a, b) => `${a} aliments goûtés sur ${b}`,
+  pathExcluded: n => n === 1 ? '1 aliment est exclu du plan à cause du profil de bébé.' : `${n} aliments sont exclus du plan à cause du profil de bébé.`,
+  profTitle: 'Profil de bébé', profOpen: 'Profil de bébé', profHint: "Facultatif. Il sert à adapter le plan et à signaler les bons aliments. Il reste sur cet appareil.",
+  obQm: 'Comment préférez-vous proposer les aliments ?', obQmHint: "Il n'y a pas de bonne réponse, et vous pouvez changer à tout moment.",
+  methods: { blw: ['Morceaux (DME)', 'Bébé attrape les aliments et mange seul.'], spoon: ['Cuillère', 'Purées et bouillies données à la cuillère.'], both: ['Les deux', 'Parfois des morceaux, parfois la cuillère.'], unsure: ['Je ne sais pas encore', 'Vous pourrez décider plus tard.'] },
+  profAvoid: 'Allergies déjà confirmées', profAvoidHint: 'Les aliments de ces groupes sortent du plan et sont signalés.',
+  profDiet: 'Alimentation de la famille', diets: { none: 'Sans restriction', veg: 'Végétarienne', vegan: 'Végane' },
+  profPremature: 'Né avant 37 semaines', profPrematureNote: 'Chez les bébés prématurés, le bon moment pour commencer peut être différent. Parlez-en au pédiatre.',
+  profEczema: "A de l'eczéma", profEczemaNote: "Les bébés qui ont de l'eczéma, surtout sévère, peuvent avoir un risque plus élevé d'allergie alimentaire. Parlez-en au pédiatre avant d'introduire les allergènes.",
+  profVeganNote: 'Une alimentation végane la première année doit être suivie par un professionnel de santé.',
+  avoidWarn: name => `Vous avez indiqué une allergie (${name}) dans le profil de bébé. Suivez les conseils du médecin avant de proposer cet aliment.`,
+  dietNote: "Cet aliment ne fait pas partie de l'alimentation choisie dans le profil de bébé.",
+  recipeAvoid: names => `Attention : cette recette contient ${names}, indiqué comme allergie dans le profil de bébé.`,
+  avoidMark: 'allergie signalée', startProfile: 'Complétez le profil de bébé'
+});

@@ -31,6 +31,7 @@
     return out;
   };
   // Diário dos pais. O áudio de cada entrada fica à parte, no IndexedDB, com a mesma chave.
+  const METHODS = ['blw', 'spoon', 'both', 'unsure'];
   const GOALS = ['safe', 'allergens', 'meals', 'what', 'browse'];
   const MOODS = ['joy', 'proud', 'tender', 'laugh', 'tired', 'worry'];
   const cleanJournal = arr => (Array.isArray(arr) ? arr : []).filter(e => e && DATE.test(e.date)).slice(0, 500).map(e => ({
@@ -40,6 +41,8 @@
   }));
   const cleanBaby = b => ({
     id: String(b.id || ''), name: String(b.name || '').slice(0, 40), birth: DATE.test(b.birth) ? b.birth : '', log: cleanLog(b.log), plan: cleanPlan(b.plan), notes: cleanNotes(b.notes), journal: cleanJournal(b.journal),
+    method: METHODS.includes(b.method) ? b.method : '', premature: !!b.premature, eczema: !!b.eczema, diet: ['veg', 'vegan'].includes(b.diet) ? b.diet : '',
+    avoid: (Array.isArray(b.avoid) ? b.avoid : []).filter(a => F.allergens.includes(a)),
     bought: { week: DATE.test(b.bought?.week) ? b.bought.week : '', lines: (Array.isArray(b.bought?.lines) ? b.bought.lines : []).filter(x => typeof x === 'string').slice(0, 300) }
   });
   // O bebé ativo fica acessível em state.baby e os seus registos em state.log (não são gravados em duplicado).
@@ -91,6 +94,46 @@
     let m = (n.getFullYear() - b.getFullYear()) * 12 + n.getMonth() - b.getMonth();
     if (n.getDate() < b.getDate()) m--;
     return m >= 0 ? m : null;
+  };
+
+  // Perfil do bebé: alergias confirmadas e alimentação da família.
+  const MEAT = ['chicken', 'turkey', 'beef', 'pork', 'lamb', 'rabbit'];
+  const avoided = food => !!food.allergen && state.baby.avoid.includes(food.allergen);
+  const dietOut = food => {
+    const d = state.baby.diet;
+    if (!d) return false;
+    if (MEAT.includes(food.id) || food.allergen === 'fish' || food.allergen === 'shellfish') return true;
+    return d === 'vegan' && (food.allergen === 'milk' || food.allergen === 'egg' || food.id === 'honey');
+  };
+  // Plano guiado. A REVER POR PROFISSIONAL DE SAÚDE: o ritmo vem de config.js > plan.
+  // Os alimentos seguem a ordem de foods.js, alternando categorias; em cada semana entra, no máximo, um grupo de alergénio novo.
+  const PLAN = Object.assign({ perWeek: 5, allergensFromWeek: 2, freeWeeks: 2 }, CFG.plan);
+  const buildPath = () => {
+    const pool = F.foods.filter(x => !avoided(x) && !dietOut(x));
+    const main = pool.filter(x => !x.min12), q = {};
+    for (const c of F.categories) q[c] = main.filter(x => x.cat === c);
+    // Alimentos a puxar para o início da sua categoria (config.js > plan.early).
+    for (const id of [...(PLAN.early || [])].reverse()) { const x = F.byId.get(id), l = x && q[x.cat], i = l ? l.indexOf(x) : -1; if (i > 1) { l.splice(i, 1); l.splice(1, 0, x); } }
+    const pattern = ['veg', 'fruit', 'protein', 'grain', 'veg', 'fruit', 'dairy', 'herb', 'other'];
+    const weeks = [], opened = new Set();
+    let pi = 0, left = main.length;
+    while (left) {
+      const wk = [], allowAlg = weeks.length + 1 >= PLAN.allergensFromWeek;
+      let newAlg = false, misses = 0;
+      while (wk.length < PLAN.perWeek && left && misses < pattern.length) {
+        const list = q[pattern[pi++ % pattern.length]];
+        const i = list.findIndex(x => !x.allergen || (allowAlg && (opened.has(x.allergen) || !newAlg)));
+        if (i < 0) { misses++; continue; }
+        const x = list.splice(i, 1)[0];
+        if (x.allergen && !opened.has(x.allergen)) { opened.add(x.allergen); newAlg = true; }
+        wk.push(x); left--; misses = 0;
+      }
+      if (!wk.length) { for (const c of F.categories) wk.push(...q[c].splice(0)); left = 0; }
+      weeks.push(wk);
+    }
+    const tried = new Set(state.log.map(e => e.food));
+    const cur = weeks.findIndex(w => w.some(x => !tried.has(x.id)));
+    return { weeks, late: pool.filter(x => x.min12), tried, cur, total: pool.length, done: pool.filter(x => tried.has(x.id)).length, excluded: F.foods.length - pool.length };
   };
 
   // ---------- tiny DOM helper (text is always set via textContent) ----------
@@ -206,6 +249,8 @@
       FOOD_PHOTOS[food.id] && foodArt(food, 'hero'),
       sheetHead('', fname(food)),
       el('p', { class: 'muted' }, `${t().cat[food.cat]} · ${hist.length ? t().triedTimes(hist.length) : t().notTried}`),
+      avoided(food) && el('p', { class: 'info warnbox' }, t().avoidWarn(t().allergenName[food.allergen])),
+      !avoided(food) && dietOut(food) && el('p', { class: 'info' }, t().dietNote),
       foodFacts(food),
       el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => openLogForm(food, todayIso()) }, t().logThis)),
       serveSection(food),
@@ -240,8 +285,9 @@
   const foodTile = food => {
     const n = countFor(food.id);
     return el('button', { class: 'tile' + (n ? ' tried' : ''), onclick: () => openFoodDetail(food),
-      'aria-label': `${fname(food)}${food.allergen ? ', ' + t().allergenBadge : ''}, ${n ? t().triedTimes(n) : t().notTried}` },
+      'aria-label': `${fname(food)}${food.allergen ? ', ' + t().allergenBadge : ''}${avoided(food) ? ', ' + t().avoidMark : ''}, ${n ? t().triedTimes(n) : t().notTried}` },
       foodArt(food, 'tileart'),
+      avoided(food) && el('span', { class: 'avoidmark', 'aria-hidden': 'true' }, '!'),
       n ? el('span', { class: 'tick', 'aria-hidden': 'true' }, icon('check', 14), n > 1 ? String(n) : null) : null,
       el('span', { class: 'tname' }, food.allergen && el('span', { class: 'dot', title: t().allergenBadge }), fname(food)));
   };
@@ -324,6 +370,7 @@
     sheetHead('', rx(r).t),
     el('p', { class: 'muted' }, recipeMeta(r)),
     r.kcal && el('p', { class: 'kcal' }, kcalLine(r)),
+    r.foods.some(id => avoided(F.byId.get(id))) && el('p', { class: 'info warnbox' }, t().recipeAvoid([...new Set(r.foods.map(id => F.byId.get(id)).filter(avoided).map(x => t().allergenName[x.allergen]))].join(', '))),
     el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: () => openDayPicker(r) }, t().addToPlan)),
     el('h3', { class: 'sub' }, t().ingredients), el('ul', { class: 'ing' }, rx(r).ing.map(x => el('li', {}, x))),
     el('h3', { class: 'sub' }, t().howTo), el('ol', { class: 'steps' }, rx(r).passos.map(x => el('li', {}, x))),
@@ -737,17 +784,10 @@
     const pending = state.log.filter(e => !e.checked && !e.reaction && e.date >= iso(since) && e.date <= today && F.byId.get(e.food).allergen);
     const answer = (e, reacted) => { e.checked = true; e.reaction = reacted; save(); render(); };
 
-    // Sugestão: um alimento ainda não provado. Alergénios ficam de fora, porque essa decisão é dos pais.
-    const triedSet = new Set(state.log.map(e => e.food));
-    const untried = F.foods.filter(x => !triedSet.has(x.id) && !x.allergen && !(x.min12 && (age === null || age < 12)));
+    // Próximos alimentos: os que faltam na semana atual do plano guiado.
+    const path = day === today ? buildPath() : null;
+    const nextFoods = path && path.cur >= 0 ? path.weeks[path.cur].filter(x => !path.tried.has(x.id)).slice(0, 3) : [];
     const dayNum = Math.floor(parse(today).getTime() / 864e5);
-    // Três sugestões, de categorias diferentes, a rodar de dia para dia.
-    const nextFoods = [];
-    const core = ['veg', 'fruit', 'grain', 'protein']; // ervas, especiarias e gorduras não contam como "próximo alimento"
-    if (day === today) for (let k = 0; k < core.length && nextFoods.length < 3; k++) {
-      const pool = untried.filter(x => x.cat === core[(dayNum + k) % core.length]);
-      if (pool.length) nextFoods.push(pool[dayNum % pool.length]);
-    }
     const due = allergenStatus().filter(x => x.due);
     const guides = (window.DiaryGuides || {})[state.lang];
     const pool = hasRecipes() && day === today ? eligible() : [];
@@ -800,8 +840,9 @@
       due.length ? el('button', { class: 'card nudge', onclick: () => { tab = 'allergens'; render(); window.scrollTo(0, 0); } },
         el('span', { class: 'eyebrow' }, t().algTitle), el('span', { class: 'rname' }, t().algDueCard(due.length)),
         el('span', { class: 'muted' }, due.map(x => t().allergenName[x.id]).join(', '))) : null,
-      nextFoods.length ? el('div', { class: 'card' }, el('h2', { style: 'margin-bottom:2px' }, t().nextFoods), el('p', { class: 'muted', style: 'margin-bottom:12px' }, t().nextFoodsHint),
-        el('div', { class: 'tiles three' }, nextFoods.map(foodTile))) : null,
+      nextFoods.length ? el('div', { class: 'card' }, el('h2', { style: 'margin-bottom:2px' }, t().pathToday(path.cur + 1)), el('p', { class: 'muted', style: 'margin-bottom:12px' }, t().pathTodayHint),
+        el('div', { class: 'tiles three' }, nextFoods.map(foodTile)),
+        el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: () => { tab = 'path'; render(); window.scrollTo(0, 0); } }, t().pathOpen))) : null,
       planned.length ? el('div', { class: 'card' }, el('h2', {}, t().planDay), el('div', { class: 'rlist' }, planned.map(recipeRow))) : null,
       daily && !planned.length && el('button', { class: 'card daily', onclick: () => openRecipe(daily) },
         recipeArt(daily, 'thumb'),
@@ -840,6 +881,8 @@
           open && el('div', { class: 'tiles' }, items.map(foodTile)),
           open && items.some(x => x.allergen) && el('p', { class: 'legend' }, el('i', {}), t().allergenBadge));
       }).filter(Boolean);
+      const found = q && hasRecipes() ? R.list.filter(r => rx(r).t.toLowerCase().includes(q)).slice(0, 12) : [];
+      if (found.length) rows.push(el('h3', { class: 'sub' }, t().tabRecipes), el('div', { class: 'rlist' }, found.map(recipeRow)));
       box.replaceChildren(...(rows.length ? rows : [el('p', { class: 'muted' }, t().noResults)]));
     };
     fill();
@@ -885,6 +928,7 @@
         el('div', { class: 'medals' }, CFG.milestones.map(m => el('span', { class: 'medal' + (tried.size >= m ? ' on' : '') }, String(m))))),
       el('div', { class: 'stats' }, [[state.log.length, t().statLogs], [streak, t().statStreak], [days.size, t().statDays]].map(([n, label]) =>
         el('div', { class: 'card stat' }, el('b', {}, String(n)), el('span', {}, label(n))))),
+      el('button', { class: 'ghost', onclick: () => { tab = 'path'; render(); window.scrollTo(0, 0); } }, t().pathTitle),
       el('button', { class: 'ghost withtag', onclick: premium(() => { tab = 'report'; render(); window.scrollTo(0, 0); }) }, t().reportOpen, ptag()),
       el('div', { class: 'card' }, el('h2', {}, t().byCategory), F.categories.map(c => {
         const all = F.foods.filter(x => x.cat === c), done = all.filter(x => tried.has(x.id)).length;
@@ -924,6 +968,7 @@
           onchange: e => { state.baby.name = e.target.value.trim(); save(); render(); } })),
         el('label', { class: 'field' }, t().birthDate, el('input', { type: 'date', value: state.baby.birth, max: todayIso(),
           onchange: e => { state.baby.birth = e.target.value; rstage = null; save(); } })),
+        el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: openProfile }, t().profOpen)),
         el('div', { class: 'btnrow' },
           state.babies.length < 6 && el('button', { class: 'ghost withtag', onclick: premium(openAddBaby) }, t().addBaby, ptag()),
           state.babies.length > 1 && el('button', { class: 'danger', onclick: openRemoveBaby }, t().removeBaby))),
@@ -993,7 +1038,7 @@
 
   // Boas-vindas em passos curtos: uma pergunta por ecrã.
   let obStep = 0;
-  const OB_STEPS = 5;
+  const OB_STEPS = 6;
   const viewWelcome = () => {
     const go = n => { obStep = Math.max(0, Math.min(OB_STEPS - 1, obStep + n)); save(); render(); window.scrollTo(0, 0); };
     const bar = el('div', { class: 'obbar', role: 'img', 'aria-label': t().stepOf(obStep + 1, OB_STEPS) }, Array.from({ length: OB_STEPS }, (_, i) => el('i', { class: i < obStep ? 'done' : i === obStep ? 'now' : '' })));
@@ -1019,6 +1064,11 @@
         onclick: () => { state.started = v; go(1); } }, el('span', {}, el('b', {}, label)), el('span', { class: 'obtick', 'aria-hidden': 'true' }, icon('check', 16))))),
       nav(t().next, null, state.started === null)];
     else if (obStep === 3) body = [
+      el('h1', {}, t().obQm), el('p', { class: 'lead' }, t().obQmHint),
+      el('div', { class: 'obopts' }, METHODS.map(m => el('button', { class: 'obopt', 'aria-pressed': String(state.baby.method === m),
+        onclick: () => { state.baby.method = m; go(1); } }, el('span', {}, el('b', {}, t().methods[m][0]), el('span', { class: 'muted' }, t().methods[m][1])), el('span', { class: 'obtick', 'aria-hidden': 'true' }, icon('check', 16))))),
+      nav(t().next, null, !state.baby.method)];
+    else if (obStep === 4) body = [
       el('h1', {}, t().obQ3), el('p', { class: 'lead' }, t().obQ3Hint),
       el('div', { class: 'card' },
         el('label', { class: 'field' }, t().babyName, el('input', { type: 'text', maxLength: 40, value: state.baby.name, autocomplete: 'off',
@@ -1050,15 +1100,66 @@
     if (g.includes('what') || g.includes('browse')) add(t().startFoods, goTab('foods'));
     if (g.includes('meals') && hasRecipes()) add(t().tabRecipes, goTab('recipes'));
     if (state.started !== false) add(t().startLog, () => openPicker(todayIso()));
+    add(t().pathTitle, goTab('path'));
+    if (!state.baby.avoid.length && !state.baby.diet && !state.baby.eczema && !state.baby.premature) add(t().startProfile, openProfile);
     return el('div', { class: 'card startcard' },
       el('div', { class: 'alghead' }, el('h2', {}, t().startTitle), el('button', { class: 'linkish', onclick: () => { state.hideStart = true; save(); render(); } }, t().startHide)),
-      el('div', { class: 'startlinks' }, links.slice(0, 4).map(([label, fn]) => el('button', { class: 'startlink', onclick: fn }, el('span', {}, label), el('span', { 'aria-hidden': 'true' }, '›')))));
+      el('div', { class: 'startlinks' }, links.slice(0, 5).map(([label, fn]) => el('button', { class: 'startlink', onclick: fn }, el('span', {}, label), el('span', { 'aria-hidden': 'true' }, '›')))));
   };
 
   // ---------- shell ----------
   let shown = '';
   const TAB_LABEL = { today: 'tabToday', progress: 'tabProgress' };
-  const EXTRA = { report: [viewReport, 'progress', 'reportOpen'], allergens: [viewAllergens, 'progress', 'algTitle'], guides: [viewGuides, 'today', 'guidesTitle'], journal: [viewJournal, 'today', 'journalTitle'] };
+  // Perfil do bebé (opcional).
+  const openProfile = () => {
+    const b = state.baby, changed = () => { save(); openProfile(); render(); };
+    const chip = (label, on, fn) => el('button', { class: 'chip', 'aria-pressed': String(!!on), onclick: () => { fn(); changed(); } }, label);
+    const tick = (label, key, note) => [el('label', { class: 'check' }, el('input', { type: 'checkbox', checked: b[key], onchange: e => { b[key] = e.target.checked; changed(); } }), label),
+      b[key] && el('p', { class: 'info' }, note)];
+    openSheet(sheetHead('', t().profTitle), el('p', { class: 'muted' }, t().profHint),
+      el('h3', { class: 'sub' }, t().obQm), el('div', { class: 'chips', style: 'margin-top:8px' }, METHODS.map(m => chip(t().methods[m][0], b.method === m, () => { b.method = b.method === m ? '' : m; }))),
+      el('h3', { class: 'sub' }, t().profAvoid), el('p', { class: 'fine' }, t().profAvoidHint),
+      el('div', { class: 'chips', style: 'margin-top:8px' }, F.allergens.map(a => chip(t().allergenName[a], b.avoid.includes(a), () => { b.avoid = b.avoid.includes(a) ? b.avoid.filter(x => x !== a) : [...b.avoid, a]; }))),
+      el('h3', { class: 'sub' }, t().profDiet),
+      el('div', { class: 'chips', style: 'margin-top:8px' }, [['', 'none'], ['veg', 'veg'], ['vegan', 'vegan']].map(([v, k]) => chip(t().diets[k], b.diet === v, () => { b.diet = v; }))),
+      b.diet === 'vegan' && el('p', { class: 'info' }, t().profVeganNote),
+      tick(t().profEczema, 'eczema', t().profEczemaNote),
+      tick(t().profPremature, 'premature', t().profPrematureNote),
+      el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: closeSheet }, t().done || t().close)));
+  };
+
+  // Plano guiado: semanas com os alimentos a provar.
+  let openWeeks = null;
+  const viewPath = () => {
+    const P = buildPath();
+    if (!openWeeks) openWeeks = new Set([Math.max(0, P.cur)]);
+    const section = (key, title, foods, isNow, lock) => {
+      const done = foods.filter(x => P.tried.has(x.id)).length, open = openWeeks.has(key) && !lock;
+      return el('section', { class: 'cat' + (open ? ' open' : '') + (isNow ? ' nowweek' : '') },
+        el('button', { class: 'cathead', 'aria-expanded': String(open), onclick: () => { if (lock) return openPaywall(); openWeeks.has(key) ? openWeeks.delete(key) : openWeeks.add(key); render(); } },
+          el('span', { class: 'catname' }, title, isNow && el('span', { class: 'badge nutri', style: 'margin-left:8px' }, t().pathNow), lock && el('span', { style: 'margin-left:8px' }, ptag())),
+          el('span', { class: 'catcount' }, `${done} / ${foods.length}`),
+          el('span', { class: 'chev', 'aria-hidden': 'true' }, '›'),
+          el('span', { class: 'bar' }, el('i', { style: `width:${foods.length ? done / foods.length * 100 : 0}%` }))),
+        open && el('div', { class: 'tiles' }, foods.map(foodTile)),
+        open && foods.some(x => x.allergen) && el('p', { class: 'legend' }, el('i', {}), t().allergenBadge));
+    };
+    return [
+      goBack('today'),
+      el('div', { class: 'hello' }, el('h1', {}, t().pathTitle), el('p', { class: 'muted', style: 'margin-top:6px' }, t().pathIntro(PLAN.perWeek))),
+      el('div', { class: 'card' }, el('div', { class: 'row' }, el('b', {}, P.cur < 0 ? t().pathDone : t().pathWeekN(P.cur + 1)), el('span', { class: 'muted' }, t().pathCount(P.done, P.total))),
+        el('div', { class: 'bar' }, el('i', { style: `width:${P.total ? P.done / P.total * 100 : 0}%` })),
+        el('p', { class: 'fine', style: 'margin-top:12px' }, t().pathNote),
+        state.baby.eczema && el('p', { class: 'info' }, t().profEczemaNote),
+        state.baby.premature && el('p', { class: 'info' }, t().profPrematureNote),
+        P.excluded ? el('p', { class: 'fine', style: 'margin-top:10px' }, t().pathExcluded(P.excluded)) : null,
+        el('button', { class: 'linkish', onclick: openProfile }, t().profOpen)),
+      el('div', { class: 'cats' }, P.weeks.map((w, i) => section(i, t().pathWeekN(i + 1), w, i === P.cur, i >= PLAN.freeWeeks && !isPremium())),
+        P.late.length ? section('late', t().pathLate, P.late, false, false) : null)
+    ];
+  };
+
+  const EXTRA = { path: [viewPath, 'today', 'pathTitle'], report: [viewReport, 'progress', 'reportOpen'], allergens: [viewAllergens, 'progress', 'algTitle'], guides: [viewGuides, 'today', 'guidesTitle'], journal: [viewJournal, 'today', 'journalTitle'] };
   const ALL_TABS = [['today', 'tabToday', viewToday], ['foods', 'tabFoods', viewFoods], ['recipes', 'tabRecipes', viewRecipes], ['progress', 'tabProgress', viewProgress], ['settings', 'tabSettings', viewSettings]];
   let TABS = ALL_TABS;
   const render = () => {

@@ -431,3 +431,8 @@ dialog[open]::backdrop{animation:fade .3s ease}
   main{max-width:none;padding:0 0 12px}
   .card{box-shadow:none;padding:10px 0;break-inside:avoid}
 }
+/* Plano guiado e perfil do bebé */
+.avoidmark{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--warn);color:#fff;font-size:14px;font-weight:700}
+.warnbox{background:var(--warn-bg);color:var(--warn);font-weight:600}
+.cat.nowweek{outline:2px solid var(--brand);outline-offset:-2px}
+.catname{display:flex;align-items:center;flex-wrap:wrap}
