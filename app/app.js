@@ -39,11 +39,11 @@
   const cleanJournal = arr => (Array.isArray(arr) ? arr : []).filter(e => e && DATE.test(e.date)).slice(0, 500).map(e => ({
     id: String(e.id || 'j' + Math.random().toString(36).slice(2)), date: e.date, title: String(e.title || '').slice(0, 80),
     text: String(e.text || '').slice(0, 4000), audio: !!e.audio, secs: Math.max(0, Math.min(3600, Math.round(+e.secs || 0))),
-    mood: MOODS.includes(e.mood) ? e.mood : '', photo: !!e.photo, at: /^\d\d:\d\d$/.test(e.at) ? e.at : ''
+    mood: MOODS.includes(e.mood) ? e.mood : '', photo: !!e.photo, at: /^\d\d:\d\d$/.test(e.at) ? e.at : '', book: e.book === 'parents' ? 'parents' : 'baby'
   }));
   const cleanBaby = b => ({
     id: String(b.id || ''), name: String(b.name || '').slice(0, 40), birth: DATE.test(b.birth) ? b.birth : '', log: cleanLog(b.log), plan: cleanPlan(b.plan), notes: cleanNotes(b.notes), journal: cleanJournal(b.journal),
-    jmoods: Object.fromEntries(Object.entries(b.jmoods && typeof b.jmoods === 'object' ? b.jmoods : {}).filter(([d, m]) => DATE.test(d) && MOODS.includes(m))),
+    jmoods: Object.fromEntries(Object.entries(b.jmoods && typeof b.jmoods === 'object' ? b.jmoods : {}).filter(([d, m]) => /^\d{4}-\d\d-\d\d(\|p)?$/.test(d) && MOODS.includes(m))),
     method: METHODS.includes(b.method) ? b.method : '', premature: !!b.premature, eczema: !!b.eczema, diet: ['veg', 'vegan'].includes(b.diet) ? b.diet : '',
     avoid: (Array.isArray(b.avoid) ? b.avoid : []).filter(a => F.allergens.includes(a)),
     bought: { week: DATE.test(b.bought?.week) ? b.bought.week : '', lines: (Array.isArray(b.bought?.lines) ? b.bought.lines : []).filter(x => typeof x === 'string').slice(0, 300) }
@@ -713,10 +713,12 @@
     return t().ageLong(m, Math.round((d - from) / 864e5));
   };
 
+  const bookTitle = b => b === 'parents' ? t().journalParents : state.baby.name ? t().journalOf(state.baby.name) : t().journalBaby;
   const nowHM = () => { const d = new Date(); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+  let jbook = 'baby'; // caderno aberto: o do bebé ou o dos pais
   let jday = null, jq = null; // página aberta no diário e pergunta escolhida (null = a do dia; -1 = sem pergunta)
   const openJournalForm = (entry, onDay) => {
-    const e = entry || { id: 'j' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), date: onDay && onDay <= todayIso() ? onDay : todayIso(), title: '', text: '', audio: false, secs: 0, mood: '', photo: false, at: nowHM() };
+    const e = entry || { id: 'j' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), date: onDay && onDay <= todayIso() ? onDay : todayIso(), title: '', text: '', audio: false, secs: 0, mood: '', photo: false, at: nowHM(), book: jbook };
     const date = el('input', { class: 'jpdate hand', type: 'date', value: e.date, max: todayIso(), 'aria-label': t().date });
     const text = el('textarea', { class: 'jlines', rows: 8, maxLength: 4000, value: e.text, placeholder: t().journalPlaceholder, 'aria-label': t().journalText });
     let blob = null, hasAudio = e.audio, secs = e.secs, rec = null, stream = null, timer = null, started = 0;
@@ -728,10 +730,11 @@
         if (mood) ev.currentTarget.setAttribute('aria-pressed', 'true');
       } }, t().moods[id])));
     // Pergunta do dia, escrita na página: roda de dia para dia e pode ser trocada.
-    const Q = t().questions;
+    const Q = e.book === 'parents' ? t().questionsParents : t().questions;
     let qi = Math.floor(parse(todayIso()).getTime() / 864e5) % Q.length, qText = entry ? e.title : Q[qi];
-    const qLine = el('p', { class: 'jq hand' }, qText);
-    const other = !entry ? el('button', { class: 'jother', type: 'button', onclick: () => { qi = (qi + 1) % Q.length; qText = Q[qi]; qLine.textContent = qText; text.focus(); } }, t().otherQuestion) : null;
+    // A linha da pergunta pode ser corrigida ou reescrita.
+    const qLine = el('input', { class: 'jq hand jqedit', type: 'text', maxLength: 80, value: qText || '', 'aria-label': t().journalTitleField, placeholder: t().journalTitleField, autocomplete: 'off' });
+    const other = !entry ? el('button', { class: 'jother', type: 'button', onclick: () => { qi = (qi + 1) % Q.length; qLine.value = Q[qi]; text.focus(); } }, t().otherQuestion) : null;
 
     const photoBox = el('div', { class: 'photobox' });
     const pick = el('input', { type: 'file', accept: 'image/*', hidden: true, onchange: ev => {
@@ -775,8 +778,8 @@
 
     const saveEntry = async () => {
       if (rec && rec.state === 'recording') return toast(t().recStop);
-      const out = { id: e.id, date: DATE.test(date.value) && date.value <= todayIso() ? date.value : e.date, title: String(qText || '').slice(0, 80), text: text.value.trim(),
-        audio: hasAudio, secs: hasAudio ? secs : 0, mood, photo: hasPhoto, at: e.at || '' };
+      const out = { id: e.id, date: DATE.test(date.value) && date.value <= todayIso() ? date.value : e.date, title: qLine.value.trim().slice(0, 80), text: text.value.trim(),
+        audio: hasAudio, secs: hasAudio ? secs : 0, mood, photo: hasPhoto, at: e.at || '', book: e.book || 'baby' };
       if (!out.text && !out.audio && !out.photo) return toast(t().journalNeed);
       try { if (blob) await audioStore.put(e.id, blob); else if (!hasAudio && e.audio) await audioStore.del(e.id); }
       catch { out.audio = false; out.secs = 0; toast(t().audioFail); }
@@ -786,8 +789,8 @@
       if (i >= 0) list[i] = out; else list.push(out);
       jday = out.date; save(); closeSheet(); render();
     };
-    openSheet(sheetHead('', state.baby.name ? t().journalOf(state.baby.name) : t().journalYours),
-      el('div', { class: 'jpaper jwrite' }, date, qText && qLine, other, text),
+    openSheet(sheetHead('', bookTitle(e.book)),
+      el('div', { class: 'jpaper jwrite' }, date, qLine, other, text),
       el('p', { class: 'fine', style: 'margin-top:8px' }, t().dictateTip),
       photoBox, box,
       el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().cancel), el('button', { class: 'primary', onclick: saveEntry }, t().save)),
@@ -798,7 +801,7 @@
       el('button', { class: 'danger', onclick: () => { dropMedia(e); state.baby.journal = state.baby.journal.filter(x => x.id !== e.id); save(); closeSheet(); render(); } }, t().remove)));
   // Diário: um caderno com uma página por dia. Tudo o que se escreve num dia vai para a mesma página.
   const viewJournal = () => {
-    const J = state.baby.journal, today = todayIso(), name = state.baby.name;
+    const J = state.baby.journal.filter(e => e.book === jbook), today = todayIso(), name = state.baby.name, mkey = d => jbook === 'parents' ? d + '|p' : d;
     const days = [...new Set([...J.map(e => e.date), today, ...(jday ? [jday] : [])])].sort();
     if (!jday || !days.includes(jday)) jday = today;
     const at = days.indexOf(jday), short = d => fmtDate(d, { day: 'numeric', month: 'short' });
@@ -821,7 +824,7 @@
     };
 
     // Escrever diretamente na página: o texto junta-se ao dia aberto.
-    const Q = t().questions, used = new Set(moments.map(e => e.title));
+    const Q = jbook === 'parents' ? t().questionsParents : t().questions, used = new Set(moments.map(e => e.title));
     const base = Math.floor(parse(today).getTime() / 864e5);
     const qIndex = jq === -1 ? -1 : (jq ?? base) % Q.length;
     const question = qIndex >= 0 && !used.has(Q[qIndex]) ? Q[qIndex] : '';
@@ -829,7 +832,7 @@
       oninput: () => { area.style.height = 'auto'; area.style.height = area.scrollHeight + 'px'; saveBtn.disabled = !area.value.trim(); } });
     const saveBtn = el('button', { class: 'primary small', disabled: true, onclick: () => {
       const text = area.value.trim(); if (!text) return;
-      J.push({ id: 'j' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), date: jday, title: question, text, audio: false, secs: 0, mood: '', photo: false, at: jday === today ? nowHM() : '' });
+      state.baby.journal.push({ book: jbook, id: 'j' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), date: jday, title: question, text, audio: false, secs: 0, mood: '', photo: false, at: jday === today ? nowHM() : '' });
       jq = null; save(); render(); toast(t().jSaved);
     } }, t().jSavePage);
     const writer = el('div', { class: 'jwriter' },
@@ -840,16 +843,16 @@
       area,
       el('div', { class: 'jtools' }, saveBtn, el('button', { class: 'ghost small withtag', onclick: () => openJournalForm(null, jday) }, icon('photo', 18), t().jMedia)));
 
-    const mood = state.baby.jmoods[jday] || '';
+    const mood = state.baby.jmoods[mkey(jday)] || '';
     const page = el('article', { class: 'jpaper jpage' },
       el('p', { class: 'jdate hand' }, fmtDate(jday, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })),
-      age && el('p', { class: 'jside' }, t().ageThen(name, age)),
+      jbook === 'baby' && age && el('p', { class: 'jside' }, t().ageThen(name, age)),
       moments.length ? moments.map(moment) : null,
-      foods.length ? el('p', { class: 'jfoods' }, el('b', {}, t().thatDay + ': '), foods.join(', ')) : null,
+      jbook === 'baby' && foods.length ? el('p', { class: 'jfoods' }, el('b', {}, t().thatDay + ': '), foods.join(', ')) : null,
       writer,
       el('div', { class: 'jmoodrow' }, el('p', { class: 'jside' }, t().jDayMood),
         el('div', { class: 'chips' }, MOODS.map(id => el('button', { class: 'chip sticker', 'aria-pressed': String(mood === id), onclick: () => {
-          if (mood === id) delete state.baby.jmoods[jday]; else state.baby.jmoods[jday] = id; save(); render();
+          if (mood === id) delete state.baby.jmoods[mkey(jday)]; else state.baby.jmoods[mkey(jday)] = id; save(); render();
         } }, t().moods[id])))));
     // Virar a página com o dedo.
     let x0 = 0, y0 = 0;
@@ -864,8 +867,10 @@
     return [goBack('today'),
       el('div', { class: 'jcover slim' },
         el('img', { class: 'jart', src: 'img/diario.jpg', alt: '', width: 960, height: 640 }),
-        el('p', { class: 'hand' }, name ? t().journalOf(name) : t().journalYours),
+        el('p', { class: 'hand' }, bookTitle(jbook)),
         el('p', { class: 'jmeta' }, written ? t().jPagesCount(written) : t().journalFirst)),
+      el('div', { class: 'chips seg two', role: 'group', 'aria-label': t().journalTitle }, [['baby', t().journalBaby], ['parents', t().journalParents]].map(([id, label]) =>
+        el('button', { class: 'chip', 'aria-pressed': String(jbook === id), onclick: () => { jbook = id; jday = null; jq = null; render(); } }, label))),
       el('div', { class: 'jnav' },
         el('button', { class: 'ghost jarrow', disabled: at <= 0, 'aria-label': t().jPrev, onclick: () => go(days[at - 1]) }, '‹'),
         el('span', { class: 'jnavtxt' }, jday === today ? t().jToday : short(jday), el('small', {}, t().jPageOf(at + 1, days.length))),
@@ -873,7 +878,42 @@
       page,
       el('div', { class: 'jpages' }, el('p', { class: 'eyebrow' }, t().jPages),
         el('div', { class: 'chips catstrip', style: 'position:static;border:0;margin-top:6px' }, [...days].reverse().map(d => el('button', { class: 'chip', 'aria-pressed': String(d === jday), onclick: () => go(d) }, d === today ? t().jToday : short(d)))),
-        el('label', { class: 'field' }, t().jGoTo, jump))
+        el('label', { class: 'field' }, t().jGoTo, jump)),
+      written ? el('div', { class: 'card' }, el('h2', {}, t().jExportTitle), el('p', { class: 'muted' }, t().jExportHint),
+        el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => { tab = 'jbook'; render(); window.scrollTo(0, 0); } }, t().jExportOpen))) : null
+    ];
+  };
+
+  // Livro do diário: todas as páginas seguidas, para imprimir ou guardar em PDF.
+  const viewJBook = () => {
+    const J = state.baby.journal.filter(e => e.book === jbook), name = state.baby.name;
+    const days = [...new Set(J.map(e => e.date))].sort();
+    const long = d => fmtDate(d, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }), short = d => fmtDate(d, { day: 'numeric', month: 'long', year: 'numeric' });
+    return [
+      el('button', { class: 'ghost noprint', style: 'align-self:flex-start', onclick: () => { tab = 'journal'; render(); window.scrollTo(0, 0); } }, '‹ ' + t().journalTitle),
+      el('div', { class: 'bookcover' }, el('img', { src: 'img/diario-fundo.jpg', alt: '', width: 1100, height: 733 }),
+        el('p', { class: 'hand' }, bookTitle(jbook)),
+        days.length ? el('p', { class: 'jmeta' }, days.length > 1 ? `${short(days[0])} – ${short(days[days.length - 1])}` : short(days[0])) : el('p', { class: 'jmeta' }, t().journalFirst)),
+      el('div', { class: 'card noprint' }, el('p', { class: 'muted' }, t().jExportNote),
+        el('div', { class: 'btnrow' }, el('button', { class: 'primary', disabled: !days.length, onclick: () => window.print() }, t().jExportPrint))),
+      days.map(d => {
+        const age = jbook === 'baby' ? ageOn(d) : '', mood = state.baby.jmoods[jbook === 'parents' ? d + '|p' : d];
+        const foods = jbook === 'baby' ? [...new Set(state.log.filter(x => x.date === d).map(x => x.food))].map(id => fname(F.byId.get(id))) : [];
+        return el('article', { class: 'bookday' },
+          el('p', { class: 'jdate hand' }, long(d)),
+          (age || mood) && el('p', { class: 'jside' }, [age && t().ageThen(name, age), mood && t().moods[mood]].filter(Boolean).join(' · ')),
+          J.filter(e => e.date === d).sort((a, b) => (a.at || '').localeCompare(b.at || '') || a.id.localeCompare(b.id)).map(e => {
+            const photo = e.photo ? el('img', { class: 'jphoto', alt: '', hidden: true }) : null;
+            if (photo) audioStore.get(e.id + ':photo').then(b => { if (b) { photo.src = URL.createObjectURL(b); photo.hidden = false; } }).catch(() => {});
+            return el('section', { class: 'bookmoment' },
+              e.at && el('span', { class: 'jtime' }, e.at),
+              e.title && el('p', { class: 'jq hand' }, e.title),
+              photo && el('div', { class: 'jpolaroid' }, photo),
+              e.text && el('p', { class: 'booktext hand' }, e.text),
+              e.audio && el('p', { class: 'jside' }, `${t().voiceNote} · ${clock(e.secs)}`));
+          }),
+          foods.length ? el('p', { class: 'jfoods' }, el('b', {}, t().thatDay + ': '), foods.join(', ')) : null);
+      })
     ];
   };
 
@@ -1378,7 +1418,7 @@
     ];
   };
 
-  const EXTRA = { path: [viewPath, 'today', 'pathTitle'], report: [viewReport, 'progress', 'reportOpen'], allergens: [viewAllergens, 'progress', 'algTitle'], guides: [viewGuides, 'today', 'guidesTitle'], journal: [viewJournal, 'today', 'journalTitle'] };
+  const EXTRA = { path: [viewPath, 'today', 'pathTitle'], report: [viewReport, 'progress', 'reportOpen'], allergens: [viewAllergens, 'progress', 'algTitle'], guides: [viewGuides, 'today', 'guidesTitle'], journal: [viewJournal, 'today', 'journalTitle'], jbook: [viewJBook, 'today', 'jExportTitle'] };
   const ALL_TABS = [['today', 'tabToday', viewToday], ['foods', 'tabFoods', viewFoods], ['recipes', 'tabRecipes', viewRecipes], ['progress', 'tabProgress', viewProgress], ['settings', 'tabSettings', viewSettings]];
   let TABS = ALL_TABS;
   const render = () => {

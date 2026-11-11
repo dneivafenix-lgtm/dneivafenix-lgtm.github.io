@@ -574,3 +574,19 @@ textarea.jlines:focus,textarea.jlines:focus-visible{outline:none}
 .jpage::before,.jpage::after{top:236px}
 @media (prefers-color-scheme:dark){.jpage{--veil:58%}}
 :root[data-theme="dark"] .jpage{--veil:58%}
+/* Dois cadernos e livro do diário */
+input.jqedit{display:block;width:100%;border:0;border-bottom:1px dashed color-mix(in srgb,var(--brand) 30%,transparent);border-radius:0;background:none;padding:0;min-height:var(--rule)}
+input.jqedit::placeholder{color:var(--muted);opacity:.7}
+.bookcover{display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center;background:var(--card);border-radius:20px;overflow:hidden;padding-bottom:20px;box-shadow:var(--shadow)}
+.bookcover img{width:100%;height:auto;display:block}
+.bookcover .hand{font-size:40px;margin-top:8px}
+.bookday{background:var(--card);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:4px;break-inside:avoid}
+.bookmoment{display:flex;flex-direction:column;margin-top:10px;break-inside:avoid}
+.booktext{font-size:23px;line-height:1.4;color:var(--ink);font-weight:500;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+.bookday .jpolaroid{transform:none}
+@media print{
+  .bookcover,.bookday{box-shadow:none;border-radius:0;padding-left:0;padding-right:0}
+  .bookcover{break-after:page}
+  .bookday{border-bottom:1px solid #ccc}
+  .bookcover img{max-height:55vh;object-fit:cover}
+}

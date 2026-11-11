@@ -765,3 +765,21 @@ Object.assign(window.DiaryI18n.es, { jToday: 'Hoy', jPrev: 'Página anterior', j
   jMedia: 'Foto o voz', jNoQuestion: 'sin pregunta', jDayMood: '¿Cómo fue el día?', jPages: 'Páginas', jGoTo: 'Abrir otro día', jPagesCount: n => n === 1 ? '1 página escrita' : `${n} páginas escritas` });
 Object.assign(window.DiaryI18n.fr, { jToday: "Aujourd'hui", jPrev: 'Page précédente', jNext: 'Page suivante', jPageOf: (a, b) => `page ${a} sur ${b}`, jContinue: 'Continuez à écrire…', jSavePage: 'Enregistrer sur la page', jSaved: 'Enregistré sur la page de ce jour',
   jMedia: 'Photo ou voix', jNoQuestion: 'sans question', jDayMood: 'Comment était la journée ?', jPages: 'Pages', jGoTo: 'Ouvrir un autre jour', jPagesCount: n => n === 1 ? '1 page écrite' : `${n} pages écrites` });
+
+// Dois cadernos (bebé e pais) e livro para imprimir.
+Object.assign(window.DiaryI18n.pt, { journalBaby: 'Diário do bebé', journalParents: 'Diário dos pais',
+  questionsParents: ['Como te sentes hoje?', 'De que é que te orgulhas hoje?', 'O que foi mais difícil hoje?', 'O que queres lembrar desta fase?', 'O que fizeste hoje só para ti?', 'Que ajuda te soube bem hoje?', 'O que aprendeste hoje sobre ti?'],
+  jExportTitle: 'Livro do diário', jExportHint: 'Junta todas as páginas num só livro, para imprimir ou guardar e partilhar com os filhos mais tarde.', jExportOpen: 'Ver o livro',
+  jExportPrint: 'Imprimir ou guardar em PDF', jExportNote: 'O livro inclui os textos e as fotos de todas as páginas deste diário. As gravações de voz não cabem num PDF: ficam indicadas, mas só se ouvem na app.' });
+Object.assign(window.DiaryI18n.en, { journalBaby: "Baby's journal", journalParents: "Parents' journal",
+  questionsParents: ['How are you feeling today?', 'What are you proud of today?', 'What was hardest today?', 'What do you want to remember about this stage?', 'What did you do today just for you?', 'What help felt good today?', 'What did you learn about yourself today?'],
+  jExportTitle: 'Journal book', jExportHint: 'Gather every page into one book, to print or save and share with your children later.', jExportOpen: 'See the book',
+  jExportPrint: 'Print or save as PDF', jExportNote: 'The book includes the text and photos from every page of this journal. Voice recordings cannot go in a PDF: they are noted, but can only be played in the app.' });
+Object.assign(window.DiaryI18n.es, { journalBaby: 'Diario del bebé', journalParents: 'Diario de los padres',
+  questionsParents: ['¿Cómo te sientes hoy?', '¿Qué te hizo sentir orgullo hoy?', '¿Qué fue lo más difícil hoy?', '¿Qué quieres recordar de esta etapa?', '¿Qué hiciste hoy solo para ti?', '¿Qué ayuda te vino bien hoy?', '¿Qué aprendiste hoy sobre ti?'],
+  jExportTitle: 'Libro del diario', jExportHint: 'Reúne todas las páginas en un solo libro, para imprimir o guardar y compartir con los hijos más adelante.', jExportOpen: 'Ver el libro',
+  jExportPrint: 'Imprimir o guardar en PDF', jExportNote: 'El libro incluye los textos y las fotos de todas las páginas de este diario. Las grabaciones de voz no caben en un PDF: quedan indicadas, pero solo se escuchan en la app.' });
+Object.assign(window.DiaryI18n.fr, { journalBaby: 'Journal de bébé', journalParents: 'Journal des parents',
+  questionsParents: ["Comment vous sentez-vous aujourd'hui ?", "De quoi êtes-vous fière aujourd'hui ?", "Qu'est-ce qui a été le plus difficile aujourd'hui ?", 'Que voulez-vous retenir de cette période ?', "Qu'avez-vous fait aujourd'hui rien que pour vous ?", "Quelle aide vous a fait du bien aujourd'hui ?", "Qu'avez-vous appris sur vous aujourd'hui ?"],
+  jExportTitle: 'Livre du journal', jExportHint: 'Réunit toutes les pages en un seul livre, à imprimer ou à garder pour le partager plus tard avec vos enfants.', jExportOpen: 'Voir le livre',
+  jExportPrint: 'Imprimer ou enregistrer en PDF', jExportNote: "Le livre contient les textes et les photos de toutes les pages de ce journal. Les enregistrements vocaux ne tiennent pas dans un PDF : ils sont signalés, mais ne s'écoutent que dans l'app." });

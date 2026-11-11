@@ -21,6 +21,7 @@ Atualizada a 11 de novembro de 2026. App de teste: https://dneivafenix-lgtm.gith
 - Receitas sugeridas conforme a refeição (pequeno-almoço e lanche, almoço e jantar)
 - Diário em forma de caderno, com uma página por dia: escreve-se na própria página e vira-se com o dedo
 - Fechar as caixas arrastando para baixo
+- Dois diários (do bebé e dos pais) e livro do diário para imprimir ou guardar em PDF
 - Favoritos em alimentos e receitas
 - Lista de alimentos com fotos ao adicionar a uma refeição
 - 9 guias (mais 4: recusa, água, rotina das refeições, cortar alimentos)
