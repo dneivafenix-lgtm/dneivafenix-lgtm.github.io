@@ -436,3 +436,27 @@ dialog[open]::backdrop{animation:fade .3s ease}
 .warnbox{background:var(--warn-bg);color:var(--warn);font-weight:600}
 .cat.nowweek{outline:2px solid var(--brand);outline-offset:-2px}
 .catname{display:flex;align-items:center;flex-wrap:wrap}
+/* Guias com ilustração */
+.gart{display:block;aspect-ratio:16/10;border-radius:16px;overflow:hidden;background:var(--tint)}
+.gart.hero{aspect-ratio:16/8;border-radius:20px;margin-bottom:14px}
+.gart svg{display:block}
+.gart .f{fill:var(--card);stroke:var(--brand);stroke-width:2.5;stroke-linejoin:round}
+.gart .a{fill:var(--accent);stroke:var(--brand);stroke-width:2.5;stroke-linejoin:round}
+.gart .b{fill:var(--brand)}
+.gart .l{fill:none;stroke:var(--brand);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.gart .l.thin{stroke-width:2.2}
+.gart .w{fill:none;stroke:var(--on-brand);stroke-width:4;stroke-linecap:round}
+.g-gagging,.g-avoid{background:var(--warn-bg)}
+.g-textures{background:var(--note-bg)}
+.g-storage{background:color-mix(in srgb,#9cc3e6 34%,var(--card))}
+.gcard{display:flex;flex-direction:column;gap:10px;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:20px;padding:8px 8px 14px;min-width:0;transition:transform .12s}
+.gcard:active{transform:scale(.98)}
+.gcard .gtxt{display:flex;flex-direction:column;gap:6px;padding:0 6px}
+.gcard .rname{font-family:var(--display);font-weight:600;font-size:15px;line-height:1.25;color:var(--ink)}
+.gmin{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--muted)}
+.ggrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ggrid .gcard{box-shadow:var(--shadow);border-color:transparent}
+.gstrip{display:flex;gap:10px;overflow-x:auto;margin:14px -18px 0;padding:2px 18px 6px;scroll-snap-type:x proximity;scrollbar-width:none}
+.gstrip::-webkit-scrollbar{display:none}
+.gstrip .gcard{flex:0 0 156px;scroll-snap-align:start}
+@media (prefers-reduced-motion:reduce){.gcard{transition:none}.gcard:active{transform:none}}
