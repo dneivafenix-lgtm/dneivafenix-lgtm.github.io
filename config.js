@@ -41,5 +41,9 @@ window.DiaryConfig = {
   journal: { maxSeconds: 180 },
   // Cartão opcional de um parceiro (por exemplo uma loja), desligado por omissão.
   // text: uma frase por idioma; só aparece nos idiomas que tiverem frase.
-  partner: { enabled: false, name: '', url: '', text: {} }
+  // 12/11: ligado ao Clube das mães do site (só em português, porque o Clube só existe em português).
+  partner: {
+    enabled: true, name: 'Abrir o Clube das mães', url: 'https://petitnuvem.com/?view=clube',
+    text: { pt: 'No Clube das mães da Petit Nuvem tens o calendário do Advento, um presente de boas-vindas e os artigos Mushie para as refeições do bebé.' }
+  }
 };
