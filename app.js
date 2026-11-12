@@ -70,6 +70,7 @@
       onboarded: !!s.onboarded,
       goals: (Array.isArray(s.goals) ? s.goals : []).filter(g => GOALS.includes(g)), started: typeof s.started === 'boolean' ? s.started : null, hideStart: !!s.hideStart,
       since: DATE.test(s.since) ? s.since : '', inviteAt: Math.max(0, +s.inviteAt || 0),
+      backupAt: Math.max(0, +s.backupAt || 0), backupAsk: Math.max(0, +s.backupAsk || 0),
       favFoods: [...new Set(Array.isArray(s.favFoods) ? s.favFoods : [])].filter(id => F.byId.has(id)),
       favRecipes: [...new Set(Array.isArray(s.favRecipes) ? s.favRecipes : [])].filter(n => Number.isInteger(n) && R && R.list[n]),
       babies, current: seen.has(s.current) ? s.current : babies[0].id
@@ -928,6 +929,52 @@
     files.unshift({ name: 'dados.json', data: zip.text(JSON.stringify(Object.assign({}, state, { media }), null, 2)) });
     return zip.pack(files);
   };
+  // Guardar a cópia. Nada é enviado para a loja nem para nenhum servidor: a pessoa escolhe onde fica o ficheiro.
+  // No telemóvel abre a partilha do sistema (Ficheiros, iCloud, Google Drive); onde não existir, descarrega o .zip.
+  const backupSaved = () => { state.backupAt = Date.now(); save(); render(); toast(t().backupDone); };
+  const downloadBlob = (blob, name) => {
+    const a = el('a', { href: URL.createObjectURL(blob), download: name });
+    document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  const doBackup = async () => {
+    toast(t().exportBusy);
+    let blob;
+    try { blob = await exportBackup(); } catch { return toast(t().exportFail); }
+    const name = `petit-nuvem-copia-${todayIso()}.zip`;
+    const file = typeof File === 'function' ? new File([blob], name, { type: 'application/zip' }) : null;
+    const canShare = !!file && !!navigator.share && !!navigator.canShare && navigator.canShare({ files: [file] });
+    if (!canShare) { downloadBlob(blob, name); return backupSaved(); }
+    const share = () => navigator.share({ files: [file], title: name }).then(backupSaved).catch(e => {
+      if (e && e.name === 'AbortError') return; // a pessoa fechou a partilha: não conta como cópia feita
+      downloadBlob(blob, name); backupSaved();
+    });
+    try { await navigator.share({ files: [file], title: name }); backupSaved(); }
+    catch (e) {
+      if (e && e.name === 'AbortError') return;
+      // Alguns browsers só aceitam a partilha logo a seguir a um toque: com a cópia já pronta, pede-se esse toque.
+      if (e && e.name === 'NotAllowedError') return openSheet(sheetHead('', t().backupTitle), el('p', { class: 'muted' }, t().backupReady),
+        el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => { closeSheet(); share(); } }, t().backupShare)));
+      downloadBlob(blob, name); backupSaved();
+    }
+  };
+  // Lembrete: 30 dias depois da última cópia (ou do primeiro registo), no máximo uma vez por semana.
+  const firstRecord = () => {
+    const d = state.babies.flatMap(b => [...b.log.map(e => e.date), ...b.journal.map(e => e.date), ...Object.keys(b.notes)]).sort()[0];
+    return d ? parse(d).getTime() : 0;
+  };
+  const backupDue = () => {
+    const base = state.backupAt || firstRecord();
+    return !!base && Date.now() - base >= 30 * 864e5 && Date.now() - state.backupAsk >= 7 * 864e5;
+  };
+  const backupRemind = () => {
+    if (!state.onboarded || sheet.open || !backupDue()) return;
+    state.backupAsk = Date.now(); save();
+    openSheet(sheetHead('', t().backupTitle), el('p', { class: 'muted' }, t().backupLead),
+      el('p', { class: 'fine', style: 'margin-top:8px' }, state.backupAt ? t().backupLast(longDay(state.backupAt)) : t().backupNever),
+      el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => { closeSheet(); doBackup(); } }, t().backupNow)),
+      el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().backupLater)));
+  };
+  const longDay = ms => new Intl.DateTimeFormat(state.lang, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(ms));
   const importBackup = async file => {
     const buf = await file.arrayBuffer(), u = new Uint8Array(buf);
     const isZip = u[0] === 0x50 && u[1] === 0x4b, files = isZip ? zip.unpack(buf) : null;
@@ -1484,14 +1531,9 @@
           state.babies.length < 6 && el('button', { class: 'ghost withtag', onclick: premium(openAddBaby) }, t().addBaby, ptag()),
           state.babies.length > 1 && el('button', { class: 'danger', onclick: openRemoveBaby }, t().removeBaby))),
       el('div', { class: 'card' }, el('h2', {}, t().data), el('p', { class: 'muted' }, t().dataNote), el('p', { class: 'fine', style: 'margin-top:6px' }, t().backupNoAudio),
+        el('p', { class: 'lastcopy' }, state.backupAt ? t().backupLast(longDay(state.backupAt)) : t().backupNever),
         el('div', { class: 'btnrow' },
-          el('button', { class: 'ghost', onclick: async () => {
-            toast(t().exportBusy);
-            try {
-              const a = el('a', { href: URL.createObjectURL(await exportBackup()), download: `petit-nuvem-copia-${todayIso()}.zip` });
-              document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-            } catch { toast(t().exportFail); }
-          } }, t().exportData),
+          el('button', { class: 'ghost', onclick: doBackup }, t().exportData),
           el('button', { class: 'ghost', onclick: () => file.click() }, t().importData), file),
         el('div', { class: 'btnrow' }, el('button', { class: 'danger', onclick: () => openSheet(
           sheetHead('', t().clearData), el('p', { style: 'margin-top:10px' }, t().confirmClear),
@@ -1733,7 +1775,7 @@
   }
   if (state.onboarded && !state.since) { state.since = todayIso(); save(); } // quem já usava a app: os 7 dias contam a partir de agora
   render();
-  accInit();
+  Promise.resolve(accInit()).catch(() => {}).then(backupRemind);
 
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 })();

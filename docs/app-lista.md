@@ -24,6 +24,7 @@ Atualizada a 12 de novembro de 2026. App: https://app.petitnuvem.com/
 - Ecrã de subscrição com "Experimenta 7 dias grátis" e lista do que é grátis e Premium
 - Notas do calendário e do diário no relatório para o pediatra (opcional)
 - Cópia de segurança completa em .zip (registos, fotos e gravações de voz)
+- Cópias de segurança, fase 1: lembrete aos 30 dias, «Guardar agora» com a partilha do sistema (Ficheiros, iCloud, Google Drive) e data da última cópia nas Definições. Nada é enviado para servidores
 - Cartão do Clube das mães e sugestões de artigos da loja em alguns guias e no «como servir» (só em português)
 - Registo de origem e licença das imagens em `docs/fotos-origem.md`
 - Política de privacidade e termos atualizados para a conta da loja e o Premium (rascunho por rever por advogado)

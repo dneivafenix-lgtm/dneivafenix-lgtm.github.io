@@ -616,3 +616,4 @@ dialog .points{margin-top:8px}
 .trialsub{margin-top:0}
 .trialsub.strong{font-weight:700;color:var(--tint-ink)}
 .renew{font-size:13px;line-height:1.45;color:var(--body);text-align:center;margin-top:10px}
+.lastcopy{font-size:14px;font-weight:600;color:var(--body);margin-top:10px}
