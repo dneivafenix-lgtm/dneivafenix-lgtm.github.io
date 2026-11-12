@@ -840,3 +840,21 @@ Object.assign(window.DiaryI18n.fr, { launchBadge: 'Prix de lancement', perYearFi
   renewAuto: "L'abonnement se renouvelle automatiquement à la fin de chaque période, au prix en vigueur, jusqu'à votre résiliation.",
   renewNone: "Pas de renouvellement automatique : vous payez une fois et, à la fin de la période, vous décidez de continuer ou non.",
   subBuy: "S'abonner", trialNote: n => `Commence par ${n} jours gratuits.` });
+
+// Conta (conta de cliente da loja).
+Object.assign(window.DiaryI18n.pt, { accTitle: 'Conta', accLead: 'Entra com a tua conta da loja Petit Nuvem para ativares o Premium neste dispositivo. Recebes um código por email, sem palavra-passe.',
+  accSignIn: 'Entrar ou criar conta', accSignOut: 'Sair', accAs: e => `Sessão iniciada: ${e}`, accPremiumUntil: d => `Premium ativo até ${d}.`, accNoPremium: 'Esta conta ainda não tem o Premium.',
+  accRefresh: 'Atualizar', accFail: 'Não foi possível iniciar sessão. Tenta de novo.', accChecked: 'Conta atualizada.', accOffline: 'Não foi possível confirmar a conta. Verifica a ligação.',
+  accSignedIn: 'Sessão iniciada.', accPremiumOn: 'Sessão iniciada. O Premium está ativo.', accBuyHint: 'O Premium compra-se na loja Petit Nuvem. Depois, entra na app com o mesmo email da compra.', accHave: 'Já comprei: entrar' });
+Object.assign(window.DiaryI18n.en, { accTitle: 'Account', accLead: 'Sign in with your Petit Nuvem shop account to activate Premium on this device. You get a code by email, no password.',
+  accSignIn: 'Sign in or create an account', accSignOut: 'Sign out', accAs: e => `Signed in: ${e}`, accPremiumUntil: d => `Premium active until ${d}.`, accNoPremium: 'This account does not have Premium yet.',
+  accRefresh: 'Refresh', accFail: 'Could not sign in. Please try again.', accChecked: 'Account updated.', accOffline: 'Could not check the account. Check your connection.',
+  accSignedIn: 'Signed in.', accPremiumOn: 'Signed in. Premium is active.', accBuyHint: 'Premium is bought in the Petit Nuvem shop. Then sign in to the app with the same email you used to buy.', accHave: 'Already bought: sign in' });
+Object.assign(window.DiaryI18n.es, { accTitle: 'Cuenta', accLead: 'Entra con tu cuenta de la tienda Petit Nuvem para activar Premium en este dispositivo. Recibes un código por correo, sin contraseña.',
+  accSignIn: 'Entrar o crear cuenta', accSignOut: 'Salir', accAs: e => `Sesión iniciada: ${e}`, accPremiumUntil: d => `Premium activo hasta el ${d}.`, accNoPremium: 'Esta cuenta todavía no tiene Premium.',
+  accRefresh: 'Actualizar', accFail: 'No se pudo iniciar sesión. Inténtalo de nuevo.', accChecked: 'Cuenta actualizada.', accOffline: 'No se pudo comprobar la cuenta. Revisa la conexión.',
+  accSignedIn: 'Sesión iniciada.', accPremiumOn: 'Sesión iniciada. Premium está activo.', accBuyHint: 'Premium se compra en la tienda Petit Nuvem. Después, entra en la app con el mismo correo de la compra.', accHave: 'Ya lo compré: entrar' });
+Object.assign(window.DiaryI18n.fr, { accTitle: 'Compte', accLead: 'Connectez-vous avec votre compte de la boutique Petit Nuvem pour activer Premium sur cet appareil. Vous recevez un code par e-mail, sans mot de passe.',
+  accSignIn: 'Se connecter ou créer un compte', accSignOut: 'Se déconnecter', accAs: e => `Connecté : ${e}`, accPremiumUntil: d => `Premium actif jusqu'au ${d}.`, accNoPremium: "Ce compte n'a pas encore Premium.",
+  accRefresh: 'Actualiser', accFail: 'Connexion impossible. Veuillez réessayer.', accChecked: 'Compte mis à jour.', accOffline: 'Impossible de vérifier le compte. Vérifiez la connexion.',
+  accSignedIn: 'Connecté.', accPremiumOn: 'Connecté. Premium est actif.', accBuyHint: "Premium s'achète dans la boutique Petit Nuvem. Connectez-vous ensuite à l'app avec le même e-mail que pour l'achat.", accHave: "Déjà acheté : se connecter" });

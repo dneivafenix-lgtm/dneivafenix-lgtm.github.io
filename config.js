@@ -27,6 +27,7 @@ window.DiaryConfig = {
     monthly: 6.99, yearly: 39.99,
     launch: { yearly: 29.99, until: '' },
     autoRenew: false,
+    // Quando o artigo for publicado na loja: yearly: 'https://petitnuvem.com/products/petit-nuvem-premium-anual'
     checkout: { monthly: '', yearly: '' },
     freeStage: 6, // receitas até esta fase (meses) são gratuitas
     // Decidido a 12/11: os guias são todos gratuitos, tal como o relatório para o pediatra e a cópia de segurança
@@ -71,6 +72,23 @@ window.DiaryConfig = {
       'babete-com-bolsinho': 'Babete com bolsinho', 'pack-de-2-colheres-de-silicone': 'Pack de 2 colheres de silicone',
       'garfo-e-colher-mushie': 'Conjunto de garfo e colher', 'molde-para-congelar-comida': 'Molde para congelar comida'
     }
+  },
+  // Conta: a conta da app é a conta de cliente da loja Shopify (Customer Account API, cliente público com PKCE).
+  // O clientId não é secreto. redirect tem de ser igual ao «Callback URI» configurado na loja.
+  // graphql: endereço da API; vazio = descoberto em <shop>/.well-known/customer-account-api.
+  // premium: artigo que dá o Premium e durante quantos dias depois da compra.
+  // Na loja, a Customer Account API precisa das permissões de leitura de clientes e de encomendas.
+  account: {
+    enabled: true,
+    clientId: '085d7fb3-85f2-4b8e-905f-c656e07f615e',
+    authorize: 'https://account.petitnuvem.com/authentication/oauth/authorize',
+    token: 'https://account.petitnuvem.com/authentication/oauth/token',
+    logout: 'https://account.petitnuvem.com/authentication/logout',
+    redirect: 'https://app.petitnuvem.com/',
+    shop: 'https://petitnuvem.com',
+    graphql: '',
+    scope: 'openid email customer-account-api:full',
+    premium: { productId: 'gid://shopify/Product/16308872708428', handle: 'petit-nuvem-premium-anual', title: 'Petit Nuvem Premium: 1 ano', days: 365 }
   },
   // Cartão opcional de um parceiro (por exemplo uma loja), desligado por omissão.
   // text: uma frase por idioma; só aparece nos idiomas que tiverem frase.

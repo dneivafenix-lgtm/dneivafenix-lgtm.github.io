@@ -475,6 +475,111 @@
   // com enforce desligado em config.js, tudo está desbloqueado (modo de teste).
   const SUB = Object.assign({ enabled: false, enforce: false }, CFG.subscription);
   let entitled = false;
+
+  // ---------- conta (conta de cliente da loja Shopify) ----------
+  // Início de sessão OAuth com PKCE, sem segredo. A app guarda os tokens neste dispositivo e lê as encomendas
+  // da própria pessoa para saber se comprou o Premium. A verificação é feita no dispositivo: serve para
+  // reconhecer quem comprou, não é uma barreira contra quem altere os dados do browser.
+  const ACC = Object.assign({ enabled: false }, CFG.account);
+  const ACC_KEY = 'pn-account', OAUTH_KEY = 'pn-oauth';
+  let acc = (() => { try { return JSON.parse(localStorage.getItem(ACC_KEY)) || {}; } catch { return {}; } })();
+  const accSave = () => { try { localStorage.setItem(ACC_KEY, JSON.stringify(acc)); } catch { /* sem armazenamento */ } };
+  const accOn = () => !!ACC.enabled && !!ACC.clientId && !!window.crypto && !!crypto.subtle;
+  const signedIn = () => !!acc.refresh || (!!acc.access && acc.expires > Date.now());
+  const syncEntitled = () => { entitled = !!acc.until && acc.until > Date.now(); };
+  syncEntitled();
+  const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const rand = n => b64url(crypto.getRandomValues(new Uint8Array(n)));
+  const accSignIn = async () => {
+    const verifier = rand(32), state = rand(16), nonce = rand(16);
+    const challenge = b64url(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
+    // localStorage e não sessionStorage: no iPhone, a app instalada pode voltar do início de sessão noutro contexto.
+    localStorage.setItem(OAUTH_KEY, JSON.stringify({ verifier, state, nonce, at: Date.now() }));
+    const u = new URL(ACC.authorize);
+    for (const [k, v] of Object.entries({ client_id: ACC.clientId, response_type: 'code', redirect_uri: ACC.redirect, scope: ACC.scope, state, nonce, code_challenge: challenge, code_challenge_method: 'S256' })) u.searchParams.set(k, v);
+    location.href = u.toString();
+  };
+  const accToken = async params => {
+    const res = await fetch(ACC.token, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(Object.assign({ client_id: ACC.clientId }, params)) });
+    if (!res.ok) { const e = new Error('token'); e.status = res.status; throw e; }
+    const j = await res.json();
+    acc.access = j.access_token; acc.expires = Date.now() + (j.expires_in || 3600) * 1000 - 60000;
+    if (j.refresh_token) acc.refresh = j.refresh_token;
+    if (j.id_token) acc.idToken = j.id_token;
+    accSave();
+  };
+  const accForget = () => { acc = {}; accSave(); syncEntitled(); };
+  const accAccess = async () => {
+    if (acc.access && acc.expires > Date.now()) return acc.access;
+    if (!acc.refresh) throw new Error('signed-out');
+    try { await accToken({ grant_type: 'refresh_token', refresh_token: acc.refresh }); }
+    catch (e) { if (e.status === 400 || e.status === 401) accForget(); throw e; } // sessão revogada ou expirada
+    return acc.access;
+  };
+  const accGraphql = async query => {
+    if (!acc.api) { acc.api = ACC.graphql || (await (await fetch(ACC.shop + '/.well-known/customer-account-api')).json()).graphql_api; accSave(); }
+    const res = await fetch(acc.api, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: await accAccess() }, body: JSON.stringify({ query }) });
+    if (!res.ok) { const e = new Error('api'); e.status = res.status; throw e; }
+    const j = await res.json();
+    if (j.errors || !j.data) throw new Error('graphql');
+    return j.data;
+  };
+  // Lê as encomendas e calcula até quando o Premium está ativo: a compra mais recente do artigo, mais os dias de config.
+  const accRefresh = async () => {
+    const P = ACC.premium || {}, q = fields => `query { customer { emailAddress { emailAddress } orders(first: 50, reverse: true) { nodes { processedAt ${fields} lineItems(first: 50) { nodes { title ${fields ? 'productId' : ''} } } } } } }`;
+    let data;
+    try { data = await accGraphql(q('financialStatus cancelledAt')); }
+    catch (e) { if (e.message !== 'graphql') throw e; data = await accGraphql(q('')); } // campos que a versão da API não conheça
+    const c = data.customer || {};
+    let until = 0;
+    for (const o of (c.orders && c.orders.nodes) || []) {
+      if (o.cancelledAt || ['REFUNDED', 'VOIDED'].includes(o.financialStatus)) continue;
+      const has = ((o.lineItems && o.lineItems.nodes) || []).some(l => l.productId ? l.productId === P.productId : !!P.title && l.title === P.title);
+      if (has) until = Math.max(until, new Date(o.processedAt).getTime() + (P.days || 365) * 864e5);
+    }
+    acc.email = (c.emailAddress && c.emailAddress.emailAddress) || acc.email || '';
+    acc.until = until; acc.checked = Date.now();
+    accSave(); syncEntitled();
+  };
+  const accSignOut = () => {
+    const hint = acc.idToken;
+    accForget();
+    if (ACC.logout && hint) { const u = new URL(ACC.logout); u.searchParams.set('id_token_hint', hint); u.searchParams.set('post_logout_redirect_uri', ACC.redirect); location.href = u.toString(); }
+    else render();
+  };
+  // Ao abrir: termina um início de sessão que venha no endereço, ou volta a confirmar a conta de vez em quando.
+  const accInit = async () => {
+    if (!accOn()) return;
+    const q = new URLSearchParams(location.search), code = q.get('code'), state = q.get('state');
+    if (code || q.get('error')) {
+      let saved = null;
+      try { saved = JSON.parse(localStorage.getItem(OAUTH_KEY)); } catch { /* ignorar */ }
+      localStorage.removeItem(OAUTH_KEY);
+      history.replaceState(null, '', location.pathname);
+      if (!code || !saved || saved.state !== state) return toast(t().accFail);
+      try {
+        await accToken({ grant_type: 'authorization_code', redirect_uri: ACC.redirect, code, code_verifier: saved.verifier });
+        await accRefresh();
+        tab = 'settings'; render(); toast(entitled ? t().accPremiumOn : t().accSignedIn);
+      } catch { render(); toast(t().accFail); }
+      return;
+    }
+    if (signedIn() && navigator.onLine !== false && (!acc.checked || Date.now() - acc.checked > 12 * 36e5)) {
+      try { await accRefresh(); render(); } catch { /* fica com o que estava guardado */ }
+    }
+  };
+  const accountCard = () => {
+    if (!accOn()) return null;
+    const longDate = ms => new Intl.DateTimeFormat(state.lang, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(ms));
+    if (!signedIn()) return el('div', { class: 'card' }, el('h2', {}, t().accTitle), el('p', { class: 'muted' }, t().accLead),
+      el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => accSignIn().catch(() => toast(t().accFail)) }, t().accSignIn)));
+    return el('div', { class: 'card' }, el('h2', {}, t().accTitle),
+      acc.email && el('p', { class: 'muted' }, t().accAs(acc.email)),
+      el('p', { style: 'margin-top:6px;font-weight:600' }, entitled ? t().accPremiumUntil(longDate(acc.until)) : t().accNoPremium),
+      el('div', { class: 'btnrow' },
+        el('button', { class: 'ghost', onclick: () => accRefresh().then(() => { render(); toast(t().accChecked); }).catch(() => { render(); toast(t().accOffline); }) }, t().accRefresh),
+        el('button', { class: 'ghost', onclick: accSignOut }, t().accSignOut)));
+  };
   const isPremium = () => !SUB.enabled || !SUB.enforce || entitled;
   const locked = r => SUB.enabled && r.min > SUB.freeStage;
   const PREM = Object.assign({ parentsJournal: true, journalBook: true, report: true, extraBabies: true, weekPlan: true }, SUB.premium);
@@ -514,6 +619,8 @@
         if (url) location.href = url; else toast(t().subSoon);
       } }, trial ? t().subStart : t().subBuy)),
       el('p', { class: 'renew' }, SUB.autoRenew ? t().renewAuto : t().renewNone),
+      accOn() && el('p', { class: 'renew' }, t().accBuyHint),
+      accOn() && !signedIn() && el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: () => accSignIn().catch(() => toast(t().accFail)) }, t().accHave)),
       trial && el('p', { class: 'fine', style: 'margin-top:6px;text-align:center' }, t().trialNote(SUB.trialDays)),
       el('h3', { class: 'sub' }, t().freeTitle), list(t().freePoints),
       !SUB.enforce && el('p', { class: 'info' }, t().subTest),
@@ -1367,6 +1474,7 @@
             : el('p', { class: 'fine', style: 'margin-top:6px' }, isIos() ? t().installIos : t().installAndroid)
         ]),
       (window.DiaryLegal || {})[state.lang] ? el('div', { class: 'card' }, el('h2', {}, t().legalTitle), legalLinks()) : null,
+      accountCard(),
       SUB.enabled && el('div', { class: 'card' }, el('h2', {}, t().subscription),
         el('p', { class: 'muted' }, !SUB.enforce ? t().subTest : entitled ? t().subActive : t().subFree),
         el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: openPaywall }, t().subSee))),
@@ -1576,6 +1684,7 @@
     img.src = CFG.brand.logo;
   }
   render();
+  accInit();
 
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 })();
