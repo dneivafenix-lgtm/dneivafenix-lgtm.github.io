@@ -15,10 +15,18 @@ window.DiaryConfig = {
   // Subscrição.
   // enforce: false = modo de teste, tudo desbloqueado. Só passar a true quando os pagamentos e as contas estiverem a funcionar,
   // porque sem servidor a app não tem como saber quem pagou.
-  // checkout: ligações de pagamento (Stripe Payment Links) de cada plano.
+  // Preços decididos a 12/11. yearly: preço normal do plano anual. monthly: plano mensal (0 esconde o plano mensal).
+  // launch: preço de lançamento do primeiro ano. yearly: 0 desliga o lançamento. until: último dia do lançamento
+  // (AAAA-MM-DD); vazio = sem data de fim, até o Diogo indicar uma.
+  // autoRenew: true se a subscrição renovar sozinha; o ecrã de subscrição diz sempre, junto ao botão, se renova ou não.
+  // trialDays: dias de teste grátis (0 = sem teste). Só faz sentido se a forma de pagamento escolhida o permitir.
+  // checkout: ligação de compra de cada plano. Pagamentos ainda por decidir (hipótese mais provável: Premium anual
+  // vendido na loja da Shopify, sem renovação automática). Não montar Stripe sem o Diogo confirmar.
   subscription: {
     enabled: true, enforce: false, currency: 'EUR', trialDays: 7,
-    monthly: 3.99, yearly: 29.99,
+    monthly: 6.99, yearly: 39.99,
+    launch: { yearly: 29.99, until: '' },
+    autoRenew: false,
     checkout: { monthly: '', yearly: '' },
     freeStage: 6, // receitas até esta fase (meses) são gratuitas
     // Decidido a 12/11: os guias são todos gratuitos, tal como o relatório para o pediatra e a cópia de segurança

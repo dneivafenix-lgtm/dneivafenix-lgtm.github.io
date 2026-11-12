@@ -484,26 +484,37 @@
   const gtag = key => PREM[key] ? ptag() : null;
   const ptag = () => SUB.enabled ? el('span', { class: 'ptag' }, t().premium) : null;
   const money = n => new Intl.NumberFormat(state.lang === 'pt' ? 'pt-PT' : state.lang, { style: 'currency', currency: SUB.currency }).format(n);
+  // Preço do plano anual: o de lançamento, enquanto estiver ativo (config.js > subscription.launch), ou o normal.
+  const launchOn = () => { const L = SUB.launch || {}; return L.yearly > 0 && L.yearly < SUB.yearly && (!DATE.test(L.until) || todayIso() <= L.until); };
+  const yearPrice = () => launchOn() ? SUB.launch.yearly : SUB.yearly;
   const openPaywall = () => {
+    const hasMonthly = SUB.monthly > 0, launch = launchOn(), year = yearPrice(), trial = SUB.trialDays > 0;
     let pick = 'yearly';
-    const saving = Math.round((1 - SUB.yearly / (SUB.monthly * 12)) * 100);
+    const saving = hasMonthly ? Math.round((1 - year / (SUB.monthly * 12)) * 100) : 0;
     const opt = (id, name, price, badge) => el('button', { class: 'planopt', 'aria-pressed': String(pick === id), onclick: e => {
       pick = id; [...plans.children].forEach(b => b.setAttribute('aria-pressed', String(b === e.currentTarget)));
     } }, el('span', {}, el('b', {}, name), el('span', { class: 'muted' }, price)), badge && el('span', { class: 'ptag' }, badge));
+    const yearLine = [launch ? t().perYearFirst(money(year)) : t().perYear(money(year)), launch && el('s', { class: 'was' }, money(SUB.yearly))];
     const plans = el('div', { class: 'plans', role: 'group', 'aria-label': t().subscription },
-      opt('yearly', t().planYearly, t().perYear(money(SUB.yearly)), t().subSave(saving)),
-      opt('monthly', t().planMonthly, t().perMonth(money(SUB.monthly))));
+      opt('yearly', t().planYearly, yearLine, saving > 0 && t().subSave(saving)),
+      hasMonthly && opt('monthly', t().planMonthly, t().perMonth(money(SUB.monthly))));
     const list = items => el('ul', { class: 'points' }, items.map(x => el('li', {}, icon('check', 16), el('span', {}, x))));
     openSheet(sheetHead('', t().subTitle),
-      el('div', { class: 'trialhead' }, el('p', { class: 'trialbig' }, t().trialHead(SUB.trialDays)),
-        el('p', { class: 'trialsub' }, t().thenPerMonth(money(SUB.yearly / 12), money(SUB.yearly)))),
+      el('div', { class: 'trialhead' },
+        launch && el('span', { class: 'ptag' }, t().launchBadge),
+        // O valor cobrado de uma vez é o que aparece em grande; o valor por mês é só uma conta de apoio.
+        el('p', { class: 'trialbig' }, launch ? t().perYearFirst(money(year)) : t().perYear(money(year)), launch && el('s', { class: 'was' }, money(SUB.yearly))),
+        el('p', { class: 'trialsub' }, t().equalsPerMonth(money(year / 12))),
+        launch && el('p', { class: 'trialsub' }, DATE.test(SUB.launch.until) ? t().launchUntil(fmtDate(SUB.launch.until, { day: 'numeric', month: 'long', year: 'numeric' }), money(SUB.yearly)) : t().launchNote(money(SUB.yearly))),
+        trial && el('p', { class: 'trialsub strong' }, t().trialHead(SUB.trialDays))),
       el('h3', { class: 'sub' }, t().premiumTitle), list(t().subPoints),
       plans,
       el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => {
         const url = SUB.checkout && SUB.checkout[pick];
         if (url) location.href = url; else toast(t().subSoon);
-      } }, t().subStart)),
-      el('p', { class: 'fine', style: 'margin-top:10px;text-align:center' }, t().trialNote(SUB.trialDays)),
+      } }, trial ? t().subStart : t().subBuy)),
+      el('p', { class: 'renew' }, SUB.autoRenew ? t().renewAuto : t().renewNone),
+      trial && el('p', { class: 'fine', style: 'margin-top:6px;text-align:center' }, t().trialNote(SUB.trialDays)),
       el('h3', { class: 'sub' }, t().freeTitle), list(t().freePoints),
       !SUB.enforce && el('p', { class: 'info' }, t().subTest),
       legalLinks());

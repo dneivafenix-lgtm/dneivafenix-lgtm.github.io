@@ -818,3 +818,25 @@ Object.assign(window.DiaryI18n.pt, { shopTitle: 'Na loja Petit Nuvem', shopNote:
 Object.assign(window.DiaryI18n.en, { shopTitle: 'In the Petit Nuvem shop', shopNote: 'Suggestions from our shop. You do not need them to use the app.', shopServe: 'In the shop:' });
 Object.assign(window.DiaryI18n.es, { shopTitle: 'En la tienda Petit Nuvem', shopNote: 'Sugerencias de nuestra tienda. No hacen falta para usar la app.', shopServe: 'En la tienda:' });
 Object.assign(window.DiaryI18n.fr, { shopTitle: 'Dans la boutique Petit Nuvem', shopNote: "Suggestions de notre boutique. Elles ne sont pas nécessaires pour utiliser l'app.", shopServe: 'Dans la boutique :' });
+
+// Preços: anual com preço de lançamento, mensal e renovação.
+Object.assign(window.DiaryI18n.pt, { launchBadge: 'Preço de lançamento', perYearFirst: p => `${p} no primeiro ano`, equalsPerMonth: m => `Um só pagamento. Equivale a ${m} por mês.`,
+  launchNote: n => `Preço normal: ${n} por ano.`, launchUntil: (d, n) => `Preço de lançamento até ${d}. Preço normal: ${n} por ano.`,
+  renewAuto: 'A subscrição renova automaticamente no fim de cada período, ao preço em vigor, até a cancelares.',
+  renewNone: 'Sem renovação automática: pagas uma vez e, quando o período acabar, decides se queres continuar.',
+  subBuy: 'Subscrever', trialNote: n => `Começa com ${n} dias grátis.` });
+Object.assign(window.DiaryI18n.en, { launchBadge: 'Launch price', perYearFirst: p => `${p} for the first year`, equalsPerMonth: m => `One payment. That works out at ${m} a month.`,
+  launchNote: n => `Regular price: ${n} a year.`, launchUntil: (d, n) => `Launch price until ${d}. Regular price: ${n} a year.`,
+  renewAuto: 'The subscription renews automatically at the end of each period, at the price then in force, until you cancel.',
+  renewNone: 'No automatic renewal: you pay once and, when the period ends, you decide whether to continue.',
+  subBuy: 'Subscribe', trialNote: n => `Starts with ${n} days free.` });
+Object.assign(window.DiaryI18n.es, { launchBadge: 'Precio de lanzamiento', perYearFirst: p => `${p} el primer año`, equalsPerMonth: m => `Un solo pago. Equivale a ${m} al mes.`,
+  launchNote: n => `Precio normal: ${n} al año.`, launchUntil: (d, n) => `Precio de lanzamiento hasta el ${d}. Precio normal: ${n} al año.`,
+  renewAuto: 'La suscripción se renueva automáticamente al final de cada periodo, al precio vigente, hasta que la canceles.',
+  renewNone: 'Sin renovación automática: pagas una vez y, cuando termine el periodo, decides si quieres continuar.',
+  subBuy: 'Suscribirme', trialNote: n => `Empieza con ${n} días gratis.` });
+Object.assign(window.DiaryI18n.fr, { launchBadge: 'Prix de lancement', perYearFirst: p => `${p} la première année`, equalsPerMonth: m => `Un seul paiement. Cela revient à ${m} par mois.`,
+  launchNote: n => `Prix normal : ${n} par an.`, launchUntil: (d, n) => `Prix de lancement jusqu'au ${d}. Prix normal : ${n} par an.`,
+  renewAuto: "L'abonnement se renouvelle automatiquement à la fin de chaque période, au prix en vigueur, jusqu'à votre résiliation.",
+  renewNone: "Pas de renouvellement automatique : vous payez une fois et, à la fin de la période, vous décidez de continuer ou non.",
+  subBuy: "S'abonner", trialNote: n => `Commence par ${n} jours gratuits.` });

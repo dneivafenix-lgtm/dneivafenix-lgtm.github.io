@@ -11,7 +11,7 @@ Atualizada a 12 de novembro de 2026. App: https://app.petitnuvem.com/
 - 5 guias, páginas legais (rascunho) e secção "Sobre o conteúdo"
 - Diário pessoal dos pais, com texto, voz e foto
 - Vários bebés
-- Subscrição em modo de teste (3,99 €/mês, 29,99 €/ano, 7 dias grátis)
+- Subscrição em modo de teste (ver «Preços»)
 - Boas-vindas por passos e cartão "Para começar"
 - Plano guiado por semanas, com um alergénio novo de cada vez
 - Perfil do bebé: método, alergias confirmadas, alimentação da família, eczema, prematuro
@@ -49,6 +49,20 @@ Atualizada a 12 de novembro de 2026. App: https://app.petitnuvem.com/
 
 O bloqueio (`subscription.enforce`) não se liga até haver pagamentos a funcionar.
 
+## Preços (decididos pelo Diogo a 12 de novembro, em `config.js > subscription`)
+
+| Plano | Preço |
+|---|---|
+| Anual, preço normal | 39,99 € |
+| Anual, preço de lançamento (primeiro ano) | 29,99 €, com o 39,99 € riscado ao lado |
+| Mensal | 6,99 € |
+
+- A poupança do anual face ao mensal é calculada a partir destes valores (64% no lançamento, 52% ao preço normal).
+- Data de fim do lançamento: por indicar (`launch.until`, vazio).
+- Pagamentos por decidir. Hipótese mais provável: Premium anual vendido na loja da Shopify, sem renovação automática. Não montar Stripe sem o Diogo confirmar.
+- O ecrã de subscrição diz sempre, junto ao botão, se há ou não renovação automática (`autoRenew`, agora desligado).
+- Por decidir: o teste grátis de 7 dias (`trialDays`) só faz sentido se a forma de pagamento o permitir; numa compra única na Shopify não há teste.
+
 ## A seguir
 
 1. Notificações com dicas por idade: precisam de servidor (Supabase), ficam para depois das contas
@@ -56,7 +70,7 @@ O bloqueio (`subscription.enforce`) não se liga até haver pagamentos a funcion
 ## À tua espera
 
 - [ ] Ativar "Enforce HTTPS" no GitHub (Settings > Pages) quando o certificado de app.petitnuvem.com estiver pronto
-- [ ] Contas Stripe e Supabase, para pagamentos reais, contas e cópia na nuvem
+- [ ] Decidir a forma de pagamento (Shopify ou outra) e criar a conta Supabase, para contas e cópia na nuvem
 - [ ] Ficheiro do logótipo, para ficar guardado dentro da app
 - [ ] 17 fotos das receitas 40 a 56, e refazer 2 (bolachinhas, massa com bolonhesa)
 - [ ] Foto do coelho, e 5 fotos de alimentos a trocar (amêndoa, noz, iogurte, farinha de milho, alho-francês)
