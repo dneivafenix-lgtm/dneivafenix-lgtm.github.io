@@ -21,6 +21,8 @@ Atualizada a 12 de novembro de 2026. App: https://app.petitnuvem.com/
 - Receitas sugeridas conforme a refeição (pequeno-almoço e lanche, almoço e jantar)
 - Diário em forma de caderno, com uma página por dia: escreve-se na própria página e vira-se com o dedo
 - Fechar as caixas arrastando para baixo
+- Ecrã de subscrição com "Experimenta 7 dias grátis" e lista do que é grátis e Premium
+- Notas do calendário e do diário no relatório para o pediatra (opcional)
 - Dois diários (do bebé e dos pais) e livro do diário para imprimir ou guardar em PDF
 - Favoritos em alimentos e receitas
 - Lista de alimentos com fotos ao adicionar a uma refeição
@@ -28,11 +30,25 @@ Atualizada a 12 de novembro de 2026. App: https://app.petitnuvem.com/
 - Guias com ilustração e tempo de leitura, e cartão de guias mais visível no ecrã Hoje
 - Auditoria de 12/11: 112 nos avisos de emergência, aviso quando um registo não fica guardado, pedido de armazenamento persistente, cartão «Instalar no telemóvel», ícones PNG (iPhone e Android), imagem de partilha, contacto e entidade nas páginas legais
 
-## A seguir (posso fazer sem ti)
+## Grátis e Premium (decidido a 12 de novembro, muda-se em `config.js`)
 
-1. Notas do diário pessoal no relatório para o pediatra
-2. Notificações com dicas por idade (no iPhone só com a app instalada no ecrã principal)
-3. Ecrã de subscrição mais forte, com "Experimenta 7 dias grátis"
+Regra: a informação de segurança nunca fica atrás da subscrição.
+
+| Grátis | Premium |
+|---|---|
+| Registo das refeições e calendário | Todas as receitas (7, 9 e 12+ meses) |
+| Os 100 alimentos e como servir | Plano guiado completo (da semana 3 em diante) |
+| Programa de alergénios | Plano da semana e lista de compras |
+| 4 guias de segurança (prontidão, engasgamento, cortar, a evitar) | Os outros 5 guias |
+| Diário do bebé, com fotos e voz | Diário dos pais e livro do diário em PDF |
+| Receitas dos 6 meses | Relatório para o pediatra |
+| 2 primeiras semanas do plano guiado | Vários bebés |
+
+A subscrição continua em modo de teste (tudo aberto) até haver pagamentos.
+
+## A seguir
+
+1. Notificações com dicas por idade: precisam de servidor (Supabase), ficam para depois das contas
 
 ## À tua espera
 

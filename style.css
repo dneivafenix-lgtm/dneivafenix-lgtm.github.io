@@ -590,3 +590,9 @@ input.jqedit::placeholder{color:var(--muted);opacity:.7}
   .bookday{border-bottom:1px solid #ccc}
   .bookcover img{max-height:55vh;object-fit:cover}
 }
+/* Ecrã de subscrição */
+.trialhead{text-align:center;background:var(--tint);border-radius:20px;padding:20px 16px;margin-top:12px}
+.trialbig{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.15;color:var(--tint-ink)}
+.trialsub{font-size:14px;color:var(--body);margin-top:6px}
+dialog .points{margin-top:8px}
+.gcard .ptag{align-self:flex-start}

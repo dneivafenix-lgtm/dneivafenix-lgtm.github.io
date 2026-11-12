@@ -470,6 +470,11 @@
   let entitled = false;
   const isPremium = () => !SUB.enabled || !SUB.enforce || entitled;
   const locked = r => SUB.enabled && r.min > SUB.freeStage;
+  const PREM = Object.assign({ parentsJournal: true, journalBook: true, report: true, extraBabies: true, weekPlan: true }, SUB.premium);
+  const guideLocked = g => SUB.enabled && Array.isArray(SUB.freeGuides) && !SUB.freeGuides.includes(g.id);
+  // Só pede subscrição se a funcionalidade estiver marcada como premium em config.js.
+  const gate = (key, fn) => (...a) => !PREM[key] || isPremium() ? fn(...a) : openPaywall();
+  const gtag = key => PREM[key] ? ptag() : null;
   const ptag = () => SUB.enabled ? el('span', { class: 'ptag' }, t().premium) : null;
   const money = n => new Intl.NumberFormat(state.lang === 'pt' ? 'pt-PT' : state.lang, { style: 'currency', currency: SUB.currency }).format(n);
   const openPaywall = () => {
@@ -481,14 +486,18 @@
     const plans = el('div', { class: 'plans', role: 'group', 'aria-label': t().subscription },
       opt('yearly', t().planYearly, t().perYear(money(SUB.yearly)), t().subSave(saving)),
       opt('monthly', t().planMonthly, t().perMonth(money(SUB.monthly))));
-    openSheet(sheetHead('', t().subTitle), el('p', { class: 'muted' }, t().subLead),
-      el('ul', { class: 'points', style: 'margin-top:16px' }, t().subPoints.map(x => el('li', {}, icon('check', 16), el('span', {}, x)))),
+    const list = items => el('ul', { class: 'points' }, items.map(x => el('li', {}, icon('check', 16), el('span', {}, x))));
+    openSheet(sheetHead('', t().subTitle),
+      el('div', { class: 'trialhead' }, el('p', { class: 'trialbig' }, t().trialHead(SUB.trialDays)),
+        el('p', { class: 'trialsub' }, t().thenPerMonth(money(SUB.yearly / 12), money(SUB.yearly)))),
+      el('h3', { class: 'sub' }, t().premiumTitle), list(t().subPoints),
       plans,
       el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => {
         const url = SUB.checkout && SUB.checkout[pick];
         if (url) location.href = url; else toast(t().subSoon);
       } }, t().subStart)),
       el('p', { class: 'fine', style: 'margin-top:10px;text-align:center' }, t().trialNote(SUB.trialDays)),
+      el('h3', { class: 'sub' }, t().freeTitle), list(t().freePoints),
       !SUB.enforce && el('p', { class: 'info' }, t().subTest),
       legalLinks());
   };
@@ -883,7 +892,7 @@
         el('p', { class: 'hand' }, bookTitle(jbook)),
         el('p', { class: 'jmeta' }, written ? t().jPagesCount(written) : t().journalFirst)),
       el('div', { class: 'chips seg two', role: 'group', 'aria-label': t().journalTitle }, [['baby', t().journalBaby], ['parents', t().journalParents]].map(([id, label]) =>
-        el('button', { class: 'chip', 'aria-pressed': String(jbook === id), onclick: () => { jbook = id; jday = null; jq = null; render(); } }, label))),
+        el('button', { class: 'chip', 'aria-pressed': String(jbook === id), onclick: () => { if (id === 'parents' && PREM.parentsJournal && !isPremium()) return openPaywall(); jbook = id; jday = null; jq = null; render(); } }, label, id === 'parents' && gtag('parentsJournal')))),
       el('div', { class: 'jnav' },
         el('button', { class: 'ghost jarrow', disabled: at <= 0, 'aria-label': t().jPrev, onclick: () => go(days[at - 1]) }, '‹'),
         el('span', { class: 'jnavtxt' }, jday === today ? t().jToday : short(jday), el('small', {}, t().jPageOf(at + 1, days.length))),
@@ -893,7 +902,7 @@
         el('div', { class: 'chips catstrip', style: 'position:static;border:0;margin-top:6px' }, [...days].reverse().map(d => el('button', { class: 'chip', 'aria-pressed': String(d === jday), onclick: () => go(d) }, d === today ? t().jToday : short(d)))),
         el('label', { class: 'field' }, t().jGoTo, jump)),
       written ? el('div', { class: 'card' }, el('h2', {}, t().jExportTitle), el('p', { class: 'muted' }, t().jExportHint),
-        el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => { tab = 'jbook'; render(); window.scrollTo(0, 0); } }, t().jExportOpen))) : null
+        el('div', { class: 'btnrow' }, el('button', { class: 'primary withtag', onclick: gate('journalBook', () => { tab = 'jbook'; render(); window.scrollTo(0, 0); }) }, t().jExportOpen, gtag('journalBook')))) : null
     ];
   };
 
@@ -955,8 +964,8 @@
     return Math.max(1, Math.round(words / 200));
   };
   const guideCard = g => el('button', { class: 'gcard', onclick: () => openGuide(g) }, guideArt(g),
-    el('span', { class: 'gtxt' }, el('span', { class: 'rname' }, g.title), el('span', { class: 'gmin' }, icon('journal', 14), t().readMin(guideMinutes(g)))));
-  const openGuide = g => openSheet(guideArt(g, 'hero'), sheetHead('', g.title), el('p', { class: 'gmin' }, icon('journal', 14), t().readMin(guideMinutes(g))), el('p', { class: 'muted', style: 'margin-top:8px' }, g.intro),
+    el('span', { class: 'gtxt' }, guideLocked(g) && ptag(), el('span', { class: 'rname' }, g.title), el('span', { class: 'gmin' }, icon('journal', 14), t().readMin(guideMinutes(g)))));
+  const openGuide = g => guideLocked(g) && !isPremium() ? openPaywall() : openSheet(guideArt(g, 'hero'), sheetHead('', g.title), el('p', { class: 'gmin' }, icon('journal', 14), t().readMin(guideMinutes(g))), el('p', { class: 'muted', style: 'margin-top:8px' }, g.intro),
     g.sections.map(sec => [el('h3', { class: 'sub' }, sec.h), (sec.p || []).map(x => el('p', { class: 'gp' }, x)),
       sec.list ? el('ul', { class: 'ing' }, sec.list.map(x => el('li', {}, x))) : null]),
     g.id === 'gagging' && CFG.links && CFG.links.firstAid && CFG.links.firstAid[state.lang]
@@ -1279,6 +1288,7 @@
   const langSelect = () => el('select', { 'aria-label': t().language, onchange: e => { state.lang = e.target.value; save(); render(); } },
     CFG.languages.map(l => el('option', { value: l, selected: l === state.lang }, I18N[l].langName)));
 
+  let reportNotes = false;
   const viewReport = () => {
     const d = iso => fmtDate(iso, { day: 'numeric', month: 'short', year: 'numeric' });
     const byFood = new Map();
@@ -1289,6 +1299,11 @@
     const tried = [...byFood].map(([id, r]) => ({ food: F.byId.get(id), ...r })).sort((a, b) => a.first.localeCompare(b.first));
     const reactions = state.log.filter(e => e.reaction).sort((a, b) => a.date.localeCompare(b.date));
     const age = ageMonths();
+    // Notas do calendário e do diário do bebé: só entram se os pais o pedirem.
+    const notes = reportNotes ? [
+      ...Object.entries(state.baby.notes).map(([date, text]) => ({ date, text })),
+      ...state.baby.journal.filter(e => e.book !== 'parents' && e.text).map(e => ({ date: e.date, text: (e.title ? e.title + ' ' : '') + e.text }))
+    ].sort((a, b) => a.date.localeCompare(b.date)) : [];
     const table = (head, rows) => el('div', { class: 'scroll' }, el('table', {},
       el('thead', {}, el('tr', {}, head.map(([h, c]) => el('th', { class: c || '', scope: 'col' }, h)))),
       el('tbody', {}, rows.map(r => el('tr', {}, r.map((v, i) => el('td', { class: head[i][1] || '' }, v)))))));
@@ -1311,6 +1326,10 @@
       el('div', { class: 'card' }, el('h2', {}, t().reportFoods), tried.length
         ? table([[t().reportFood], [t().reportFirst], [t().reportTimes, 'n']], tried.map(x => [fname(x.food), d(x.first), String(x.n)]))
         : el('p', { class: 'muted' }, t().reportNone)),
+      el('label', { class: 'check noprint' }, el('input', { type: 'checkbox', checked: reportNotes, onchange: e => { reportNotes = e.target.checked; render(); } }), t().reportNotesToggle),
+      reportNotes && el('div', { class: 'card' }, el('h2', {}, t().reportNotes), notes.length
+        ? table([[t().reportDateCol], [t().reportNoteCol]], notes.map(n => [d(n.date), n.text]))
+        : el('p', { class: 'muted' }, t().reportNotesNone)),
       el('p', { class: 'fine' }, t().disclaimer),
       el('button', { class: 'primary noprint', onclick: () => window.print() }, t().reportPrint))];
   };
