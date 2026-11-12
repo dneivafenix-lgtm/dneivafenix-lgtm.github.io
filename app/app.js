@@ -76,7 +76,20 @@
   };
   const load = () => { try { return clean(JSON.parse(localStorage.getItem(KEY))); } catch { return clean(null); } };
   let state = load();
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* storage unavailable */ } };
+  // Se o dispositivo não deixar guardar (armazenamento cheio ou bloqueado), avisa em vez de falhar em silêncio.
+  let saveWarned = false;
+  const save = () => {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); saveWarned = false; }
+    catch { if (!saveWarned) { saveWarned = true; try { toast(t().saveFail); } catch { /* ainda sem interface */ } } }
+  };
+  // Pede ao browser para não apagar os registos quando precisar de espaço (não mostra nada à pessoa na maioria dos browsers).
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(p => p || navigator.storage.persist()).catch(() => {});
+  // Instalação no ecrã principal: o Android/Chrome oferece um pedido próprio; no iPhone só há instruções.
+  let installEvt = null;
+  const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  const isIos = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; if (tab === 'settings') render(); });
+  window.addEventListener('appinstalled', () => { installEvt = null; if (tab === 'settings') render(); });
 
   const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
@@ -1248,6 +1261,13 @@
         el('p', { class: 'muted' }, t().aboutText),
         el('p', { class: 'muted', style: 'margin-top:6px' }, CFG.content && CFG.content.reviewedBy ? t().aboutReviewed(CFG.content.reviewedBy, CFG.content.reviewedOn ? fmtDate(CFG.content.reviewedOn, { day: 'numeric', month: 'long', year: 'numeric' }) : '') : t().aboutNotReviewed),
         el('p', { class: 'muted', style: 'margin-top:6px' }, t().aboutSources(sourcesText()))),
+      el('div', { class: 'card' }, el('h2', {}, t().installTitle),
+        isStandalone() ? el('p', { class: 'muted' }, t().installDone) : [
+          el('p', { class: 'muted' }, t().installText),
+          installEvt
+            ? el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: () => { const e = installEvt; installEvt = null; e.prompt(); } }, t().installBtn))
+            : el('p', { class: 'fine', style: 'margin-top:6px' }, isIos() ? t().installIos : t().installAndroid)
+        ]),
       (window.DiaryLegal || {})[state.lang] ? el('div', { class: 'card' }, el('h2', {}, t().legalTitle), legalLinks()) : null,
       SUB.enabled && el('div', { class: 'card' }, el('h2', {}, t().subscription),
         el('p', { class: 'muted' }, !SUB.enforce ? t().subTest : entitled ? t().subActive : t().subFree),

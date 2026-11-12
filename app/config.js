@@ -25,7 +25,7 @@ window.DiaryConfig = {
   // Sobre o conteúdo: quem reviu (vazio até haver um profissional), quando, e as fontes usadas como base.
   content: { reviewedBy: '', reviewedOn: '', sources: ['SPP', 'OMS', 'NHS', 'HSE'] },
   // Páginas legais: entidade responsável, contacto e data da última atualização (AAAA-MM-DD).
-  legal: { controller: 'Petit Nuvem', contact: '', updated: '2026-11-10' },
+  legal: { controller: 'Bárbara Simão Lopes (Petit Nuvem), NIF 262889609, Rua Padre Cabanita 9A, Fonte de Boliqueime, 8100-069 Boliqueime', contact: 'ola.petitnuvem@gmail.com', updated: '2026-11-12' },
   // Programa de alergénios. A REVER POR PROFISSIONAL DE SAÚDE
   // introducedAfter: número de vezes sem reação para a app dar o alergénio como introduzido.
   // remindAfterDays: dias sem oferecer um alergénio já introduzido até a app lembrar.

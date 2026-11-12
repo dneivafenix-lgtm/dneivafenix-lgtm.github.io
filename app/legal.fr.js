@@ -86,7 +86,7 @@ window.DiaryLegal.fr = {
       "Ne laissez jamais le bébé seul pendant qu'il mange."
     ]},
     {"h": "En cas d'urgence", "p": [
-      "Si le bébé a du mal à respirer, a le visage ou les lèvres qui gonflent, devient très pâle ou ne réagit plus, ou s'il s'étouffe et ne peut plus respirer, appelez immédiatement le numéro d'urgence de votre pays.",
+      "Si le bébé a du mal à respirer, a le visage ou les lèvres qui gonflent, devient très pâle ou ne réagit plus, ou s'il s'étouffe et ne peut plus respirer, appelez immédiatement le numéro d'urgence de votre pays (112 en France et dans l’Union européenne).",
       "N'utilisez pas l'application pour décider si une situation est urgente. En cas de doute, demandez de l'aide."
     ]}
   ]}

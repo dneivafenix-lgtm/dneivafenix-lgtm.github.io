@@ -86,7 +86,7 @@ window.DiaryLegal.pt = {
       "Nunca deixes o bebé sozinho enquanto come."
     ]},
     {"h": "Em caso de emergência", "p": [
-      "Se o bebé tiver dificuldade em respirar, inchaço da cara ou dos lábios, ficar muito pálido ou sem reação, ou se se engasgar e não conseguir respirar, liga de imediato para o número de emergência do teu país.",
+      "Se o bebé tiver dificuldade em respirar, inchaço da cara ou dos lábios, ficar muito pálido ou sem reação, ou se se engasgar e não conseguir respirar, liga de imediato para o número de emergência do teu país (112 em Portugal e na União Europeia).",
       "Não uses a aplicação para decidir se uma situação é urgente. Na dúvida, pede ajuda."
     ]}
   ]}

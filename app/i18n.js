@@ -25,7 +25,7 @@ window.DiaryI18n = {
     data: 'Os teus dados', dataNote: 'Tudo fica guardado apenas neste dispositivo. Faz uma cópia para não perderes os registos.',
     exportData: 'Exportar cópia', importData: 'Importar cópia', clearData: 'Apagar tudo',
     confirmClear: 'Apagar todos os registos? Não é possível desfazer.', importOk: 'Cópia importada.', importFail: 'Ficheiro inválido.',
-    disclaimer: 'Esta app é um diário e não substitui o aconselhamento médico. As recomendações variam de país para país: segue as indicações do pediatra do teu bebé. Em caso de dificuldade em respirar ou inchaço da cara, liga para o número de emergência.',
+    disclaimer: 'Esta app é um diário e não substitui o aconselhamento médico. As recomendações variam de país para país: segue as indicações do pediatra do teu bebé. Em caso de dificuldade em respirar ou inchaço da cara, liga para o 112 (número de emergência em Portugal e na União Europeia).',
     tips: ['Um alimento novo de cada vez ajuda a perceber o que o bebé gosta e tolera.', 'Recusar à primeira é normal. Volta a oferecer noutro dia, sem insistir.', 'Sem sal e sem açúcar adicionados nas primeiras refeições.', 'O bebé deve comer sentado e sempre acompanhado por um adulto.', 'Oferece alergénios novos de manhã, para poderes observar durante o dia.']
   },
   en: {
@@ -53,7 +53,7 @@ window.DiaryI18n = {
     data: 'Your data', dataNote: 'Everything is stored only on this device. Export a backup so you do not lose your records.',
     exportData: 'Export backup', importData: 'Import backup', clearData: 'Delete everything',
     confirmClear: 'Delete all records? This cannot be undone.', importOk: 'Backup imported.', importFail: 'Invalid file.',
-    disclaimer: "This app is a diary and does not replace medical advice. Guidance varies between countries: follow your baby's paediatrician. If your baby has trouble breathing or facial swelling, call your emergency number.",
+    disclaimer: "This app is a diary and does not replace medical advice. Guidance varies between countries: follow your baby's paediatrician. If your baby has trouble breathing or facial swelling, call your emergency number (112 in the EU, 999 in the UK, 911 in the US).",
     tips: ['One new food at a time helps you see what your baby likes and tolerates.', 'Refusing at first is normal. Offer it again another day, without pressure.', 'No added salt or sugar in first foods.', 'Your baby should eat sitting up, always with an adult present.', 'Offer new allergens in the morning so you can watch during the day.']
   },
   es: {
@@ -81,7 +81,7 @@ window.DiaryI18n = {
     data: 'Tus datos', dataNote: 'Todo se guarda solo en este dispositivo. Exporta una copia para no perder los registros.',
     exportData: 'Exportar copia', importData: 'Importar copia', clearData: 'Borrar todo',
     confirmClear: '¿Borrar todos los registros? No se puede deshacer.', importOk: 'Copia importada.', importFail: 'Archivo no válido.',
-    disclaimer: 'Esta app es un diario y no sustituye el consejo médico. Las recomendaciones varían según el país: sigue las indicaciones del pediatra de tu bebé. Si tiene dificultad para respirar o hinchazón en la cara, llama al número de emergencias.',
+    disclaimer: 'Esta app es un diario y no sustituye el consejo médico. Las recomendaciones varían según el país: sigue las indicaciones del pediatra de tu bebé. Si tiene dificultad para respirar o hinchazón en la cara, llama al 112 (número de emergencias en España y en la Unión Europea).',
     tips: ['Un alimento nuevo cada vez ayuda a ver qué le gusta y qué tolera.', 'Rechazarlo al principio es normal. Vuelve a ofrecerlo otro día, sin insistir.', 'Sin sal ni azúcar añadidos en las primeras comidas.', 'El bebé debe comer sentado y siempre acompañado por un adulto.', 'Ofrece los alérgenos nuevos por la mañana para poder observar durante el día.']
   },
   fr: {
@@ -109,7 +109,7 @@ window.DiaryI18n = {
     data: 'Vos données', dataNote: 'Tout est enregistré uniquement sur cet appareil. Exportez une copie pour ne rien perdre.',
     exportData: 'Exporter une copie', importData: 'Importer une copie', clearData: 'Tout supprimer',
     confirmClear: 'Supprimer toutes les notes ? Cette action est définitive.', importOk: 'Copie importée.', importFail: 'Fichier invalide.',
-    disclaimer: "Cette app est un journal et ne remplace pas un avis médical. Les recommandations varient selon les pays : suivez les conseils du pédiatre de votre bébé. En cas de difficulté à respirer ou de gonflement du visage, appelez les urgences.",
+    disclaimer: "Cette app est un journal et ne remplace pas un avis médical. Les recommandations varient selon les pays : suivez les conseils du pédiatre de votre bébé. En cas de difficulté à respirer ou de gonflement du visage, appelez le 112 (numéro d’urgence en France et dans l’Union européenne).",
     tips: ["Un seul nouvel aliment à la fois aide à voir ce que bébé aime et tolère.", "Refuser au début est normal. Proposez à nouveau un autre jour, sans insister.", 'Ni sel ni sucre ajoutés dans les premiers repas.', "Bébé doit manger assis, toujours en présence d'un adulte.", 'Proposez les nouveaux allergènes le matin pour pouvoir observer dans la journée.']
   }
 };
@@ -404,7 +404,7 @@ Object.assign(window.DiaryI18n.pt, {
     done: 'Mantém este alergénio na alimentação habitual do bebé.',
     reaction: 'Não voltes a oferecer antes de falares com o pediatra.' },
   algDue: n => `Não é oferecido há ${n} dias. Volta a oferecer para o manter na rotina.`, algDueCard: n => n === 1 ? '1 alergénio para voltar a oferecer' : `${n} alergénios para voltar a oferecer`,
-  algFoods: 'Alimentos com este alergénio', algEmergency: 'Em caso de dificuldade em respirar ou inchaço da cara, liga para o número de emergência.',
+  algFoods: 'Alimentos com este alergénio', algEmergency: 'Em caso de dificuldade em respirar ou inchaço da cara, liga para o 112 (número de emergência em Portugal e na União Europeia).',
   guidesTitle: 'Guias', guidesHint: 'O essencial para começar com segurança.', guideSources: s => `Base: orientações gerais de ${s}.`, firstAidLink: 'Formação em primeiros socorros pediátricos',
   aboutTitle: 'Sobre o conteúdo', aboutText: 'Os textos desta app são informação geral sobre introdução alimentar.',
   aboutReviewed: (who, when) => `Revisto por ${who}${when ? ' em ' + when : ''}.`, aboutNotReviewed: 'Ainda não foi revisto por um profissional de saúde.',
@@ -426,7 +426,7 @@ Object.assign(window.DiaryI18n.en, {
     done: "Keep this allergen in your baby's regular diet.",
     reaction: 'Do not offer it again before talking to your paediatrician.' },
   algDue: n => `Not offered for ${n} days. Offer it again to keep it in the routine.`, algDueCard: n => n === 1 ? '1 allergen to offer again' : `${n} allergens to offer again`,
-  algFoods: 'Foods with this allergen', algEmergency: 'If your baby has trouble breathing or facial swelling, call your emergency number.',
+  algFoods: 'Foods with this allergen', algEmergency: 'If your baby has trouble breathing or facial swelling, call your emergency number (112 in the EU, 999 in the UK, 911 in the US).',
   guidesTitle: 'Guides', guidesHint: 'The essentials for a safe start.', guideSources: s => `Based on general guidance from ${s}.`, firstAidLink: 'Paediatric first-aid training',
   aboutTitle: 'About the content', aboutText: 'The texts in this app are general information about starting solids.',
   aboutReviewed: (who, when) => `Reviewed by ${who}${when ? ' on ' + when : ''}.`, aboutNotReviewed: 'Not yet reviewed by a health professional.',
@@ -448,7 +448,7 @@ Object.assign(window.DiaryI18n.es, {
     done: 'Mantén este alérgeno en la alimentación habitual del bebé.',
     reaction: 'No vuelvas a ofrecerlo antes de hablar con el pediatra.' },
   algDue: n => `No se ofrece desde hace ${n} días. Vuelve a ofrecerlo para mantenerlo en la rutina.`, algDueCard: n => n === 1 ? '1 alérgeno para volver a ofrecer' : `${n} alérgenos para volver a ofrecer`,
-  algFoods: 'Alimentos con este alérgeno', algEmergency: 'Si tiene dificultad para respirar o hinchazón en la cara, llama al número de emergencias.',
+  algFoods: 'Alimentos con este alérgeno', algEmergency: 'Si tiene dificultad para respirar o hinchazón en la cara, llama al 112 (número de emergencias en España y en la Unión Europea).',
   guidesTitle: 'Guías', guidesHint: 'Lo esencial para empezar con seguridad.', guideSources: s => `Base: orientaciones generales de ${s}.`, firstAidLink: 'Formación en primeros auxilios pediátricos',
   aboutTitle: 'Sobre el contenido', aboutText: 'Los textos de esta app son información general sobre alimentación complementaria.',
   aboutReviewed: (who, when) => `Revisado por ${who}${when ? ' el ' + when : ''}.`, aboutNotReviewed: 'Aún no ha sido revisado por un profesional sanitario.',
@@ -470,7 +470,7 @@ Object.assign(window.DiaryI18n.fr, {
     done: "Gardez cet allergène dans l'alimentation habituelle de bébé.",
     reaction: "Ne le proposez plus avant d'en avoir parlé au pédiatre." },
   algDue: n => `Pas proposé depuis ${n} jours. Proposez-le à nouveau pour le garder dans la routine.`, algDueCard: n => n === 1 ? '1 allergène à proposer de nouveau' : `${n} allergènes à proposer de nouveau`,
-  algFoods: 'Aliments contenant cet allergène', algEmergency: 'En cas de difficulté à respirer ou de gonflement du visage, appelez les urgences.',
+  algFoods: 'Aliments contenant cet allergène', algEmergency: 'En cas de difficulté à respirer ou de gonflement du visage, appelez le 112 (numéro d’urgence en France et dans l’Union européenne).',
   guidesTitle: 'Guides', guidesHint: "L'essentiel pour commencer en sécurité.", guideSources: s => `Base : repères généraux de ${s}.`, firstAidLink: 'Formation aux premiers secours pédiatriques',
   aboutTitle: 'À propos du contenu', aboutText: "Les textes de cette app sont des informations générales sur la diversification alimentaire.",
   aboutReviewed: (who, when) => `Relu par ${who}${when ? ' le ' + when : ''}.`, aboutNotReviewed: "Pas encore relu par un professionnel de santé.",
@@ -783,3 +783,8 @@ Object.assign(window.DiaryI18n.fr, { journalBaby: 'Journal de bébé', journalPa
   questionsParents: ["Comment vous sentez-vous aujourd'hui ?", "De quoi êtes-vous fière aujourd'hui ?", "Qu'est-ce qui a été le plus difficile aujourd'hui ?", 'Que voulez-vous retenir de cette période ?', "Qu'avez-vous fait aujourd'hui rien que pour vous ?", "Quelle aide vous a fait du bien aujourd'hui ?", "Qu'avez-vous appris sur vous aujourd'hui ?"],
   jExportTitle: 'Livre du journal', jExportHint: 'Réunit toutes les pages en un seul livre, à imprimer ou à garder pour le partager plus tard avec vos enfants.', jExportOpen: 'Voir le livre',
   jExportPrint: 'Imprimer ou enregistrer en PDF', jExportNote: "Le livre contient les textes et les photos de toutes les pages de ce journal. Les enregistrements vocaux ne tiennent pas dans un PDF : ils sont signalés, mais ne s'écoutent que dans l'app." });
+// 12/11: aviso quando o registo não fica guardado e cartão «Instalar no telemóvel» (Definições).
+Object.assign(window.DiaryI18n.pt, { saveFail: 'Não foi possível guardar: o armazenamento deste dispositivo está cheio ou bloqueado. Exporta uma cópia em Definições.', installTitle: 'Instalar no telemóvel', installText: 'Com a app no ecrã principal abres mais depressa e os teus registos ficam mais protegidos.', installBtn: 'Instalar a app', installIos: 'No iPhone ou iPad: abre no Safari, toca em Partilhar e escolhe «Adicionar ao ecrã principal».', installAndroid: 'No Android: abre o menu do browser (⋮) e escolhe «Adicionar ao ecrã principal» ou «Instalar app».', installDone: 'A app já está instalada neste dispositivo.' });
+Object.assign(window.DiaryI18n.en, { saveFail: 'Could not save: this device\u2019s storage is full or blocked. Export a backup in Settings.', installTitle: 'Install on your phone', installText: 'With the app on your home screen it opens faster and your records are better protected.', installBtn: 'Install the app', installIos: 'On iPhone or iPad: open in Safari, tap Share and choose \u201cAdd to Home Screen\u201d.', installAndroid: 'On Android: open the browser menu (⋮) and choose \u201cAdd to Home screen\u201d or \u201cInstall app\u201d.', installDone: 'The app is already installed on this device.' });
+Object.assign(window.DiaryI18n.es, { saveFail: 'No se pudo guardar: el almacenamiento de este dispositivo está lleno o bloqueado. Exporta una copia en Ajustes.', installTitle: 'Instalar en el móvil', installText: 'Con la app en la pantalla de inicio se abre más rápido y tus registros quedan mejor protegidos.', installBtn: 'Instalar la app', installIos: 'En iPhone o iPad: abre en Safari, toca Compartir y elige «Añadir a pantalla de inicio».', installAndroid: 'En Android: abre el menú del navegador (⋮) y elige «Añadir a pantalla de inicio» o «Instalar aplicación».', installDone: 'La app ya está instalada en este dispositivo.' });
+Object.assign(window.DiaryI18n.fr, { saveFail: 'Enregistrement impossible : le stockage de cet appareil est plein ou bloqué. Exportez une copie dans les Réglages.', installTitle: 'Installer sur le téléphone', installText: 'Avec l\u2019app sur l\u2019écran d\u2019accueil, elle s\u2019ouvre plus vite et vos données sont mieux protégées.', installBtn: 'Installer l\u2019app', installIos: 'Sur iPhone ou iPad : ouvrez dans Safari, touchez Partager puis « Sur l\u2019écran d\u2019accueil ».', installAndroid: 'Sur Android : ouvrez le menu du navigateur (⋮) puis « Ajouter à l\u2019écran d\u2019accueil » ou « Installer l\u2019application ».', installDone: 'L\u2019app est déjà installée sur cet appareil.' });
