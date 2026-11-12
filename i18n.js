@@ -868,3 +868,21 @@ Object.assign(window.DiaryI18n.es, { launchLine: p => `${p} (precio de lanzamien
   oneYear: 'Un solo pago por un año de Premium.', subBuy: 'Comprar Premium', renewNone: 'Sin renovación automática: pagas una vez y, al cabo de un año, decides si quieres continuar.' });
 Object.assign(window.DiaryI18n.fr, { launchLine: p => `${p} (prix de lancement)`, launchFrom: (d, n) => `À partir du ${d}, ${n}.`, launchLater: n => `Après le lancement, ${n}.`,
   oneYear: "Un seul paiement pour un an de Premium.", subBuy: 'Acheter Premium', renewNone: "Pas de renouvellement automatique : vous payez une fois et, au bout d'un an, vous décidez de continuer ou non." });
+
+// Passo «Cria a tua conta», dicas por email e lembrete.
+Object.assign(window.DiaryI18n.pt, { accStepTitle: 'Cria a tua conta', accStepLead: 'Com conta, ativas o Premium neste dispositivo e, se quiseres, recebes por email dicas sobre a alimentação do bebé. É a mesma conta da loja Petit Nuvem.',
+  accSkip: 'Continuar sem conta', accLater: 'Agora não', newsLabel: 'Quero receber dicas e novidades da Petit Nuvem por email', newsNote: 'Opcional. Podes deixar de receber quando quiseres.',
+  newsOn: 'Vais receber as dicas e novidades por email.', newsOff: 'Deixaste de receber os emails.', newsFail: 'Não foi possível guardar a tua escolha. Tenta mais tarde.',
+  obPrivacy: 'Sem publicidade. A conta é opcional e os registos ficam apenas neste dispositivo.' });
+Object.assign(window.DiaryI18n.en, { accStepTitle: 'Create your account', accStepLead: "With an account you activate Premium on this device and, if you like, get tips about your baby's food by email. It is the same account as the Petit Nuvem shop.",
+  accSkip: 'Continue without an account', accLater: 'Not now', newsLabel: 'I want to receive tips and news from Petit Nuvem by email', newsNote: 'Optional. You can stop receiving them whenever you like.',
+  newsOn: 'You will receive tips and news by email.', newsOff: 'You will no longer receive the emails.', newsFail: 'Your choice could not be saved. Please try again later.',
+  obPrivacy: 'No ads. The account is optional and your records stay on this device only.' });
+Object.assign(window.DiaryI18n.es, { accStepTitle: 'Crea tu cuenta', accStepLead: 'Con cuenta, activas Premium en este dispositivo y, si quieres, recibes por correo consejos sobre la alimentación del bebé. Es la misma cuenta de la tienda Petit Nuvem.',
+  accSkip: 'Continuar sin cuenta', accLater: 'Ahora no', newsLabel: 'Quiero recibir consejos y novedades de Petit Nuvem por correo', newsNote: 'Opcional. Puedes dejar de recibirlos cuando quieras.',
+  newsOn: 'Recibirás los consejos y novedades por correo.', newsOff: 'Has dejado de recibir los correos.', newsFail: 'No se pudo guardar tu elección. Inténtalo más tarde.',
+  obPrivacy: 'Sin publicidad. La cuenta es opcional y los registros se quedan solo en este dispositivo.' });
+Object.assign(window.DiaryI18n.fr, { accStepTitle: 'Créez votre compte', accStepLead: "Avec un compte, vous activez Premium sur cet appareil et, si vous le souhaitez, vous recevez par e-mail des conseils sur l'alimentation de bébé. C'est le même compte que celui de la boutique Petit Nuvem.",
+  accSkip: 'Continuer sans compte', accLater: 'Pas maintenant', newsLabel: 'Je souhaite recevoir les conseils et les nouveautés de Petit Nuvem par e-mail', newsNote: 'Facultatif. Vous pouvez vous désinscrire à tout moment.',
+  newsOn: 'Vous recevrez les conseils et les nouveautés par e-mail.', newsOff: 'Vous ne recevrez plus les e-mails.', newsFail: "Votre choix n'a pas pu être enregistré. Réessayez plus tard.",
+  obPrivacy: 'Sans publicité. Le compte est facultatif et vos notes restent sur cet appareil.' });

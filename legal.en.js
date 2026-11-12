@@ -25,6 +25,7 @@ window.DiaryLegal.en = {
      "You can use the app without an account. If you choose to sign in, you do so with your Petit Nuvem shop customer account, a service provided by Shopify: you are taken to the shop's sign-in page, you receive a code by email and you return to the app.",
      "Once you are signed in, the app reads your email address and your shop orders from that account, only to recognise whether you bought Premium and until when it is active.",
      "Your email, the date until which Premium is active and the session keys are stored on your device. The app does not send your diary records to the shop or to any server.",
+     "If you tick the box \"I want to receive tips and news from Petit Nuvem by email\", the app records that consent in your shop customer account, and the shop may then send you marketing emails. The box is unticked by default. You can withdraw your consent at any time, in the app's Settings or through the link included in every email. The app does not send the shop your baby's age or any diary record.",
      "Account and order data are processed by the Petit Nuvem shop under the shop's privacy policy. To end the session, use “Sign out” in Settings."
     ]
    },

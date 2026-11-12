@@ -25,6 +25,7 @@ window.DiaryLegal.fr = {
      "Vous pouvez utiliser l'application sans compte. Si vous choisissez de vous connecter, la connexion se fait avec votre compte client de la boutique Petit Nuvem, un service fourni par Shopify : vous êtes dirigé vers la page de connexion de la boutique, vous recevez un code par e-mail et vous revenez à l'application.",
      "Une fois connecté, l'application lit, à partir de ce compte, votre adresse e-mail et vos commandes dans la boutique, uniquement pour savoir si vous avez acheté Premium et jusqu'à quand il est actif.",
      "Votre e-mail, la date jusqu'à laquelle Premium est actif et les clés de session sont conservés sur votre appareil. L'application n'envoie pas les notes du journal à la boutique ni à aucun serveur.",
+     "Si vous cochez la case « Je souhaite recevoir les conseils et les nouveautés de Petit Nuvem par e-mail », l'application enregistre ce consentement dans votre compte client de la boutique, et la boutique peut alors vous envoyer des e-mails marketing. La case est décochée par défaut. Vous pouvez retirer votre consentement à tout moment, dans les Réglages de l'application ou via le lien présent dans chaque e-mail. L'application n'envoie à la boutique ni l'âge de bébé ni aucune note du journal.",
      "Les données du compte et des commandes sont traitées par la boutique Petit Nuvem, conformément à la politique de confidentialité de la boutique. Pour fermer la session, utilisez « Se déconnecter » dans les Réglages."
     ]
    },

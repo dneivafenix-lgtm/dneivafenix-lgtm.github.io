@@ -69,6 +69,7 @@
       lang: CFG.languages.includes(s.lang) ? s.lang : detectLang(),
       onboarded: !!s.onboarded,
       goals: (Array.isArray(s.goals) ? s.goals : []).filter(g => GOALS.includes(g)), started: typeof s.started === 'boolean' ? s.started : null, hideStart: !!s.hideStart,
+      since: DATE.test(s.since) ? s.since : '', inviteAt: Math.max(0, +s.inviteAt || 0),
       favFoods: [...new Set(Array.isArray(s.favFoods) ? s.favFoods : [])].filter(id => F.byId.has(id)),
       favRecipes: [...new Set(Array.isArray(s.favRecipes) ? s.favRecipes : [])].filter(n => Number.isInteger(n) && R && R.list[n]),
       babies, current: seen.has(s.current) ? s.current : babies[0].id
@@ -490,11 +491,12 @@
   syncEntitled();
   const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   const rand = n => b64url(crypto.getRandomValues(new Uint8Array(n)));
-  const accSignIn = async () => {
+  // opts.news: a pessoa marcou a caixa das dicas por email. opts.ob: passo das boas-vindas a que voltar.
+  const accSignIn = async (opts = {}) => {
     const verifier = rand(32), state = rand(16), nonce = rand(16);
     const challenge = b64url(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
     // localStorage e não sessionStorage: no iPhone, a app instalada pode voltar do início de sessão noutro contexto.
-    localStorage.setItem(OAUTH_KEY, JSON.stringify({ verifier, state, nonce, at: Date.now() }));
+    localStorage.setItem(OAUTH_KEY, JSON.stringify({ verifier, state, nonce, at: Date.now(), news: !!opts.news, ob: Number.isInteger(opts.ob) ? opts.ob : null }));
     const u = new URL(ACC.authorize);
     for (const [k, v] of Object.entries({ client_id: ACC.clientId, response_type: 'code', redirect_uri: ACC.redirect, scope: ACC.scope, state, nonce, code_challenge: challenge, code_challenge_method: 'S256' })) u.searchParams.set(k, v);
     location.href = u.toString();
@@ -524,9 +526,18 @@
     if (j.errors || !j.data) throw new Error('graphql');
     return j.data;
   };
+  // Dicas e novidades por email: o consentimento fica gravado na conta de cliente da loja.
+  // Precisa da permissão de escrita de clientes na Customer Account API; sem ela, o pedido fica pendente e é repetido.
+  const accNews = async on => {
+    const m = on ? 'customerEmailMarketingSubscribe' : 'customerEmailMarketingUnsubscribe';
+    const d = await accGraphql(`mutation { ${m} { emailAddress { marketingState } userErrors { code message } } }`);
+    const errs = ((d[m] || {}).userErrors || []).filter(e => !/ALREADY/.test(e.code || ''));
+    if (errs.length) throw new Error('news');
+    acc.news = on; acc.newsWanted = false; accSave();
+  };
   // Lê as encomendas e calcula até quando o Premium está ativo: a compra mais recente do artigo, mais os dias de config.
   const accRefresh = async () => {
-    const P = ACC.premium || {}, q = fields => `query { customer { emailAddress { emailAddress } orders(first: 50, reverse: true) { nodes { processedAt ${fields} lineItems(first: 50) { nodes { title ${fields ? 'productId' : ''} } } } } } }`;
+    const P = ACC.premium || {}, q = fields => `query { customer { emailAddress { emailAddress ${fields ? 'marketingState' : ''} } orders(first: 50, reverse: true) { nodes { processedAt ${fields} lineItems(first: 50) { nodes { title ${fields ? 'productId' : ''} } } } } } }`;
     let data;
     try { data = await accGraphql(q('financialStatus cancelledAt')); }
     catch (e) { if (e.message !== 'graphql') throw e; data = await accGraphql(q('')); } // campos que a versão da API não conheça
@@ -539,7 +550,9 @@
     }
     acc.email = (c.emailAddress && c.emailAddress.emailAddress) || acc.email || '';
     acc.until = until; acc.checked = Date.now();
+    if (c.emailAddress && c.emailAddress.marketingState) acc.news = c.emailAddress.marketingState === 'SUBSCRIBED';
     accSave(); syncEntitled();
+    if (acc.newsWanted && !acc.news) await accNews(true).catch(() => { /* fica pendente */ });
   };
   const accSignOut = () => {
     const hint = acc.idToken;
@@ -550,32 +563,54 @@
   // Ao abrir: termina um início de sessão que venha no endereço, ou volta a confirmar a conta de vez em quando.
   const accInit = async () => {
     if (!accOn()) return;
-    const q = new URLSearchParams(location.search), code = q.get('code'), state = q.get('state');
+    const q = new URLSearchParams(location.search), code = q.get('code'), back = q.get('state'); // «back» e não «state», que é o estado da app
     if (code || q.get('error')) {
       let saved = null;
       try { saved = JSON.parse(localStorage.getItem(OAUTH_KEY)); } catch { /* ignorar */ }
       localStorage.removeItem(OAUTH_KEY);
       history.replaceState(null, '', location.pathname);
-      if (!code || !saved || saved.state !== state) return toast(t().accFail);
+      const inWelcome = !state.onboarded && saved && Number.isInteger(saved.ob);
+      if (!code || !saved || saved.state !== back) { if (inWelcome) { obStep = saved.ob - 1; render(); } return toast(t().accFail); }
       try {
         await accToken({ grant_type: 'authorization_code', redirect_uri: ACC.redirect, code, code_verifier: saved.verifier });
+        if (saved.news) { acc.newsWanted = true; accSave(); }
         await accRefresh();
-        tab = 'settings'; render(); toast(entitled ? t().accPremiumOn : t().accSignedIn);
-      } catch { render(); toast(t().accFail); }
+        if (inWelcome) obStep = saved.ob; else tab = 'settings';
+        render(); toast(entitled ? t().accPremiumOn : t().accSignedIn);
+      } catch { if (inWelcome) obStep = saved.ob - 1; render(); toast(t().accFail); }
       return;
     }
     if (signedIn() && navigator.onLine !== false && (!acc.checked || Date.now() - acc.checked > 12 * 36e5)) {
       try { await accRefresh(); render(); } catch { /* fica com o que estava guardado */ }
     }
+    // Convite a quem continuou sem conta: ao fim de 7 dias de uso e, depois, no máximo uma vez por semana.
+    if (state.onboarded && !sheet.open && inviteDue() && state.since && (parse(todayIso()) - parse(state.since)) / 864e5 >= 7) openInvite();
   };
+  const WEEK = 7 * 864e5;
+  const inviteDue = () => accOn() && !signedIn() && Date.now() - (state.inviteAt || 0) >= WEEK;
+  const newsBox = (checked, onchange) => [el('label', { class: 'check' }, el('input', { type: 'checkbox', checked: !!checked, onchange }), t().newsLabel), el('p', { class: 'fine', style: 'margin-top:4px' }, t().newsNote)];
+  const openInvite = then => {
+    let news = false;
+    state.inviteAt = Date.now(); save();
+    openSheet(sheetHead('', t().accStepTitle), el('p', { class: 'muted' }, t().accStepLead),
+      newsBox(false, e => { news = e.target.checked; }),
+      el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => accSignIn({ news }).catch(() => toast(t().accFail)) }, t().accSignIn)),
+      el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: () => { closeSheet(); if (then) then(); } }, t().accLater)));
+  };
+  let cardNews = false;
   const accountCard = () => {
     if (!accOn()) return null;
     const longDate = ms => new Intl.DateTimeFormat(state.lang, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(ms));
     if (!signedIn()) return el('div', { class: 'card' }, el('h2', {}, t().accTitle), el('p', { class: 'muted' }, t().accLead),
-      el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => accSignIn().catch(() => toast(t().accFail)) }, t().accSignIn)));
+      newsBox(cardNews, e => { cardNews = e.target.checked; }),
+      el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => accSignIn({ news: cardNews }).catch(() => toast(t().accFail)) }, t().accSignIn)));
     return el('div', { class: 'card' }, el('h2', {}, t().accTitle),
       acc.email && el('p', { class: 'muted' }, t().accAs(acc.email)),
       el('p', { style: 'margin-top:6px;font-weight:600' }, entitled ? t().accPremiumUntil(longDate(acc.until)) : t().accNoPremium),
+      newsBox(acc.news, e => {
+        const on = e.target.checked, box = e.target;
+        accNews(on).then(() => toast(on ? t().newsOn : t().newsOff)).catch(() => { box.checked = !on; toast(t().newsFail); });
+      }),
       el('div', { class: 'btnrow' },
         el('button', { class: 'ghost', onclick: () => accRefresh().then(() => { render(); toast(t().accChecked); }).catch(() => { render(); toast(t().accOffline); }) }, t().accRefresh),
         el('button', { class: 'ghost', onclick: accSignOut }, t().accSignOut)));
@@ -585,7 +620,9 @@
   const PREM = Object.assign({ parentsJournal: true, journalBook: true, report: true, extraBabies: true, weekPlan: true }, SUB.premium);
   const guideLocked = g => SUB.enabled && Array.isArray(SUB.freeGuides) && !SUB.freeGuides.includes(g.id);
   // Só pede subscrição se a funcionalidade estiver marcada como premium em config.js.
-  const gate = (key, fn) => (...a) => !PREM[key] || isPremium() ? fn(...a) : openPaywall();
+  // Sem conta, tocar numa função Premium mostra o convite (no máximo uma vez por semana); «Agora não» segue para a função.
+  const withInvite = run => inviteDue() ? openInvite(run) : run();
+  const gate = (key, fn) => (...a) => !PREM[key] ? fn(...a) : isPremium() ? withInvite(() => fn(...a)) : openPaywall();
   const gtag = key => PREM[key] ? ptag() : null;
   const ptag = () => SUB.enabled ? el('span', { class: 'ptag' }, t().premium) : null;
   const money = n => new Intl.NumberFormat(state.lang === 'pt' ? 'pt-PT' : state.lang, { style: 'currency', currency: SUB.currency }).format(n);
@@ -626,7 +663,7 @@
       !SUB.enforce && el('p', { class: 'info' }, t().subTest),
       legalLinks());
   };
-  const premium = fn => (...a) => isPremium() ? fn(...a) : openPaywall();
+  const premium = fn => (...a) => isPremium() ? withInvite(() => fn(...a)) : openPaywall();
 
   // ---------- receitas ----------
   const recipeMeta = r => [t().stage(r.min), rx(r).tempo, rx(r).por].join(' · ');
@@ -1532,9 +1569,10 @@
   };
 
   // Boas-vindas em passos curtos: uma pergunta por ecrã.
-  let obStep = 0;
-  const OB_STEPS = 6;
+  let obStep = 0, obNews = false;
   const viewWelcome = () => {
+    // O passo da conta só existe se a conta estiver ligada em config.js.
+    const OB_STEPS = accOn() ? 7 : 6, accStep = accOn() && obStep === 5;
     const go = n => { obStep = Math.max(0, Math.min(OB_STEPS - 1, obStep + n)); save(); render(); window.scrollTo(0, 0); };
     const bar = el('div', { class: 'obbar', role: 'img', 'aria-label': t().stepOf(obStep + 1, OB_STEPS) }, Array.from({ length: OB_STEPS }, (_, i) => el('i', { class: i < obStep ? 'done' : i === obStep ? 'now' : '' })));
     const nav = (nextLabel, onNext, disabled) => el('div', { class: 'obnav' },
@@ -1571,8 +1609,18 @@
         el('label', { class: 'field' }, t().birthDate, el('input', { type: 'date', value: state.baby.birth, max: todayIso(),
           onchange: e => { state.baby.birth = e.target.value; save(); } }))),
       nav()];
+    else if (accStep) body = signedIn() ? [
+      el('h1', {}, t().accStepTitle), el('p', { class: 'lead' }, t().accAs(acc.email || '')),
+      entitled && el('p', { class: 'lead' }, t().accPremiumOn),
+      nav()] : [
+      el('h1', {}, t().accStepTitle), el('p', { class: 'lead' }, t().accStepLead),
+      el('div', { class: 'card' }, newsBox(obNews, e => { obNews = e.target.checked; })),
+      el('div', { class: 'obnav' }, el('button', { class: 'ghost', onclick: () => go(-1) }, t().back),
+        el('button', { class: 'primary', onclick: () => accSignIn({ news: obNews, ob: obStep + 1 }).catch(() => toast(t().accFail)) }, t().accSignIn)),
+      // A conta nunca é obrigatória.
+      el('button', { class: 'linkish', style: 'align-self:center', onclick: () => { state.inviteAt = Date.now(); go(1); } }, t().accSkip)];
     else {
-      const start = nav(t().obStart, () => { state.onboarded = true; obStep = 0; save(); render(); window.scrollTo(0, 0); }, true);
+      const start = nav(t().obStart, () => { state.onboarded = true; if (!state.since) state.since = todayIso(); obStep = 0; save(); render(); window.scrollTo(0, 0); }, true);
       body = [
         el('h1', {}, t().obQ4),
         el('div', { class: 'card' }, el('p', { class: 'muted' }, t().disclaimer),
@@ -1683,6 +1731,7 @@
     img.onload = () => document.body.classList.add('haslogo');
     img.src = CFG.brand.logo;
   }
+  if (state.onboarded && !state.since) { state.since = todayIso(); save(); } // quem já usava a app: os 7 dias contam a partir de agora
   render();
   accInit();
 

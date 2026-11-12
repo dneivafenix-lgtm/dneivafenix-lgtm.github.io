@@ -25,6 +25,7 @@ window.DiaryLegal.es = {
      "Puedes usar la aplicación sin cuenta. Si quieres entrar, el inicio de sesión se hace con tu cuenta de cliente de la tienda Petit Nuvem, un servicio prestado por Shopify: se te lleva a la página de inicio de sesión de la tienda, recibes un código por correo y vuelves a la aplicación.",
      "Después de entrar, la aplicación lee, desde esa cuenta, tu dirección de correo y tus pedidos en la tienda, solo para reconocer si has comprado Premium y hasta cuándo está activo.",
      "En tu dispositivo se guardan el correo, la fecha hasta la que Premium está activo y las claves de la sesión. La aplicación no envía los registros del diario a la tienda ni a ningún servidor.",
+     "Si marcas la casilla «Quiero recibir consejos y novedades de Petit Nuvem por correo», la aplicación registra ese consentimiento en tu cuenta de cliente de la tienda, y la tienda podrá enviarte correos de marketing. La casilla viene desmarcada. Puedes retirar el consentimiento en cualquier momento, en los Ajustes de la aplicación o en el enlace incluido en cada correo. La aplicación no envía a la tienda la edad del bebé ni ningún registro del diario.",
      "Los datos de la cuenta y de los pedidos los trata la tienda Petit Nuvem, conforme a la política de privacidad de la tienda. Para cerrar la sesión, usa «Salir» en Ajustes."
     ]
    },
