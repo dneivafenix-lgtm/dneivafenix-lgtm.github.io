@@ -28,7 +28,7 @@ Atualizada a 12 de novembro de 2026. App: https://app.petitnuvem.com/
 - Registo de origem e licença das imagens em `docs/fotos-origem.md`
 - Política de privacidade e termos atualizados para a conta da loja e o Premium (rascunho por rever por advogado)
 - Boas-vindas com o passo «Cria a tua conta» (opcional), caixa das dicas por email e lembrete semanal a quem ficou sem conta
-- Conta: início de sessão com a conta de cliente da loja Shopify e reconhecimento da compra do Premium (por testar com a loja real)
+- Conta: início de sessão com a conta de cliente da loja Shopify e reconhecimento da compra do Premium. Testado pelo Diogo num iPhone contra a loja real a 12/11: início de sessão e caixa das dicas por email funcionam. Por testar: reconhecimento do Premium (falta a compra de teste) e um Android real
 - Dois diários (do bebé e dos pais) e livro do diário para imprimir ou guardar em PDF
 - Favoritos em alimentos e receitas
 - Lista de alimentos com fotos ao adicionar a uma refeição
@@ -66,7 +66,8 @@ O bloqueio (`subscription.enforce`) não se liga até haver pagamentos a funcion
 
 ## À tua espera
 
-- [ ] Loja: ligar a permissão de escrita de clientes (`customer_write_customers`) na Customer Account API, para a caixa das dicas por email ficar gravada
+- [ ] Compra de teste do artigo Premium, para confirmar que a app o reconhece; só depois se publica o artigo, se põe a ligação de compra e se liga o bloqueio
+- [ ] Testar a app num Android real (início de sessão incluído)
 
 - [ ] Ativar "Enforce HTTPS" no GitHub (Settings > Pages) quando o certificado de app.petitnuvem.com estiver pronto
 - [ ] Decidir a forma de pagamento (Shopify ou outra) e criar a conta Supabase, para contas e cópia na nuvem
