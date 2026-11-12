@@ -26,6 +26,7 @@ Atualizada a 12 de novembro de 2026. App: https://app.petitnuvem.com/
 - Cópia de segurança completa em .zip (registos, fotos e gravações de voz)
 - Cartão do Clube das mães e sugestões de artigos da loja em alguns guias e no «como servir» (só em português)
 - Registo de origem e licença das imagens em `docs/fotos-origem.md`
+- Política de privacidade e termos atualizados para a conta da loja e o Premium (rascunho por rever por advogado)
 - Conta: início de sessão com a conta de cliente da loja Shopify e reconhecimento da compra do Premium (por testar com a loja real)
 - Dois diários (do bebé e dos pais) e livro do diário para imprimir ou guardar em PDF
 - Favoritos em alimentos e receitas
@@ -50,19 +51,13 @@ Atualizada a 12 de novembro de 2026. App: https://app.petitnuvem.com/
 
 O bloqueio (`subscription.enforce`) não se liga até haver pagamentos a funcionar.
 
-## Preços (decididos pelo Diogo a 12 de novembro, em `config.js > subscription`)
+## Preços e venda (decididos pelo Diogo a 12 de novembro, em `config.js > subscription`)
 
-| Plano | Preço |
-|---|---|
-| Anual, preço normal | 39,99 € |
-| Anual, preço de lançamento (primeiro ano) | 29,99 €, com o 39,99 € riscado ao lado |
-| Mensal | 6,99 € |
-
-- A poupança do anual face ao mensal é calculada a partir destes valores (64% no lançamento, 52% ao preço normal).
-- Data de fim do lançamento: por indicar (`launch.until`, vazio).
-- Pagamentos por decidir. Hipótese mais provável: Premium anual vendido na loja da Shopify, sem renovação automática. Não montar Stripe sem o Diogo confirmar.
-- O ecrã de subscrição diz sempre, junto ao botão, se há ou não renovação automática (`autoRenew`, agora desligado).
-- Por decidir: o teste grátis de 7 dias (`trialDays`) só faz sentido se a forma de pagamento o permitir; numa compra única na Shopify não há teste.
+- Só plano anual, em compra única na loja da Shopify, sem renovação automática, sem teste grátis e sem plano mensal.
+- Preço normal: 39,99 €. Preço de lançamento: 29,99 €.
+- O ecrã mostra «29,99 € (preço de lançamento)» e, por baixo, «A partir de [data], 39,99 €». Sem preço riscado e sem percentagem de poupança.
+- Data de fim do lançamento: por indicar (`launch.until`, vazio). Sem data, o ecrã diz «Depois do lançamento, 39,99 €».
+- Por fazer depois da compra de teste do Diogo passar: publicar o artigo, pôr a ligação de compra (`checkout.yearly`) e ligar `subscription.enforce`.
 
 ## A seguir
 
@@ -87,4 +82,5 @@ O bloqueio (`subscription.enforce`) não se liga até haver pagamentos a funcion
 
 - Vídeos em Blender
 - Partilha entre mães (precisa de contas e moderação)
-- Publicar nas lojas de apps (App Store e Google Play)
+- Google Play: o que falta e o que a Google exige está em `docs/google-play.md` (preparado, nada publicado). Primeiro decidir o caminho dos pagamentos
+- App Store da Apple: por analisar

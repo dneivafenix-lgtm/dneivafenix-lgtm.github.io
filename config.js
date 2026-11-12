@@ -23,8 +23,9 @@ window.DiaryConfig = {
   // checkout: ligação de compra de cada plano. Pagamentos ainda por decidir (hipótese mais provável: Premium anual
   // vendido na loja da Shopify, sem renovação automática). Não montar Stripe sem o Diogo confirmar.
   subscription: {
-    enabled: true, enforce: false, currency: 'EUR', trialDays: 7,
-    monthly: 6.99, yearly: 39.99,
+    // Decisão de 12/11: só plano anual, compra única, sem teste grátis (trialDays: 0) e sem plano mensal (monthly: 0).
+    enabled: true, enforce: false, currency: 'EUR', trialDays: 0,
+    monthly: 0, yearly: 39.99,
     launch: { yearly: 29.99, until: '' },
     autoRenew: false,
     // Quando o artigo for publicado na loja: yearly: 'https://petitnuvem.com/products/petit-nuvem-premium-anual'

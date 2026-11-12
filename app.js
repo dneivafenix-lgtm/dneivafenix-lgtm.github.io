@@ -599,18 +599,18 @@
     const opt = (id, name, price, badge) => el('button', { class: 'planopt', 'aria-pressed': String(pick === id), onclick: e => {
       pick = id; [...plans.children].forEach(b => b.setAttribute('aria-pressed', String(b === e.currentTarget)));
     } }, el('span', {}, el('b', {}, name), el('span', { class: 'muted' }, price)), badge && el('span', { class: 'ptag' }, badge));
-    const yearLine = [launch ? t().perYearFirst(money(year)) : t().perYear(money(year)), launch && el('s', { class: 'was' }, money(SUB.yearly))];
-    const plans = el('div', { class: 'plans', role: 'group', 'aria-label': t().subscription },
-      opt('yearly', t().planYearly, yearLine, saving > 0 && t().subSave(saving)),
-      hasMonthly && opt('monthly', t().planMonthly, t().perMonth(money(SUB.monthly))));
+    // Dia seguinte ao fim do lançamento: a partir daí vale o preço normal.
+    const after = launch && DATE.test(SUB.launch.until) ? (() => { const d = parse(SUB.launch.until); d.setDate(d.getDate() + 1); return fmtDate(iso(d), { day: 'numeric', month: 'long', year: 'numeric' }); })() : '';
+    const plans = hasMonthly ? el('div', { class: 'plans', role: 'group', 'aria-label': t().subscription },
+      opt('yearly', t().planYearly, launch ? t().launchLine(money(year)) : t().perYear(money(year)), saving > 0 && !launch && t().subSave(saving)),
+      opt('monthly', t().planMonthly, t().perMonth(money(SUB.monthly)))) : null;
     const list = items => el('ul', { class: 'points' }, items.map(x => el('li', {}, icon('check', 16), el('span', {}, x))));
     openSheet(sheetHead('', t().subTitle),
       el('div', { class: 'trialhead' },
-        launch && el('span', { class: 'ptag' }, t().launchBadge),
-        // O valor cobrado de uma vez é o que aparece em grande; o valor por mês é só uma conta de apoio.
-        el('p', { class: 'trialbig' }, launch ? t().perYearFirst(money(year)) : t().perYear(money(year)), launch && el('s', { class: 'was' }, money(SUB.yearly))),
-        el('p', { class: 'trialsub' }, t().equalsPerMonth(money(year / 12))),
-        launch && el('p', { class: 'trialsub' }, DATE.test(SUB.launch.until) ? t().launchUntil(fmtDate(SUB.launch.until, { day: 'numeric', month: 'long', year: 'numeric' }), money(SUB.yearly)) : t().launchNote(money(SUB.yearly))),
+        // O valor cobrado é o que aparece em grande. Sem preço riscado e sem percentagem de poupança.
+        el('p', { class: 'trialbig' }, launch ? t().launchLine(money(year)) : money(year)),
+        launch && el('p', { class: 'trialsub' }, after ? t().launchFrom(after, money(SUB.yearly)) : t().launchLater(money(SUB.yearly))),
+        el('p', { class: 'trialsub' }, t().oneYear),
         trial && el('p', { class: 'trialsub strong' }, t().trialHead(SUB.trialDays))),
       el('h3', { class: 'sub' }, t().premiumTitle), list(t().subPoints),
       plans,
