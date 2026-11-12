@@ -307,6 +307,12 @@
       el('h3', { class: 'sub' }, t().nutriTitle), el('div', { class: 'badges' }, info.nutri.map(x => el('span', { class: 'badge nutri' }, x))),
       el('h3', { class: 'sub' }, t().tipTitle), el('p', { class: 'tipline' }, info.tip)] : null;
   };
+  // Sugestões da loja: só nos idiomas e nos sítios definidos em config.js > shop.
+  const SHOP = CFG.shop || {};
+  const shopOn = () => !!SHOP.enabled && (SHOP.languages || []).includes(state.lang);
+  const shopLink = h => el('a', { class: 'shoplink', href: SHOP.base + h, target: '_blank', rel: 'noopener' }, el('span', {}, (SHOP.names || {})[h] || h), el('span', { 'aria-hidden': 'true' }, '›'));
+  const shopBlock = handles => shopOn() && handles && handles.length ? el('div', { class: 'shopbox' },
+    el('p', { class: 'eyebrow' }, t().shopTitle), handles.map(shopLink), el('p', { class: 'fine' }, t().shopNote)) : null;
   const serveSection = food => {
     const lines = (SERVE[state.lang] || {})[food.id];
     if (!lines) return null;
@@ -316,7 +322,8 @@
         el('span', { class: 'sage' }, t().stage(SERVE_STAGES[i]), i === now && el('b', {}, t().serveNow)),
         SERVE_PHOTOS[`${food.id}-${SERVE_STAGES[i]}`] && el('img', { class: 'sphoto', src: SERVE_PHOTOS[`${food.id}-${SERVE_STAGES[i]}`], alt: '', loading: 'lazy', width: 640, height: 640 }),
         el('p', {}, txt)))),
-      el('p', { class: 'fine', style: 'margin-top:8px' }, t().serveNote)];
+      el('p', { class: 'fine', style: 'margin-top:8px' }, t().serveNote),
+      shopOn() && SHOP.serve && SHOP.serve[SERVE_STAGES[Math.max(0, now)]] ? el('p', { class: 'shopline' }, t().shopServe + ' ', shopLink(SHOP.serve[SERVE_STAGES[Math.max(0, now)]])) : null];
   };
   const openFoodDetail = food => {
     const hist = state.log.filter(e => e.food === food.id).sort((a, b) => b.date.localeCompare(a.date));
@@ -1041,6 +1048,7 @@
       sec.list ? el('ul', { class: 'ing' }, sec.list.map(x => el('li', {}, x))) : null]),
     g.id === 'gagging' && CFG.links && CFG.links.firstAid && CFG.links.firstAid[state.lang]
       ? el('div', { class: 'btnrow' }, el('a', { class: 'ghost linkbtn', href: CFG.links.firstAid[state.lang], rel: 'noopener', target: '_blank' }, t().firstAidLink)) : null,
+    shopBlock((SHOP.guides || {})[g.id]),
     el('p', { class: 'fine', style: 'margin-top:16px' }, t().guideSources(sourcesText())),
     el('p', { class: 'fine', style: 'margin-top:6px' }, t().disclaimer));
   const viewGuides = () => {

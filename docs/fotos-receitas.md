@@ -2,7 +2,7 @@
 
 Uma imagem por receita, todas no mesmo estilo. Cada imagem deve ser quadrada (1:1), em JPG, com cerca de 800 × 800 px e menos de 150 KB.
 
-Guardar cada ficheiro em `app/img/receitas/` com o nome indicado (o número do ficheiro começa em 00) e acrescentar a linha correspondente em `app/recipe-photos.js` (a chave é o número da receita).
+Guardar cada ficheiro em `img/receitas/` com o nome indicado (o número do ficheiro começa em 00) e acrescentar a linha correspondente em `recipe-photos.js` (a chave é o número da receita).
 
 ## Estilo comum
 

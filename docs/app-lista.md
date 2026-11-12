@@ -23,6 +23,9 @@ Atualizada a 12 de novembro de 2026. App: https://app.petitnuvem.com/
 - Fechar as caixas arrastando para baixo
 - Ecrã de subscrição com "Experimenta 7 dias grátis" e lista do que é grátis e Premium
 - Notas do calendário e do diário no relatório para o pediatra (opcional)
+- Cópia de segurança completa em .zip (registos, fotos e gravações de voz)
+- Cartão do Clube das mães e sugestões de artigos da loja em alguns guias e no «como servir» (só em português)
+- Registo de origem e licença das imagens em `docs/fotos-origem.md`
 - Dois diários (do bebé e dos pais) e livro do diário para imprimir ou guardar em PDF
 - Favoritos em alimentos e receitas
 - Lista de alimentos com fotos ao adicionar a uma refeição

@@ -812,3 +812,9 @@ Object.assign(window.DiaryI18n.pt, { exportBusy: 'A preparar a cópia…', expor
 Object.assign(window.DiaryI18n.en, { exportBusy: 'Preparing the backup…', exportFail: 'The backup could not be created.', importMedia: n => n === 1 ? 'Backup imported, with 1 photo or recording.' : `Backup imported, with ${n} photos and recordings.` });
 Object.assign(window.DiaryI18n.es, { exportBusy: 'Preparando la copia…', exportFail: 'No se pudo crear la copia.', importMedia: n => n === 1 ? 'Copia importada, con 1 foto o grabación.' : `Copia importada, con ${n} fotos y grabaciones.` });
 Object.assign(window.DiaryI18n.fr, { exportBusy: 'Préparation de la copie…', exportFail: "La copie n'a pas pu être créée.", importMedia: n => n === 1 ? 'Copie importée, avec 1 photo ou enregistrement.' : `Copie importée, avec ${n} photos et enregistrements.` });
+
+// Sugestões da loja.
+Object.assign(window.DiaryI18n.pt, { shopTitle: 'Na loja Petit Nuvem', shopNote: 'Sugestões da nossa loja. Não são precisas para usar a app.', shopServe: 'Na loja:' });
+Object.assign(window.DiaryI18n.en, { shopTitle: 'In the Petit Nuvem shop', shopNote: 'Suggestions from our shop. You do not need them to use the app.', shopServe: 'In the shop:' });
+Object.assign(window.DiaryI18n.es, { shopTitle: 'En la tienda Petit Nuvem', shopNote: 'Sugerencias de nuestra tienda. No hacen falta para usar la app.', shopServe: 'En la tienda:' });
+Object.assign(window.DiaryI18n.fr, { shopTitle: 'Dans la boutique Petit Nuvem', shopNote: "Suggestions de notre boutique. Elles ne sont pas nécessaires pour utiliser l'app.", shopServe: 'Dans la boutique :' });
