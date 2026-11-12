@@ -1289,7 +1289,7 @@
       el('div', { class: 'stats' }, [[state.log.length, t().statLogs], [streak, t().statStreak], [days.size, t().statDays]].map(([n, label]) =>
         el('div', { class: 'card stat' }, el('b', {}, String(n)), el('span', {}, label(n))))),
       el('button', { class: 'ghost', onclick: () => { tab = 'path'; render(); window.scrollTo(0, 0); } }, t().pathTitle),
-      el('button', { class: 'ghost withtag', onclick: premium(() => { tab = 'report'; render(); window.scrollTo(0, 0); }) }, t().reportOpen, ptag()),
+      el('button', { class: 'ghost withtag', onclick: gate('report', () => { tab = 'report'; render(); window.scrollTo(0, 0); }) }, t().reportOpen, gtag('report')),
       el('div', { class: 'card' }, el('h2', {}, t().byCategory), F.categories.map(c => {
         const all = F.foods.filter(x => x.cat === c), done = all.filter(x => tried.has(x.id)).length;
         return [el('div', { class: 'row' }, el('span', {}, t().cat[c]), el('span', { class: 'muted' }, `${done} / ${all.length}`)),

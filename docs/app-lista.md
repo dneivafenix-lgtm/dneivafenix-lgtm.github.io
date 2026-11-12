@@ -33,21 +33,21 @@ Atualizada a 12 de novembro de 2026. App: https://app.petitnuvem.com/
 - Guias com ilustração e tempo de leitura, e cartão de guias mais visível no ecrã Hoje
 - Auditoria de 12/11: 112 nos avisos de emergência, aviso quando um registo não fica guardado, pedido de armazenamento persistente, cartão «Instalar no telemóvel», ícones PNG (iPhone e Android), imagem de partilha, contacto e entidade nas páginas legais
 
-## Grátis e Premium (decidido a 12 de novembro, muda-se em `config.js`)
-
-Regra: a informação de segurança nunca fica atrás da subscrição.
+## Grátis e Premium (fechado pelo Diogo a 12 de novembro, muda-se em `config.js`)
 
 | Grátis | Premium |
 |---|---|
 | Registo das refeições e calendário | Todas as receitas (7, 9 e 12+ meses) |
 | Os 100 alimentos e como servir | Plano guiado completo (da semana 3 em diante) |
 | Programa de alergénios | Plano da semana e lista de compras |
-| 4 guias de segurança (prontidão, engasgamento, cortar, a evitar) | Os outros 5 guias |
-| Diário do bebé, com fotos e voz | Diário dos pais e livro do diário em PDF |
-| Receitas dos 6 meses | Relatório para o pediatra |
-| 2 primeiras semanas do plano guiado | Vários bebés |
+| Os 9 guias | Diário dos pais e livro do diário em PDF |
+| Relatório para o pediatra | Vários bebés |
+| Diário do bebé, com fotos e voz | |
+| Receitas dos 6 meses | |
+| 2 primeiras semanas do plano guiado | |
+| Exportar e importar a cópia de segurança (sempre grátis) | |
 
-A subscrição continua em modo de teste (tudo aberto) até haver pagamentos.
+O bloqueio (`subscription.enforce`) não se liga até haver pagamentos a funcionar.
 
 ## A seguir
 

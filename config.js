@@ -21,10 +21,11 @@ window.DiaryConfig = {
     monthly: 3.99, yearly: 29.99,
     checkout: { monthly: '', yearly: '' },
     freeStage: 6, // receitas até esta fase (meses) são gratuitas
-    // Guias gratuitos (por id). Regra: a informação de segurança nunca fica atrás da subscrição.
-    freeGuides: ['ready', 'gagging', 'cutting', 'avoid'],
+    // Decidido a 12/11: os guias são todos gratuitos, tal como o relatório para o pediatra e a cópia de segurança
+    // (exportar e importar ficam sempre gratuitos). Para voltar a ter guias pagos, pôr aqui a lista dos gratuitos,
+    // por exemplo freeGuides: ['ready', 'gagging']; sem lista, todos os guias são gratuitos.
     // O que só existe com subscrição (true = premium, false = gratuito).
-    premium: { parentsJournal: true, journalBook: true, report: true, extraBabies: true, weekPlan: true }
+    premium: { parentsJournal: true, journalBook: true, report: false, extraBabies: true, weekPlan: true }
     // As semanas gratuitas do plano guiado estão em plan.freeWeeks.
   },
   // Sobre o conteúdo: quem reviu (vazio até haver um profissional), quando, e as fontes usadas como base.
