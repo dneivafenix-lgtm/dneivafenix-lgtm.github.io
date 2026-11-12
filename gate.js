@@ -9,10 +9,10 @@
   try { if (localStorage.getItem(KEY) === HASH) return; } catch (e) { /* sem armazenamento: pede sempre o código */ }
 
   var T = {
-    pt: { t: 'Versão de teste', p: 'A app está em teste com um grupo pequeno de mães. Escreve o código de acesso que recebeste.', l: 'Código de acesso', b: 'Entrar', e: 'Código errado. Confirma e tenta outra vez.', f: 'Queres testar? Fala connosco no Instagram, em @petitnuvem_store.' },
-    en: { t: 'Test version', p: 'The app is being tested with a small group of mums. Enter the access code you received.', l: 'Access code', b: 'Enter', e: 'Wrong code. Check it and try again.', f: 'Want to test it? Message us on Instagram at @petitnuvem_store.' },
-    es: { t: 'Versión de prueba', p: 'La app está en pruebas con un grupo pequeño de madres. Escribe el código de acceso que recibiste.', l: 'Código de acceso', b: 'Entrar', e: 'Código incorrecto. Compruébalo e inténtalo de nuevo.', f: '¿Quieres probarla? Escríbenos en Instagram, en @petitnuvem_store.' },
-    fr: { t: 'Version de test', p: 'L’app est en test avec un petit groupe de mamans. Saisissez le code d’accès que vous avez reçu.', l: 'Code d’accès', b: 'Entrer', e: 'Code incorrect. Vérifiez et réessayez.', f: 'Envie de tester ? Écrivez-nous sur Instagram, @petitnuvem_store.' }
+    pt: { t: 'Versão de teste', p: 'A app está em teste com um grupo pequeno de mães. Escreve o código de acesso que recebeste.', l: 'Código de acesso', b: 'Entrar', e: 'Código errado. Confirma e tenta outra vez.', f: 'Ainda não tens código? Pede-nos e enviamos-to.', ig: 'Pedir o código no Instagram', em: 'Pedir por email', s: 'Quero testar a app Petit Nuvem', m: 'Olá! Gostava de testar a app Petit Nuvem. Podem enviar-me o código de acesso?' },
+    en: { t: 'Test version', p: 'The app is being tested with a small group of mums. Enter the access code you received.', l: 'Access code', b: 'Enter', e: 'Wrong code. Check it and try again.', f: 'No code yet? Ask us and we will send it to you.', ig: 'Ask for the code on Instagram', em: 'Ask by email', s: 'I would like to test the Petit Nuvem app', m: 'Hi! I would like to test the Petit Nuvem app. Could you send me the access code?' },
+    es: { t: 'Versión de prueba', p: 'La app está en pruebas con un grupo pequeño de madres. Escribe el código de acceso que recibiste.', l: 'Código de acceso', b: 'Entrar', e: 'Código incorrecto. Compruébalo e inténtalo de nuevo.', f: '¿Aún no tienes código? Pídenoslo y te lo enviamos.', ig: 'Pedir el código en Instagram', em: 'Pedir por email', s: 'Quiero probar la app Petit Nuvem', m: '¡Hola! Me gustaría probar la app Petit Nuvem. ¿Podéis enviarme el código de acceso?' },
+    fr: { t: 'Version de test', p: 'L’app est en test avec un petit groupe de mamans. Saisissez le code d’accès que vous avez reçu.', l: 'Code d’accès', b: 'Entrer', e: 'Code incorrect. Vérifiez et réessayez.', f: 'Pas encore de code ? Demandez-le-nous, nous vous l\u2019envoyons.', ig: 'Demander le code sur Instagram', em: 'Demander par e-mail', s: 'Je souhaite tester l\u2019app Petit Nuvem', m: 'Bonjour ! J\u2019aimerais tester l\u2019app Petit Nuvem. Pouvez-vous m\u2019envoyer le code d\u2019accès ?' }
   };
   var lang = ((navigator.language || 'pt').slice(0, 2)).toLowerCase();
   var t = T[lang] || T.pt;
@@ -31,7 +31,9 @@
     '#pnGate input:focus-visible,#pnGate button:focus-visible{outline:2px solid #6b5246;outline-offset:2px}' +
     '#pnGate button{min-height:48px;border:0;border-radius:999px;background:#6b5246;color:#fff;font:inherit;font-weight:700;font-size:16px;cursor:pointer}' +
     '#pnGate .err{color:#a23b2a;font-size:14px;min-height:20px}' +
-    '#pnGate .fine{font-size:13px;color:#8f7d71}';
+    '#pnGate .fine{font-size:14px;color:#6b5a50;margin-top:10px}' +
+    '#pnGate a.ask{display:flex;align-items:center;justify-content:center;min-height:46px;border:1px solid #6b5246;border-radius:999px;color:#6b5246;font-weight:700;font-size:15px;text-decoration:none}' +
+    '#pnGate a.mail{font-size:14px;color:#6b5246;text-underline-offset:3px;min-height:32px;display:inline-flex;align-items:center;justify-content:center}';
   document.head.appendChild(css);
 
   var sha = function (s) {
@@ -51,7 +53,9 @@
     var btn = document.createElement('button'); btn.type = 'submit'; btn.textContent = t.b;
     var err = document.createElement('p'); err.className = 'err'; err.setAttribute('role', 'alert');
     var fine = document.createElement('p'); fine.className = 'fine'; fine.textContent = t.f;
-    form.append(img, h, p, lab, inp, btn, err, fine); box.appendChild(form); document.body.appendChild(box);
+    var ig = document.createElement('a'); ig.className = 'ask'; ig.href = 'https://ig.me/m/petitnuvem_store'; ig.target = '_blank'; ig.rel = 'noopener'; ig.textContent = t.ig;
+    var em = document.createElement('a'); em.className = 'mail'; em.href = 'mailto:ola.petitnuvem@gmail.com?subject=' + encodeURIComponent(t.s) + '&body=' + encodeURIComponent(t.m); em.textContent = t.em;
+    form.append(img, h, p, lab, inp, btn, err, fine, ig, em); box.appendChild(form); document.body.appendChild(box);
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
       var v = inp.value.trim().toLowerCase(); if (!v) return;
