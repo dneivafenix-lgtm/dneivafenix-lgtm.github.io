@@ -86,7 +86,7 @@ window.DiaryLegal.es = {
       "Nunca dejes al bebé solo mientras come."
     ]},
     {"h": "En caso de emergencia", "p": [
-      "Si el bebé tiene dificultad para respirar, hinchazón de la cara o de los labios, se pone muy pálido o no reacciona, o si se atraganta y no puede respirar, llama de inmediato al número de emergencias de tu país.",
+      "Si el bebé tiene dificultad para respirar, hinchazón de la cara o de los labios, se pone muy pálido o no reacciona, o si se atraganta y no puede respirar, llama de inmediato al número de emergencias de tu país (112 en España y en la Unión Europea).",
       "No uses la aplicación para decidir si una situación es urgente. En caso de duda, pide ayuda."
     ]}
   ]}

@@ -86,7 +86,7 @@ window.DiaryLegal.en = {
       "Never leave your baby alone while eating."
     ]},
     {"h": "In an emergency", "p": [
-      "If your baby has difficulty breathing, swelling of the face or lips, becomes very pale or unresponsive, or is choking and cannot breathe, call your local emergency number immediately.",
+      "If your baby has difficulty breathing, swelling of the face or lips, becomes very pale or unresponsive, or is choking and cannot breathe, call your local emergency number immediately (112 in the EU, 999 in the UK, 911 in the US).",
       "Do not use the app to decide whether a situation is urgent. If in doubt, get help."
     ]}
   ]}

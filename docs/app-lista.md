@@ -26,6 +26,7 @@ Atualizada a 11 de novembro de 2026. App de teste: https://dneivafenix-lgtm.gith
 - Lista de alimentos com fotos ao adicionar a uma refeição
 - 9 guias (mais 4: recusa, água, rotina das refeições, cortar alimentos)
 - Guias com ilustração e tempo de leitura, e cartão de guias mais visível no ecrã Hoje
+- Auditoria de 12/11: 112 nos avisos de emergência, aviso quando um registo não fica guardado, pedido de armazenamento persistente, cartão «Instalar no telemóvel», ícones PNG (iPhone e Android), imagem de partilha, contacto e entidade nas páginas legais
 
 ## A seguir (posso fazer sem ti)
 
