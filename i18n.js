@@ -886,3 +886,17 @@ Object.assign(window.DiaryI18n.fr, { accStepTitle: 'Créez votre compte', accSte
   accSkip: 'Continuer sans compte', accLater: 'Pas maintenant', newsLabel: 'Je souhaite recevoir les conseils et les nouveautés de Petit Nuvem par e-mail', newsNote: 'Facultatif. Vous pouvez vous désinscrire à tout moment.',
   newsOn: 'Vous recevrez les conseils et les nouveautés par e-mail.', newsOff: 'Vous ne recevrez plus les e-mails.', newsFail: "Votre choix n'a pas pu être enregistré. Réessayez plus tard.",
   obPrivacy: 'Sans publicité. Le compte est facultatif et vos notes restent sur cet appareil.' });
+
+// Lembrete e data da cópia de segurança.
+Object.assign(window.DiaryI18n.pt, { backupTitle: 'Guarda uma cópia do diário', backupLead: 'Os registos, as fotos e as gravações estão só neste dispositivo. Guarda uma cópia nos Ficheiros, no iCloud ou no Google Drive, para não os perderes se trocares de telemóvel.',
+  backupNow: 'Guardar agora', backupLater: 'Mais tarde', backupLast: d => `Última cópia: ${d}.`, backupNever: 'Ainda não guardaste nenhuma cópia.', backupDone: 'Cópia guardada.',
+  backupReady: 'A cópia está pronta. Escolhe onde a queres guardar.', backupShare: 'Escolher onde guardar' });
+Object.assign(window.DiaryI18n.en, { backupTitle: 'Save a copy of your journal', backupLead: 'Your records, photos and recordings are on this device only. Save a copy to Files, iCloud or Google Drive so you do not lose them if you change phone.',
+  backupNow: 'Save now', backupLater: 'Later', backupLast: d => `Last backup: ${d}.`, backupNever: 'You have not saved a backup yet.', backupDone: 'Backup saved.',
+  backupReady: 'The backup is ready. Choose where to save it.', backupShare: 'Choose where to save' });
+Object.assign(window.DiaryI18n.es, { backupTitle: 'Guarda una copia del diario', backupLead: 'Los registros, las fotos y las grabaciones están solo en este dispositivo. Guarda una copia en Archivos, iCloud o Google Drive para no perderlos si cambias de móvil.',
+  backupNow: 'Guardar ahora', backupLater: 'Más tarde', backupLast: d => `Última copia: ${d}.`, backupNever: 'Todavía no has guardado ninguna copia.', backupDone: 'Copia guardada.',
+  backupReady: 'La copia está lista. Elige dónde quieres guardarla.', backupShare: 'Elegir dónde guardar' });
+Object.assign(window.DiaryI18n.fr, { backupTitle: 'Gardez une copie du journal', backupLead: "Vos notes, photos et enregistrements sont uniquement sur cet appareil. Gardez-en une copie dans Fichiers, iCloud ou Google Drive pour ne rien perdre si vous changez de téléphone.",
+  backupNow: 'Enregistrer maintenant', backupLater: 'Plus tard', backupLast: d => `Dernière copie : ${d}.`, backupNever: "Vous n'avez pas encore enregistré de copie.", backupDone: 'Copie enregistrée.',
+  backupReady: 'La copie est prête. Choisissez où l\'enregistrer.', backupShare: "Choisir où l'enregistrer" });
