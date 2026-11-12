@@ -27,6 +27,7 @@ Atualizada a 12 de novembro de 2026. App: https://app.petitnuvem.com/
 - Cartão do Clube das mães e sugestões de artigos da loja em alguns guias e no «como servir» (só em português)
 - Registo de origem e licença das imagens em `docs/fotos-origem.md`
 - Política de privacidade e termos atualizados para a conta da loja e o Premium (rascunho por rever por advogado)
+- Boas-vindas com o passo «Cria a tua conta» (opcional), caixa das dicas por email e lembrete semanal a quem ficou sem conta
 - Conta: início de sessão com a conta de cliente da loja Shopify e reconhecimento da compra do Premium (por testar com a loja real)
 - Dois diários (do bebé e dos pais) e livro do diário para imprimir ou guardar em PDF
 - Favoritos em alimentos e receitas
@@ -64,6 +65,8 @@ O bloqueio (`subscription.enforce`) não se liga até haver pagamentos a funcion
 1. Notificações com dicas por idade: precisam de servidor (Supabase), ficam para depois das contas
 
 ## À tua espera
+
+- [ ] Loja: ligar a permissão de escrita de clientes (`customer_write_customers`) na Customer Account API, para a caixa das dicas por email ficar gravada
 
 - [ ] Ativar "Enforce HTTPS" no GitHub (Settings > Pages) quando o certificado de app.petitnuvem.com estiver pronto
 - [ ] Decidir a forma de pagamento (Shopify ou outra) e criar a conta Supabase, para contas e cópia na nuvem
