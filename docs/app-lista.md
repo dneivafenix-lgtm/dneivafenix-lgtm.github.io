@@ -26,6 +26,7 @@ Atualizada a 12 de novembro de 2026. App: https://app.petitnuvem.com/
 - Cópia de segurança completa em .zip (registos, fotos e gravações de voz)
 - Cartão do Clube das mães e sugestões de artigos da loja em alguns guias e no «como servir» (só em português)
 - Registo de origem e licença das imagens em `docs/fotos-origem.md`
+- Conta: início de sessão com a conta de cliente da loja Shopify e reconhecimento da compra do Premium (por testar com a loja real)
 - Dois diários (do bebé e dos pais) e livro do diário para imprimir ou guardar em PDF
 - Favoritos em alimentos e receitas
 - Lista de alimentos com fotos ao adicionar a uma refeição
