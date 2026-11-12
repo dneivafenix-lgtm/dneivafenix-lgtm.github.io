@@ -291,7 +291,6 @@ Object.assign(window.DiaryI18n.fr, {
 // Subscrição.
 Object.assign(window.DiaryI18n.pt, {
   premium: 'Premium', subTitle: 'Petit Nuvem Premium', subLead: 'Tudo o que precisas para acompanhar a alimentação do teu bebé.',
-  subPoints: ['Todas as receitas, dos 6 aos 12+ meses', 'Plano da semana com lista de compras', 'Vários bebés', 'Relatório para o pediatra', 'Cópia de segurança e partilha entre cuidadores (em breve)'],
   planYearly: 'Anual', planMonthly: 'Mensal', perYear: p => `${p} por ano`, perMonth: p => `${p} por mês`, subSave: n => `Poupa ${n}%`,
   trialNote: n => `Começa com ${n} dias grátis. Cancela quando quiseres.`, subStart: 'Começar o teste grátis',
   subSoon: 'Os pagamentos ainda não estão ativos.', subTest: 'Modo de teste: está tudo desbloqueado.', subActive: 'Subscrição ativa.', subFree: 'Estás no plano gratuito.',
@@ -299,7 +298,6 @@ Object.assign(window.DiaryI18n.pt, {
 });
 Object.assign(window.DiaryI18n.en, {
   premium: 'Premium', subTitle: 'Petit Nuvem Premium', subLead: "Everything you need to follow your baby's first foods.",
-  subPoints: ['Every recipe, from 6 to 12+ months', 'Weekly plan with shopping list', 'Several babies', 'Report for the paediatrician', 'Backup and sharing between caregivers (coming soon)'],
   planYearly: 'Yearly', planMonthly: 'Monthly', perYear: p => `${p} per year`, perMonth: p => `${p} per month`, subSave: n => `Save ${n}%`,
   trialNote: n => `Start with ${n} days free. Cancel any time.`, subStart: 'Start the free trial',
   subSoon: 'Payments are not active yet.', subTest: 'Test mode: everything is unlocked.', subActive: 'Subscription active.', subFree: 'You are on the free plan.',
@@ -307,7 +305,6 @@ Object.assign(window.DiaryI18n.en, {
 });
 Object.assign(window.DiaryI18n.es, {
   premium: 'Premium', subTitle: 'Petit Nuvem Premium', subLead: 'Todo lo que necesitas para seguir la alimentación de tu bebé.',
-  subPoints: ['Todas las recetas, de los 6 a los 12+ meses', 'Plan semanal con lista de la compra', 'Varios bebés', 'Informe para el pediatra', 'Copia de seguridad y uso compartido entre cuidadores (próximamente)'],
   planYearly: 'Anual', planMonthly: 'Mensual', perYear: p => `${p} al año`, perMonth: p => `${p} al mes`, subSave: n => `Ahorra un ${n} %`,
   trialNote: n => `Empieza con ${n} días gratis. Cancela cuando quieras.`, subStart: 'Empezar la prueba gratis',
   subSoon: 'Los pagos aún no están activos.', subTest: 'Modo de prueba: todo está desbloqueado.', subActive: 'Suscripción activa.', subFree: 'Estás en el plan gratuito.',
@@ -315,7 +312,6 @@ Object.assign(window.DiaryI18n.es, {
 });
 Object.assign(window.DiaryI18n.fr, {
   premium: 'Premium', subTitle: 'Petit Nuvem Premium', subLead: "Tout ce qu'il faut pour suivre l'alimentation de votre bébé.",
-  subPoints: ['Toutes les recettes, de 6 à 12+ mois', 'Menu de la semaine avec liste de courses', 'Plusieurs bébés', 'Compte rendu pour le pédiatre', 'Sauvegarde et partage entre proches (bientôt)'],
   planYearly: 'Annuel', planMonthly: 'Mensuel', perYear: p => `${p} par an`, perMonth: p => `${p} par mois`, subSave: n => `Économisez ${n} %`,
   trialNote: n => `Commencez par ${n} jours gratuits. Résiliez quand vous voulez.`, subStart: "Commencer l'essai gratuit",
   subSoon: 'Les paiements ne sont pas encore actifs.', subTest: 'Mode test : tout est débloqué.', subActive: 'Abonnement actif.', subFree: 'Vous utilisez la formule gratuite.',
@@ -488,7 +484,7 @@ Object.assign(window.DiaryI18n.pt, {
   recHint: n => `Até ${n} minutos. A gravação fica só neste dispositivo.`, recUnsupported: 'Este browser não permite gravar voz.',
   micDenied: 'Não foi possível usar o microfone. Verifica a permissão.', journalNeed: 'Escreve algo ou grava a tua voz.', audioFail: 'Não foi possível guardar a gravação.',
   journalDelete: 'Apagar esta entrada do diário? Não é possível desfazer.', optJournal: 'Diário', optJournalHint: 'Escreve ou fala sobre o dia',
-  backupNoAudio: 'A cópia exportada não inclui as gravações de voz.', dictateTip: 'Para ditar em vez de escrever, usa o microfone do teclado do telemóvel.'
+  backupNoAudio: 'A cópia inclui os registos e também as fotos e as gravações de voz do diário.', dictateTip: 'Para ditar em vez de escrever, usa o microfone do teclado do telemóvel.'
 });
 Object.assign(window.DiaryI18n.en, {
   journalTitle: 'Journal', journalHint: 'Write or record how it went. It stays on this device only.', journalNew: '+ New entry',
@@ -498,7 +494,7 @@ Object.assign(window.DiaryI18n.en, {
   recHint: n => `Up to ${n} minutes. The recording stays on this device only.`, recUnsupported: 'This browser cannot record voice.',
   micDenied: 'Could not use the microphone. Check the permission.', journalNeed: 'Write something or record your voice.', audioFail: 'The recording could not be saved.',
   journalDelete: 'Delete this journal entry? This cannot be undone.', optJournal: 'Journal', optJournalHint: 'Write or talk about the day',
-  backupNoAudio: 'The exported backup does not include voice recordings.', dictateTip: "To dictate instead of typing, use the microphone on your phone's keyboard."
+  backupNoAudio: 'The backup includes your records as well as the journal photos and voice recordings.', dictateTip: "To dictate instead of typing, use the microphone on your phone's keyboard."
 });
 Object.assign(window.DiaryI18n.es, {
   journalTitle: 'Diario', journalHint: 'Escribe o graba cómo fue. Se queda solo en este dispositivo.', journalNew: '+ Nueva entrada',
@@ -508,7 +504,7 @@ Object.assign(window.DiaryI18n.es, {
   recHint: n => `Hasta ${n} minutos. La grabación se queda solo en este dispositivo.`, recUnsupported: 'Este navegador no permite grabar voz.',
   micDenied: 'No se pudo usar el micrófono. Comprueba el permiso.', journalNeed: 'Escribe algo o graba tu voz.', audioFail: 'No se pudo guardar la grabación.',
   journalDelete: '¿Borrar esta entrada del diario? No se puede deshacer.', optJournal: 'Diario', optJournalHint: 'Escribe o habla sobre el día',
-  backupNoAudio: 'La copia exportada no incluye las grabaciones de voz.', dictateTip: 'Para dictar en vez de escribir, usa el micrófono del teclado del móvil.'
+  backupNoAudio: 'La copia incluye los registros y también las fotos y las grabaciones de voz del diario.', dictateTip: 'Para dictar en vez de escribir, usa el micrófono del teclado del móvil.'
 });
 Object.assign(window.DiaryI18n.fr, {
   journalTitle: 'Journal', journalHint: "Écrivez ou enregistrez comment ça s'est passé. Tout reste sur cet appareil.", journalNew: '+ Nouvelle entrée',
@@ -518,7 +514,7 @@ Object.assign(window.DiaryI18n.fr, {
   recHint: n => `Jusqu'à ${n} minutes. L'enregistrement reste sur cet appareil.`, recUnsupported: "Ce navigateur ne permet pas d'enregistrer la voix.",
   micDenied: "Impossible d'utiliser le micro. Vérifiez l'autorisation.", journalNeed: 'Écrivez quelque chose ou enregistrez votre voix.', audioFail: "L'enregistrement n'a pas pu être sauvegardé.",
   journalDelete: 'Supprimer cette entrée du journal ? Cette action est définitive.', optJournal: 'Journal', optJournalHint: 'Écrivez ou parlez de la journée',
-  backupNoAudio: "La copie exportée ne contient pas les enregistrements vocaux.", dictateTip: 'Pour dicter au lieu de taper, utilisez le micro du clavier de votre téléphone.'
+  backupNoAudio: "La copie contient vos notes ainsi que les photos et les enregistrements vocaux du journal.", dictateTip: 'Pour dicter au lieu de taper, utilisez le micro du clavier de votre téléphone.'
 });
 
 // Diário com toque pessoal: capa, idade em cada memória, sentimentos, ideias para escrever e foto.
@@ -810,3 +806,9 @@ Object.assign(window.DiaryI18n.fr, { trialHead: n => `Essayez ${n} jours gratuit
   subPoints: ['Toutes les recettes, de 6 à 12+ mois', 'Le plan guidé complet des 100 aliments', 'Menu de la semaine avec liste de courses', 'Tous les guides', 'Journal des parents et livre du journal en PDF', 'Bilan pour le pédiatre', 'Plusieurs bébés'],
   freePoints: ['Suivi des repas et calendrier', 'Les 100 aliments et comment les servir à chaque âge', 'Programme allergènes', 'Guides de sécurité', 'Journal de bébé, avec photos et voix', 'Recettes dès 6 mois et premières semaines du plan guidé'],
   reportNotesToggle: 'Inclure les notes du calendrier et du journal de bébé', reportNotes: 'Notes', reportNotesNone: 'Pas encore de notes.' });
+
+// Cópia de segurança completa.
+Object.assign(window.DiaryI18n.pt, { exportBusy: 'A preparar a cópia…', exportFail: 'Não foi possível criar a cópia.', importMedia: n => n === 1 ? 'Cópia importada, com 1 foto ou gravação.' : `Cópia importada, com ${n} fotos e gravações.` });
+Object.assign(window.DiaryI18n.en, { exportBusy: 'Preparing the backup…', exportFail: 'The backup could not be created.', importMedia: n => n === 1 ? 'Backup imported, with 1 photo or recording.' : `Backup imported, with ${n} photos and recordings.` });
+Object.assign(window.DiaryI18n.es, { exportBusy: 'Preparando la copia…', exportFail: 'No se pudo crear la copia.', importMedia: n => n === 1 ? 'Copia importada, con 1 foto o grabación.' : `Copia importada, con ${n} fotos y grabaciones.` });
+Object.assign(window.DiaryI18n.fr, { exportBusy: 'Préparation de la copie…', exportFail: "La copie n'a pas pu être créée.", importMedia: n => n === 1 ? 'Copie importée, avec 1 photo ou enregistrement.' : `Copie importée, avec ${n} photos et enregistrements.` });

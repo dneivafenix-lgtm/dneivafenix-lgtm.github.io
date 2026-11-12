@@ -709,8 +709,79 @@
       const tx = d.transaction('audio', mode), rq = fn(tx.objectStore('audio'));
       tx.oncomplete = () => res(rq.result); tx.onerror = tx.onabort = () => rej(tx.error);
     }));
-    return { put: (k, v) => run('readwrite', s => s.put(v, k)), get: k => run('readonly', s => s.get(k)), del: k => run('readwrite', s => s.delete(k)) };
+    return { put: (k, v) => run('readwrite', s => s.put(v, k)), get: k => run('readonly', s => s.get(k)), del: k => run('readwrite', s => s.delete(k)), clear: () => run('readwrite', s => s.clear()) };
   })();
+  // Ficheiro .zip sem compressão, para a cópia de segurança levar as fotos e as gravações.
+  const zip = (() => {
+    const T = new Uint32Array(256).map((_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+    const crc = u => { let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = T[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+    const enc = new TextEncoder(), dec = new TextDecoder();
+    const pack = files => {
+      const now = new Date(), day = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate(), parts = [], central = [];
+      let off = 0;
+      for (const f of files) {
+        const name = enc.encode(f.name), c = crc(f.data), n = f.data.length;
+        const h = new DataView(new ArrayBuffer(30));
+        h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(12, day, true);
+        h.setUint32(14, c, true); h.setUint32(18, n, true); h.setUint32(22, n, true); h.setUint16(26, name.length, true);
+        parts.push(h.buffer, name, f.data);
+        const d = new DataView(new ArrayBuffer(46));
+        d.setUint32(0, 0x02014b50, true); d.setUint16(4, 20, true); d.setUint16(6, 20, true); d.setUint16(8, 0x0800, true); d.setUint16(14, day, true);
+        d.setUint32(16, c, true); d.setUint32(20, n, true); d.setUint32(24, n, true); d.setUint16(28, name.length, true); d.setUint32(42, off, true);
+        central.push(d.buffer, name);
+        off += 30 + name.length + n;
+      }
+      const size = central.reduce((a, x) => a + x.byteLength, 0), e = new DataView(new ArrayBuffer(22));
+      e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, size, true); e.setUint32(16, off, true);
+      return new Blob([...parts, ...central, e.buffer], { type: 'application/zip' });
+    };
+    const unpack = buf => {
+      const v = new DataView(buf), u = new Uint8Array(buf), out = {};
+      let i = buf.byteLength - 22;
+      while (i >= 0 && v.getUint32(i, true) !== 0x06054b50) i--;
+      if (i < 0) throw new Error('zip');
+      let p = v.getUint32(i + 16, true);
+      for (let k = v.getUint16(i + 10, true); k > 0; k--) {
+        if (v.getUint32(p, true) !== 0x02014b50 || v.getUint16(p + 10, true) !== 0) throw new Error('zip');
+        const size = v.getUint32(p + 20, true), nl = v.getUint16(p + 28, true), lo = v.getUint32(p + 42, true);
+        const start = lo + 30 + v.getUint16(lo + 26, true) + v.getUint16(lo + 28, true);
+        out[dec.decode(u.subarray(p + 46, p + 46 + nl))] = u.slice(start, start + size);
+        p += 46 + nl + v.getUint16(p + 30, true) + v.getUint16(p + 32, true);
+      }
+      return out;
+    };
+    return { pack, unpack, text: s => enc.encode(s), str: u => dec.decode(u) };
+  })();
+  // Cópia de segurança: dados.json mais um ficheiro por cada foto e gravação do diário.
+  const exportBackup = async () => {
+    const files = [], media = [];
+    for (const b of state.babies) for (const e of b.journal) for (const key of [e.audio && e.id, e.photo && e.id + ':photo']) {
+      if (!key) continue;
+      const blob = await audioStore.get(key).catch(() => null);
+      if (!blob) continue;
+      const file = `media/${String(media.length + 1).padStart(4, '0')}`;
+      media.push({ key, file, type: blob.type || '' });
+      files.push({ name: file, data: new Uint8Array(await blob.arrayBuffer()) });
+    }
+    files.unshift({ name: 'dados.json', data: zip.text(JSON.stringify(Object.assign({}, state, { media }), null, 2)) });
+    return zip.pack(files);
+  };
+  const importBackup = async file => {
+    const buf = await file.arrayBuffer(), u = new Uint8Array(buf);
+    const isZip = u[0] === 0x50 && u[1] === 0x4b, files = isZip ? zip.unpack(buf) : null;
+    const raw = JSON.parse(isZip ? zip.str(files['dados.json'] || new Uint8Array()) : new TextDecoder().decode(u));
+    if (!raw || !(Array.isArray(raw.log) || Array.isArray(raw.babies))) throw new Error('bad');
+    let n = 0;
+    if (isZip) {
+      await audioStore.clear();
+      for (const m of Array.isArray(raw.media) ? raw.media : []) {
+        if (!m || typeof m.key !== 'string' || !files[m.file]) continue;
+        await audioStore.put(m.key, new Blob([files[m.file]], { type: String(m.type || '') })); n++;
+      }
+    }
+    state = clean(raw); save();
+    return n;
+  };
   const JMAX = (CFG.journal && CFG.journal.maxSeconds) || 180;
   const clock = n => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`;
   const canRecord = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
@@ -1233,16 +1304,12 @@
   };
 
   const viewSettings = () => {
-    const file = el('input', { type: 'file', accept: 'application/json,.json', hidden: true, onchange: async e => {
+    const file = el('input', { type: 'file', accept: '.zip,.json,application/zip,application/json', hidden: true, onchange: async e => {
       const f = e.target.files[0]; if (!f) return;
-      try {
-        const raw = JSON.parse(await f.text());
-        if (!raw || !(Array.isArray(raw.log) || Array.isArray(raw.babies))) throw new Error('bad');
-        state = clean(raw); save(); render(); toast(t().importOk);
-      } catch { toast(t().importFail); }
+      try { const n = await importBackup(f); render(); toast(n ? t().importMedia(n) : t().importOk); }
+      catch { toast(t().importFail); }
     } });
     return [
-      el('div', { class: 'card' }, el('label', { class: 'field' }, t().language, langSelect())),
       el('div', { class: 'card' }, el('h2', {}, t().babies),
         babySwitch(),
         el('label', { class: 'field', style: state.babies.length > 1 ? '' : 'margin-top:0' }, t().babyName, el('input', { type: 'text', maxLength: 40, value: state.baby.name, autocomplete: 'off',
@@ -1255,9 +1322,12 @@
           state.babies.length > 1 && el('button', { class: 'danger', onclick: openRemoveBaby }, t().removeBaby))),
       el('div', { class: 'card' }, el('h2', {}, t().data), el('p', { class: 'muted' }, t().dataNote), el('p', { class: 'fine', style: 'margin-top:6px' }, t().backupNoAudio),
         el('div', { class: 'btnrow' },
-          el('button', { class: 'ghost', onclick: () => {
-            const a = el('a', { href: URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })), download: `diario-alimentar-${todayIso()}.json` });
-            document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+          el('button', { class: 'ghost', onclick: async () => {
+            toast(t().exportBusy);
+            try {
+              const a = el('a', { href: URL.createObjectURL(await exportBackup()), download: `petit-nuvem-copia-${todayIso()}.zip` });
+              document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+            } catch { toast(t().exportFail); }
           } }, t().exportData),
           el('button', { class: 'ghost', onclick: () => file.click() }, t().importData), file),
         el('div', { class: 'btnrow' }, el('button', { class: 'danger', onclick: () => openSheet(
