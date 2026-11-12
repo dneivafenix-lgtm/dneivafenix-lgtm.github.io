@@ -1,6 +1,6 @@
 # App Petit Nuvem: lista de pontos
 
-Atualizada a 11 de novembro de 2026. App de teste: https://dneivafenix-lgtm.github.io/app/
+Atualizada a 12 de novembro de 2026. App: https://app.petitnuvem.com/
 
 ## Feito
 
@@ -36,6 +36,7 @@ Atualizada a 11 de novembro de 2026. App de teste: https://dneivafenix-lgtm.gith
 
 ## À tua espera
 
+- [ ] Ativar "Enforce HTTPS" no GitHub (Settings > Pages) quando o certificado de app.petitnuvem.com estiver pronto
 - [ ] Contas Stripe e Supabase, para pagamentos reais, contas e cópia na nuvem
 - [ ] Ficheiro do logótipo, para ficar guardado dentro da app
 - [ ] 17 fotos das receitas 40 a 56, e refazer 2 (bolachinhas, massa com bolonhesa)
