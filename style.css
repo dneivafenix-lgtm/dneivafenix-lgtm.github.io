@@ -596,3 +596,14 @@ input.jqedit::placeholder{color:var(--muted);opacity:.7}
 .trialsub{font-size:14px;color:var(--body);margin-top:6px}
 dialog .points{margin-top:8px}
 .gcard .ptag{align-self:flex-start}
+/* Sugestões da loja */
+.shopbox{margin-top:18px;border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column}
+.shopbox .eyebrow{color:var(--muted);margin-bottom:2px}
+.shoplink{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;font-size:15px;font-weight:600;color:var(--brand);text-decoration:none;border-top:1px solid var(--line)}
+.shopbox .eyebrow+.shoplink{border-top:0}
+.shopbox .fine{margin-top:6px}
+.shopline{font-size:13px;color:var(--muted);margin-top:10px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.shopline .shoplink{display:inline-flex;border:0;min-height:44px;font-size:13px;gap:4px}
+.shopline{display:block;line-height:44px}
+.shopline .shoplink{display:inline;border:0;min-height:0}
+.shopline .shoplink span+span{margin-left:4px}

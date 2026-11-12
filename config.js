@@ -44,6 +44,25 @@ window.DiaryConfig = {
   links: { firstAid: { pt: '', en: '', es: '', fr: '' } },
   // Diário dos pais: duração máxima de cada gravação de voz, em segundos.
   journal: { maxSeconds: 180 },
+  // Sugestões de artigos da loja, só onde vêm a propósito (fim de alguns guias e do «como servir»).
+  // languages: idiomas em que aparecem (a loja só existe em português). enabled: false desliga tudo.
+  // guides: artigos por guia (id do guia -> identificadores dos produtos na loja). serve: um artigo por fase.
+  shop: {
+    enabled: true, languages: ['pt'], base: 'https://petitnuvem.com/products/',
+    guides: {
+      water: ['copo-de-treino-com-palhinha', 'copinho-de-aprendizagem'],
+      routine: ['prato-de-silicone-com-ventosa', 'tigela-com-ventosa-mushie', 'babete-com-bolsinho'],
+      textures: ['pack-de-2-colheres-de-silicone', 'garfo-e-colher-mushie'],
+      storage: ['molde-para-congelar-comida']
+    },
+    serve: { 6: 'tigela-com-ventosa-mushie', 9: 'prato-de-silicone-com-ventosa', 12: 'garfo-e-colher-mushie' },
+    names: {
+      'copo-de-treino-com-palhinha': 'Copo de treino com palhinha', 'copinho-de-aprendizagem': 'Copinho de aprendizagem',
+      'prato-de-silicone-com-ventosa': 'Prato de silicone com ventosa', 'tigela-com-ventosa-mushie': 'Tigela com ventosa',
+      'babete-com-bolsinho': 'Babete com bolsinho', 'pack-de-2-colheres-de-silicone': 'Pack de 2 colheres de silicone',
+      'garfo-e-colher-mushie': 'Conjunto de garfo e colher', 'molde-para-congelar-comida': 'Molde para congelar comida'
+    }
+  },
   // Cartão opcional de um parceiro (por exemplo uma loja), desligado por omissão.
   // text: uma frase por idioma; só aparece nos idiomas que tiverem frase.
   // 12/11: ligado ao Clube das mães do site (só em português, porque o Clube só existe em português).
