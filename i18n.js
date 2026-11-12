@@ -858,3 +858,13 @@ Object.assign(window.DiaryI18n.fr, { accTitle: 'Compte', accLead: 'Connectez-vou
   accSignIn: 'Se connecter ou créer un compte', accSignOut: 'Se déconnecter', accAs: e => `Connecté : ${e}`, accPremiumUntil: d => `Premium actif jusqu'au ${d}.`, accNoPremium: "Ce compte n'a pas encore Premium.",
   accRefresh: 'Actualiser', accFail: 'Connexion impossible. Veuillez réessayer.', accChecked: 'Compte mis à jour.', accOffline: 'Impossible de vérifier le compte. Vérifiez la connexion.',
   accSignedIn: 'Connecté.', accPremiumOn: 'Connecté. Premium est actif.', accBuyHint: "Premium s'achète dans la boutique Petit Nuvem. Connectez-vous ensuite à l'app avec le même e-mail que pour l'achat.", accHave: "Déjà acheté : se connecter" });
+
+// Premium anual em compra única, com preço de lançamento.
+Object.assign(window.DiaryI18n.pt, { launchLine: p => `${p} (preço de lançamento)`, launchFrom: (d, n) => `A partir de ${d}, ${n}.`, launchLater: n => `Depois do lançamento, ${n}.`,
+  oneYear: 'Um só pagamento por um ano de Premium.', subBuy: 'Comprar o Premium', renewNone: 'Sem renovação automática: pagas uma vez e, ao fim de um ano, decides se queres continuar.' });
+Object.assign(window.DiaryI18n.en, { launchLine: p => `${p} (launch price)`, launchFrom: (d, n) => `From ${d}, ${n}.`, launchLater: n => `After the launch, ${n}.`,
+  oneYear: 'One payment for one year of Premium.', subBuy: 'Buy Premium', renewNone: 'No automatic renewal: you pay once and, after a year, you decide whether to continue.' });
+Object.assign(window.DiaryI18n.es, { launchLine: p => `${p} (precio de lanzamiento)`, launchFrom: (d, n) => `A partir del ${d}, ${n}.`, launchLater: n => `Después del lanzamiento, ${n}.`,
+  oneYear: 'Un solo pago por un año de Premium.', subBuy: 'Comprar Premium', renewNone: 'Sin renovación automática: pagas una vez y, al cabo de un año, decides si quieres continuar.' });
+Object.assign(window.DiaryI18n.fr, { launchLine: p => `${p} (prix de lancement)`, launchFrom: (d, n) => `À partir du ${d}, ${n}.`, launchLater: n => `Après le lancement, ${n}.`,
+  oneYear: "Un seul paiement pour un an de Premium.", subBuy: 'Acheter Premium', renewNone: "Pas de renouvellement automatique : vous payez une fois et, au bout d'un an, vous décidez de continuer ou non." });
