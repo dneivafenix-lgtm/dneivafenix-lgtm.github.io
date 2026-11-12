@@ -607,3 +607,12 @@ dialog .points{margin-top:8px}
 .shopline{display:block;line-height:44px}
 .shopline .shoplink{display:inline;border:0;min-height:0}
 .shopline .shoplink span+span{margin-left:4px}
+/* Preços no ecrã de subscrição */
+.trialhead{display:flex;flex-direction:column;align-items:center;gap:6px}
+.trialhead .ptag{align-self:center}
+.trialbig{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;column-gap:10px}
+.was{font-weight:500;color:var(--muted);text-decoration:line-through;font-size:.62em}
+.planopt .was{font-size:1em;margin-left:8px}
+.trialsub{margin-top:0}
+.trialsub.strong{font-weight:700;color:var(--tint-ink)}
+.renew{font-size:13px;line-height:1.45;color:var(--body);text-align:center;margin-top:10px}
