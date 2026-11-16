@@ -1762,7 +1762,10 @@
     const view = welcome ? viewWelcome : EXTRA[tab] ? EXTRA[tab][0] : TABS.find(x => x[0] === tab)[2];
     const main = $('view'), key = welcome ? 'welcome' : tab;
     main.replaceChildren(...view().flat(Infinity).filter(Boolean));
-    if (key !== shown) { shown = key; main.classList.remove('enter'); void main.offsetWidth; main.classList.add('enter'); }
+    if (key !== shown) {
+      if (shown && window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: '/' + key, title: key, event: false });
+      shown = key; main.classList.remove('enter'); void main.offsetWidth; main.classList.add('enter');
+    }
   };
   // Marca: tenta a imagem do logótipo; se falhar fica a nuvem com o nome.
   $('brandName').textContent = CFG.brand.name;

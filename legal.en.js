@@ -41,6 +41,7 @@ window.DiaryLegal.en = {
     "p": [
      "To open the app, your browser sends technical requests to third parties, who may log your IP address: the hosting provider that serves the app's files and the Shopify content network (the brand logo image).",
      "If you sign in with your account, your browser also contacts the shop's customer account service (account.petitnuvem.com), provided by Shopify.",
+     "The app uses GoatCounter, an anonymous cookieless visit counter that stores no personal data or diary content, only to count visits.",
      "These requests do not include your diary data."
     ]
    },
