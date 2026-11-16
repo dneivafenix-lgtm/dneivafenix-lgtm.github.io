@@ -32,7 +32,7 @@ window.DiaryLegal.es = {
    {
     "h": "Lo que no hacemos",
     "p": [
-     "No usamos cookies, herramientas de analítica ni publicidad.",
+     "No usamos publicidad ni cookies de rastreo, ni analítica que identifique a las personas, aparte del recuento anónimo de visitas de GoatCounter descrito abajo.",
      "No recibimos, no vendemos y no compartimos los registros que introduces en la aplicación."
     ]
    },

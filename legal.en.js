@@ -32,7 +32,7 @@ window.DiaryLegal.en = {
    {
     "h": "What we do not do",
     "p": [
-     "We do not use cookies, analytics tools or advertising.",
+     "We do not use advertising or tracking cookies, or analytics that identify people, apart from the anonymous GoatCounter visit count described below.",
      "We do not receive, sell or share the records you enter in the app."
     ]
    },
