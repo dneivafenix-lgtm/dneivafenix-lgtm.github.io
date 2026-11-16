@@ -32,7 +32,7 @@ window.DiaryLegal.pt = {
    {
     "h": "O que não fazemos",
     "p": [
-     "Não usamos cookies, ferramentas de análise nem publicidade.",
+     "Não usamos publicidade nem cookies de rastreio, nem ferramentas de análise que identifiquem pessoas, para além da contagem anónima de visitas do GoatCounter descrita abaixo.",
      "Não recebemos, não vendemos e não partilhamos os registos que introduzes na aplicação."
     ]
    },
@@ -41,6 +41,7 @@ window.DiaryLegal.pt = {
     "p": [
      "Para abrir a aplicação, o teu navegador faz pedidos técnicos a terceiros, que podem registar o teu endereço IP: o fornecedor de alojamento que serve os ficheiros da aplicação e a rede de conteúdos da Shopify (imagem do logótipo da marca).",
      "Se entrares com a tua conta, o navegador contacta também o serviço de contas de cliente da loja (account.petitnuvem.com), prestado pela Shopify.",
+     "A aplicação usa o GoatCounter, um contador de visitas anónimo e sem cookies, que não guarda dados pessoais nem o conteúdo do diário, apenas para contar visitas.",
      "Esses pedidos não incluem os dados do diário."
     ]
    },
