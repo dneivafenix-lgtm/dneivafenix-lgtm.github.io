@@ -12,6 +12,20 @@ window.DiaryConfig = {
   fallbackLanguage: 'en',
   // Marcos do desafio (número de alimentos provados).
   milestones: [10, 25, 50, 75, 100],
+  // Prémios dos marcos: certificado para partilhar e, quando os códigos existirem na loja, um código de desconto.
+  // Códigos ativos no Shopify desde 21/11 (excluem kits e packs, por margem).
+  // Por regra da loja, estes códigos não acumulam com as campanhas.
+  // O código só aparece a quem tem sessão iniciada na conta da loja e cumpre as regras abaixo (o certificado é livre).
+  rewards: {
+    codesLive: true,
+    shop: 'https://petitnuvem.com',
+    codes: { 10: 'MARCO10', 25: 'MARCO25', 50: 'MARCO50', 100: 'MARCO100' },
+    percent: { 10: 5, 25: 10, 50: 10, 100: 15 },
+    minOrder: 25,
+    // Para o prémio contam só alimentos registados numa refeição, no próprio dia ou até lateDays dias depois
+    // (nada no futuro), no máximo newPerDay alimentos novos por dia, e depois de minDays dias desde o primeiro registo que conta.
+    rules: { newPerDay: 3, lateDays: 2, minDays: { 10: 10, 25: 21, 50: 35, 100: 60 } }
+  },
   // Subscrição.
   // enforce: false = modo de teste, tudo desbloqueado. Só passar a true quando os pagamentos e as contas estiverem a funcionar,
   // porque sem servidor a app não tem como saber quem pagou.

@@ -357,6 +357,11 @@ dialog .rlist{margin-top:8px}
 .medals{display:flex;gap:8px;flex-wrap:wrap}
 .medal{min-width:44px;height:32px;padding:0 10px;border-radius:999px;display:grid;place-items:center;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;border:1px dashed var(--edge);color:var(--muted)}
 .medal.on{background:var(--accent);color:var(--on-accent);border:0}
+button.medal{font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.cert{display:block;width:100%;height:auto;border-radius:16px;margin-top:14px;box-shadow:var(--shadow)}
+.reward{margin-top:16px}
+.rcode{font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:.08em;text-align:center;border:2px dashed var(--edge);border-radius:14px;padding:10px;margin:10px 0;user-select:all;-webkit-user-select:all}
+a.btnlink{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
 .row{display:flex;justify-content:space-between;gap:12px;font-size:15px;font-weight:500;margin-top:14px}
 .row .muted{font-size:13px;font-variant-numeric:tabular-nums}
 h2+.row{margin-top:0}
