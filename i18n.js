@@ -826,10 +826,10 @@ Object.assign(window.DiaryI18n.es, { exportBusy: 'Preparando la copia…', expor
 Object.assign(window.DiaryI18n.fr, { exportBusy: 'Préparation de la copie…', exportFail: "La copie n'a pas pu être créée.", importMedia: n => n === 1 ? 'Copie importée, avec 1 photo ou enregistrement.' : `Copie importée, avec ${n} photos et enregistrements.` });
 
 // Sugestões da loja.
-Object.assign(window.DiaryI18n.pt, { shopTitle: 'Na loja Petit Nuvem', shopNote: 'Sugestões da nossa loja. Não são precisas para usar a app.', shopServe: 'Na loja:' });
-Object.assign(window.DiaryI18n.en, { shopTitle: 'In the Petit Nuvem shop', shopNote: 'Suggestions from our shop. You do not need them to use the app.', shopServe: 'In the shop:' });
-Object.assign(window.DiaryI18n.es, { shopTitle: 'En la tienda Petit Nuvem', shopNote: 'Sugerencias de nuestra tienda. No hacen falta para usar la app.', shopServe: 'En la tienda:' });
-Object.assign(window.DiaryI18n.fr, { shopTitle: 'Dans la boutique Petit Nuvem', shopNote: "Suggestions de notre boutique. Elles ne sont pas nécessaires pour utiliser l'app.", shopServe: 'Dans la boutique :' });
+Object.assign(window.DiaryI18n.pt, { shopTitle: 'Na loja Petit Nuvem', shopSugNote: 'Sugestões da nossa loja. Não são precisas para usar a app.', notNow: 'Agora não', phaseTitle: { 6: 'Para as primeiras refeições', 7: 'Para os 7 e 8 meses', 9: 'Para quem já quer comer sozinho' }, shopServe: 'Na loja:' });
+Object.assign(window.DiaryI18n.en, { shopTitle: 'In the Petit Nuvem shop', shopSugNote: 'Suggestions from our shop. You do not need them to use the app.', notNow: 'Not now', phaseTitle: { 6: 'For the first meals', 7: 'For 7 and 8 months', 9: 'For little ones who want to feed themselves' }, shopServe: 'In the shop:' });
+Object.assign(window.DiaryI18n.es, { shopTitle: 'En la tienda Petit Nuvem', shopSugNote: 'Sugerencias de nuestra tienda. No hacen falta para usar la app.', notNow: 'Ahora no', phaseTitle: { 6: 'Para las primeras comidas', 7: 'Para los 7 y 8 meses', 9: 'Para quien ya quiere comer solo' }, shopServe: 'En la tienda:' });
+Object.assign(window.DiaryI18n.fr, { shopTitle: 'Dans la boutique Petit Nuvem', shopSugNote: "Suggestions de notre boutique. Elles ne sont pas nécessaires pour utiliser l'app.", notNow: 'Pas maintenant', phaseTitle: { 6: 'Pour les premiers repas', 7: 'Pour 7 et 8 mois', 9: 'Pour ceux qui veulent manger seuls' }, shopServe: 'Dans la boutique :' });
 
 // Preços: anual com preço de lançamento, mensal e renovação.
 Object.assign(window.DiaryI18n.pt, { launchBadge: 'Preço de lançamento', perYearFirst: p => `${p} no primeiro ano`, equalsPerMonth: m => `Um só pagamento. Equivale a ${m} por mês.`,

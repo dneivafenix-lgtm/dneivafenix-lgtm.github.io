@@ -81,11 +81,42 @@ window.DiaryConfig = {
       storage: ['molde-para-congelar-comida']
     },
     serve: { 6: 'tigela-com-ventosa-mushie', 9: 'prato-de-silicone-com-ventosa', 12: 'garfo-e-colher-mushie' },
+    // Cartão «Para esta fase» no Hoje: artigos por fase do bebé (6 = início dos sólidos, 7 = 7–8 meses, 9 = 9 meses ou mais).
+    // Primeiro os artigos Mushie com stock físico. Sem preços na app, porque mudam com as campanhas.
+    phases: {
+      6: ['prato-de-silicone-com-ventosa', 'tigela-com-ventosa-mushie', 'pack-de-2-colheres-de-silicone', 'copinho-de-aprendizagem', 'babete-com-bolsinho'],
+      // O kit volta a entrar quando a página dele tiver a foto do kit (hoje mostra só o babete).
+      7: ['garfo-e-colher-mushie', 'copinho-de-aprendizagem', 'babete-com-bolsinho', 'bola-giratoria-com-ventosa', 'copos-de-empilhar-mushie'],
+      9: ['copo-de-treino-com-palhinha', 'potinho-para-snacks', 'garfo-e-colher-mushie', 'escova-de-dentes-flor']
+    },
+    // Fim do plano da semana (cozinhar de uma vez e guardar).
+    plan: ['molde-para-congelar-comida', 'potinho-para-snacks', 'planeador-de-refeicoes-do-bebe-pdf'],
+    utm: 'utm_source=app&utm_medium=sugestao',
+    images: {
+      'prato-de-silicone-com-ventosa': 'Ivory_SiliconePlate_Top_333f823c-0fe5-450e-b9aa-2a3b13316ac0.jpg?v=1791842900',
+      'tigela-com-ventosa-mushie': 'cambridge_bowl_suction_bowl_side-2.jpg?v=1791842949',
+      'pack-de-2-colheres-de-silicone': 'Blush_ShiftingSand_SiliconeSpoon_3a1f5eca-1576-443b-a080-0258bf54f0f4.jpg?v=1791843060',
+      'copinho-de-aprendizagem': 'Blush_TrainerSippyCup.jpg?v=1791843708',
+      'babete-com-bolsinho': 'Whales_SiliconeBib.jpg?v=1792431043',
+      'kit-primeiras-refeicoes-petit-nuvem': 'blush_silicone_bib_44fef9be-df4e-4e70-9f93-d0f9b17ef0ea.jpg?v=1791882254',
+      'garfo-e-colher-mushie': 'Dinnerware_20Fork_20and_20Spoon_20Set_Blush.jpg?v=1792958406',
+      'bola-giratoria-com-ventosa': 'Round_20Ball_20Suction_20Spinner.jpg?v=1792958405',
+      'copos-de-empilhar-mushie': 'Original_Stacking_20Cups_Nested.jpg?v=1792958293',
+      'copo-de-treino-com-palhinha': 'SiliconeTrainingCupandStraw_Whales.jpg?v=1792431027',
+      'potinho-para-snacks': 'Whales_SnackCup.jpg?v=1792431038',
+      'escova-de-dentes-flor': 'Flower_20Toothbrush_Blush_300968135.jpg?v=1792958407',
+      'molde-para-congelar-comida': 'BabyFoodFreezerTray_Blush.jpg?v=1791843167',
+      'planeador-de-refeicoes-do-bebe-pdf': 'petit-nuvem-digital-planeador.jpg?v=1793647072'
+    },
+    imageBase: 'https://cdn.shopify.com/s/files/1/1092/3832/1484/files/',
     names: {
       'copo-de-treino-com-palhinha': 'Copo de treino com palhinha', 'copinho-de-aprendizagem': 'Copinho de aprendizagem',
       'prato-de-silicone-com-ventosa': 'Prato de silicone com ventosa', 'tigela-com-ventosa-mushie': 'Tigela com ventosa',
       'babete-com-bolsinho': 'Babete com bolsinho', 'pack-de-2-colheres-de-silicone': 'Pack de 2 colheres de silicone',
-      'garfo-e-colher-mushie': 'Conjunto de garfo e colher', 'molde-para-congelar-comida': 'Molde para congelar comida'
+      'garfo-e-colher-mushie': 'Conjunto de garfo e colher', 'molde-para-congelar-comida': 'Molde para congelar comida',
+      'kit-primeiras-refeicoes-petit-nuvem': 'Kit primeiras refeições', 'bola-giratoria-com-ventosa': 'Bola giratória com ventosa',
+      'copos-de-empilhar-mushie': 'Copos de empilhar', 'potinho-para-snacks': 'Potinho para snacks', 'escova-de-dentes-flor': 'Escova de dentes de treino flor',
+      'planeador-de-refeicoes-do-bebe-pdf': 'Planeador de refeições do bebé (PDF)'
     }
   },
   // Conta: a conta da app é a conta de cliente da loja Shopify (Customer Account API, cliente público com PKCE).

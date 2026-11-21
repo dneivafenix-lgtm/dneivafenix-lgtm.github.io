@@ -72,7 +72,7 @@
       onboarded: !!s.onboarded,
       goals: (Array.isArray(s.goals) ? s.goals : []).filter(g => GOALS.includes(g)), started: typeof s.started === 'boolean' ? s.started : null, hideStart: !!s.hideStart,
       since: DATE.test(s.since) ? s.since : '', inviteAt: Math.max(0, +s.inviteAt || 0),
-      backupAt: Math.max(0, +s.backupAt || 0), backupAsk: Math.max(0, +s.backupAsk || 0),
+      backupAt: Math.max(0, +s.backupAt || 0), backupAsk: Math.max(0, +s.backupAsk || 0), shopHide: Math.max(0, +s.shopHide || 0),
       dots: { today: DATE.test(s.dots?.today) ? s.dots.today : '', meals: (Array.isArray(s.dots?.meals) ? s.dots.meals : []).filter(m => MEALS.includes(m)), progress: DATE.test(s.dots?.progress) ? s.dots.progress : '', settings: DATE.test(s.dots?.settings) ? s.dots.settings : '', stage: typeof s.dots?.stage === 'string' ? s.dots.stage.slice(0, 40) : '' },
       favFoods: [...new Set(Array.isArray(s.favFoods) ? s.favFoods : [])].filter(id => F.byId.has(id)),
       favRecipes: [...new Set(Array.isArray(s.favRecipes) ? s.favRecipes : [])].filter(n => Number.isInteger(n) && R && R.list[n]),
@@ -316,9 +316,25 @@
   // Sugestões da loja: só nos idiomas e nos sítios definidos em config.js > shop.
   const SHOP = CFG.shop || {};
   const shopOn = () => !!SHOP.enabled && (SHOP.languages || []).includes(state.lang);
-  const shopLink = h => el('a', { class: 'shoplink', href: SHOP.base + h, target: '_blank', rel: 'noopener' }, el('span', {}, (SHOP.names || {})[h] || h), el('span', { 'aria-hidden': 'true' }, '›'));
+  const shopUrl = (h, camp) => SHOP.base + h + (SHOP.utm ? `?${SHOP.utm}&utm_campaign=${camp || 'app'}` : '');
+  const shopLink = h => el('a', { class: 'shoplink', href: shopUrl(h), target: '_blank', rel: 'noopener' }, el('span', {}, (SHOP.names || {})[h] || h), el('span', { 'aria-hidden': 'true' }, '›'));
+  // Cartão «Para esta fase» no Hoje: 3 artigos da fase do bebé, que rodam de semana para semana. «Agora não» esconde-o 14 dias.
+  const phaseKey = () => { const a = ageMonths(); return a === null || a < 7 ? 6 : a < 9 ? 7 : 9; };
+  const phaseCard = () => {
+    if (!shopOn() || !SHOP.phases || Date.now() - state.shopHide < 14 * 864e5) return null;
+    const k = phaseKey(), list = (SHOP.phases[k] || []).filter(h => SHOP.images && SHOP.images[h]);
+    if (!list.length) return null;
+    const week = Math.floor(Date.now() / (7 * 864e5)), pick = Array.from({ length: Math.min(3, list.length) }, (_, i) => list[(week + i) % list.length]);
+    return el('div', { class: 'card phase' },
+      el('p', { class: 'eyebrow' }, t().shopTitle), el('h2', {}, t().phaseTitle[k]),
+      el('div', { class: 'ptiles' }, pick.map(h => el('a', { class: 'ptile', href: shopUrl(h, 'fase-' + k), target: '_blank', rel: 'noopener' },
+        el('img', { src: SHOP.imageBase + SHOP.images[h] + '&width=300', alt: '', width: 300, height: 300, loading: 'lazy' }),
+        el('span', {}, (SHOP.names || {})[h] || h)))),
+      el('div', { class: 'phasefoot' }, el('p', { class: 'fine' }, t().shopSugNote),
+        el('button', { class: 'linkish', onclick: () => { state.shopHide = Date.now(); save(); render(); } }, t().notNow)));
+  };
   const shopBlock = handles => shopOn() && handles && handles.length ? el('div', { class: 'shopbox' },
-    el('p', { class: 'eyebrow' }, t().shopTitle), handles.map(shopLink), el('p', { class: 'fine' }, t().shopNote)) : null;
+    el('p', { class: 'eyebrow' }, t().shopTitle), handles.map(shopLink), el('p', { class: 'fine' }, t().shopSugNote)) : null;
   const serveSection = food => {
     const lines = (SERVE[state.lang] || {})[food.id];
     if (!lines) return null;
@@ -806,7 +822,8 @@
       week.map(d => el('div', { class: 'card pday' + (d === todayIso() ? ' now' : '') },
         el('h2', {}, dayLong(d)),
         planFor(d).length ? planFor(d).map(r => plannedRow(d, r)) : el('p', { class: 'muted' }, t().planEmpty),
-        el('button', { class: 'ghost small', onclick: () => openRecipePicker(d) }, t().planAdd)))
+        el('button', { class: 'ghost small', onclick: () => openRecipePicker(d) }, t().planAdd))),
+      week.some(d => state.baby.plan[d]) ? shopBlock(SHOP.plan) : null
     ];
   };
 
@@ -1474,6 +1491,7 @@
         el('h2', { style: 'margin-bottom:2px' }, t().guidesTitle), el('p', { class: 'muted' }, t().guidesHint),
         el('div', { class: 'gstrip' }, guides.map(guideCard)),
         el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => { tab = 'guides'; render(); window.scrollTo(0, 0); } }, t().guidesAll(guides.length)))) : null,
+      phaseCard(),
       el('div', { class: 'card tip' }, el('p', {}, tip)),
       partner && el('div', { class: 'card partner' }, el('p', {}, partner.text[state.lang]), el('a', { href: partner.url, rel: 'noopener' }, partner.name)),
       el('button', { class: 'fab', 'aria-label': t().add, onclick: openAdd }, icon('plus', 26))
