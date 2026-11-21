@@ -71,6 +71,7 @@
       goals: (Array.isArray(s.goals) ? s.goals : []).filter(g => GOALS.includes(g)), started: typeof s.started === 'boolean' ? s.started : null, hideStart: !!s.hideStart,
       since: DATE.test(s.since) ? s.since : '', inviteAt: Math.max(0, +s.inviteAt || 0),
       backupAt: Math.max(0, +s.backupAt || 0), backupAsk: Math.max(0, +s.backupAsk || 0),
+      dots: { today: DATE.test(s.dots?.today) ? s.dots.today : '', progress: DATE.test(s.dots?.progress) ? s.dots.progress : '', settings: DATE.test(s.dots?.settings) ? s.dots.settings : '', stage: typeof s.dots?.stage === 'string' ? s.dots.stage.slice(0, 40) : '' },
       favFoods: [...new Set(Array.isArray(s.favFoods) ? s.favFoods : [])].filter(id => F.byId.has(id)),
       favRecipes: [...new Set(Array.isArray(s.favRecipes) ? s.favRecipes : [])].filter(n => Number.isInteger(n) && R && R.list[n]),
       babies, current: seen.has(s.current) ? s.current : babies[0].id
@@ -974,6 +975,30 @@
       el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => { closeSheet(); doBackup(); } }, t().backupNow)),
       el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().backupLater)));
   };
+  // ---------- pontos de «tens algo por fazer» nos separadores ----------
+  // No máximo um ponto por separador. Some quando a pessoa entra no separador e volta no dia seguinte
+  // se a tarefa continuar por fazer. O número no ícone da app só muda quando a app é aberta (não há servidor).
+  const DOT_HOUR = 17; // a partir desta hora, um dia sem refeições registadas acende o ponto em «Hoje»
+  const backupLate = () => { const base = state.backupAt || firstRecord(); return !!base && Date.now() - base >= 30 * 864e5; };
+  const stageKey = () => { const st = hasRecipes() ? babyStage() : null; return st == null ? '' : state.baby.id + ':' + st; };
+  const dotReasons = () => {
+    const d = state.dots, today = todayIso(), r = {};
+    if (!state.onboarded) return r;
+    if (new Date().getHours() >= DOT_HOUR && !state.log.some(e => e.date === today) && d.today !== today) r.today = true;
+    if (d.progress !== today && allergenStatus().some(x => x.due)) r.progress = true;
+    if (d.settings !== today && (backupLate() || !state.baby.birth || !state.baby.method)) r.settings = true;
+    const sk = stageKey();
+    if (sk && d.stage !== sk) r.recipes = true;
+    return r;
+  };
+  const dotSeen = id => {
+    if (id === 'recipes') state.dots.stage = stageKey();
+    else state.dots[id] = todayIso();
+    save();
+  };
+  const appBadge = n => {
+    try { if ('setAppBadge' in navigator) (n ? navigator.setAppBadge(n) : navigator.clearAppBadge()).catch(() => {}); } catch { /* sem suporte */ }
+  };
   const longDay = ms => new Intl.DateTimeFormat(state.lang, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(ms));
   const importBackup = async file => {
     const buf = await file.arrayBuffer(), u = new Uint8Array(buf);
@@ -1747,6 +1772,14 @@
   const EXTRA = { path: [viewPath, 'today', 'pathTitle'], report: [viewReport, 'progress', 'reportOpen'], allergens: [viewAllergens, 'progress', 'algTitle'], guides: [viewGuides, 'today', 'guidesTitle'], journal: [viewJournal, 'today', 'journalTitle'], jbook: [viewJBook, 'today', 'jExportTitle'] };
   const ALL_TABS = [['today', 'tabToday', viewToday], ['foods', 'tabFoods', viewFoods], ['recipes', 'tabRecipes', viewRecipes], ['progress', 'tabProgress', viewProgress], ['settings', 'tabSettings', viewSettings]];
   let TABS = ALL_TABS;
+  const drawTabs = current => {
+    const dots = state.onboarded ? dotReasons() : {};
+    if (dots[current]) { dotSeen(current); delete dots[current]; }
+    appBadge(Object.keys(dots).filter(id => TABS.some(x => x[0] === id)).length);
+    $('tabs').replaceChildren(...TABS.map(([id, key]) => el('button', { 'aria-current': current === id ? 'page' : null,
+      'aria-label': dots[id] ? `${t()[key]}, ${t().dotHint}` : null,
+      onclick: () => { tab = id; render(); window.scrollTo(0, 0); } }, icon(id), t()[key], dots[id] && el('span', { class: 'tdot', 'aria-hidden': 'true' }))));
+  };
   const render = () => {
     const welcome = !state.onboarded;
     TABS = ALL_TABS.filter(x => x[0] !== 'recipes' || hasRecipes());
@@ -1757,8 +1790,7 @@
     document.body.classList.toggle('bare', welcome);
     $('tabs').hidden = welcome;
     const current = EXTRA[tab] ? EXTRA[tab][1] : tab;
-    $('tabs').replaceChildren(...TABS.map(([id, key]) => el('button', { 'aria-current': current === id ? 'page' : null,
-      onclick: () => { tab = id; render(); window.scrollTo(0, 0); } }, icon(id), t()[key])));
+    drawTabs(current);
     const view = welcome ? viewWelcome : EXTRA[tab] ? EXTRA[tab][0] : TABS.find(x => x[0] === tab)[2];
     const main = $('view'), key = welcome ? 'welcome' : tab;
     main.replaceChildren(...view().flat(Infinity).filter(Boolean));
@@ -1777,6 +1809,11 @@
     img.src = CFG.brand.logo;
   }
   if (state.onboarded && !state.since) { state.since = todayIso(); save(); } // quem já usava a app: os 7 dias contam a partir de agora
+  document.addEventListener('visibilitychange', () => {
+    if (!state.onboarded) return;
+    if (document.visibilityState === 'visible') drawTabs(EXTRA[tab] ? EXTRA[tab][1] : tab);
+    else appBadge(Object.keys(dotReasons()).filter(id => TABS.some(x => x[0] === id)).length);
+  });
   render();
   Promise.resolve(accInit()).catch(() => {}).then(backupRemind);
 

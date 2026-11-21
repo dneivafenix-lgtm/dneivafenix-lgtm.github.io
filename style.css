@@ -387,6 +387,10 @@ textarea{padding:12px 14px;display:block}
 .tabs button{flex:1;min-width:0;max-width:170px;border:0;background:none;min-height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:500;color:var(--muted)}
 .tabs .ico{width:48px;height:30px;border-radius:999px;transition:background .2s}
 .tabs button[aria-current=page]{color:var(--ink);font-weight:700}
+.tabs button{position:relative}
+.tdot{position:absolute;top:5px;left:calc(50% + 9px);width:10px;height:10px;border-radius:50%;background:#d63c2f;box-shadow:0 0 0 2px var(--card);animation:tdot .3s ease-out}
+@keyframes tdot{from{transform:scale(0)}to{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.tdot{animation:none}}
 .tabs button[aria-current=page] .ico{background:var(--tint);color:var(--tint-ink)}
 .ico{display:grid;place-items:center}
 
