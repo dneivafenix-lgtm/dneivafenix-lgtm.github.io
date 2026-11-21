@@ -2,7 +2,10 @@
 window.DiaryI18n = {
   pt: {
     langName: 'Português', tagline: 'Diário de introdução alimentar',
-    tabToday: 'Hoje', tabFoods: 'Alimentos', tabProgress: 'Progresso', tabSettings: 'Definições', dotHint: 'tem algo por fazer', mealLate: 'ainda por registar', sameYesterday: 'Igual a ontem', planDone: 'Comeu o planeado', recentFoods: 'Recentes',
+    tabToday: 'Hoje', tabFoods: 'Alimentos', tabProgress: 'Progresso', tabSettings: 'Definições', dotHint: 'tem algo por fazer', mealLate: 'ainda por registar', certKicker: 'Desafio dos 100 alimentos', certFoods: 'alimentos provados', certAlt: m => `Certificado de ${m} alimentos provados`,
+    marcoTitle: m => `${m} alimentos provados!`, marcoLead: (n, m) => n ? `${n} já provou ${m} alimentos diferentes. Guarda o certificado ou partilha-o com a família.` : `Já foram ${m} alimentos diferentes. Guarda o certificado ou partilha-o com a família.`,
+    certShare: 'Partilhar certificado', certSave: 'Guardar imagem', certOpen: m => `Ver o certificado de ${m} alimentos`,
+    rewardKicker: 'O teu prémio', rewardText: 'Um desconto na loja Petit Nuvem para celebrar. Usa este código ao finalizar a compra:', rewardFine: 'Uma utilização por cliente. Não acumula com outras campanhas.', rewardShop: 'Usar na loja', sameYesterday: 'Igual a ontem', planDone: 'Comeu o planeado', recentFoods: 'Recentes',
     today: 'Hoje', prevDay: 'Dia anterior', nextDay: 'Dia seguinte',
     addFood: '+ Registar alimento', emptyDay: 'Ainda sem registos neste dia.',
     ageMonths: n => n === 1 ? '1 mês' : `${n} meses`, ageLine: (name, age) => `${name} · ${age}`,
@@ -30,7 +33,10 @@ window.DiaryI18n = {
   },
   en: {
     langName: 'English', tagline: 'Starting solids diary',
-    tabToday: 'Today', tabFoods: 'Foods', tabProgress: 'Progress', tabSettings: 'Settings', dotHint: 'something to do', mealLate: 'not logged yet', sameYesterday: 'Same as yesterday', planDone: 'Ate what was planned', recentFoods: 'Recent',
+    tabToday: 'Today', tabFoods: 'Foods', tabProgress: 'Progress', tabSettings: 'Settings', dotHint: 'something to do', mealLate: 'not logged yet', certKicker: 'The 100 foods challenge', certFoods: 'foods tried', certAlt: m => `Certificate for ${m} foods tried`,
+    marcoTitle: m => `${m} foods tried!`, marcoLead: (n, m) => n ? `${n} has now tried ${m} different foods. Save the certificate or share it with the family.` : `That's ${m} different foods so far. Save the certificate or share it with the family.`,
+    certShare: 'Share certificate', certSave: 'Save image', certOpen: m => `View the ${m} foods certificate`,
+    rewardKicker: 'Your reward', rewardText: 'A discount at the Petit Nuvem shop to celebrate. Use this code at checkout:', rewardFine: 'One use per customer. Cannot be combined with other campaigns.', rewardShop: 'Use in the shop', sameYesterday: 'Same as yesterday', planDone: 'Ate what was planned', recentFoods: 'Recent',
     today: 'Today', prevDay: 'Previous day', nextDay: 'Next day',
     addFood: '+ Log a food', emptyDay: 'Nothing logged for this day yet.',
     ageMonths: n => n === 1 ? '1 month' : `${n} months`, ageLine: (name, age) => `${name} · ${age}`,
@@ -58,7 +64,10 @@ window.DiaryI18n = {
   },
   es: {
     langName: 'Español', tagline: 'Diario de alimentación complementaria',
-    tabToday: 'Hoy', tabFoods: 'Alimentos', tabProgress: 'Progreso', tabSettings: 'Ajustes', dotHint: 'tienes algo pendiente', mealLate: 'aún sin registrar', sameYesterday: 'Igual que ayer', planDone: 'Comió lo planeado', recentFoods: 'Recientes',
+    tabToday: 'Hoy', tabFoods: 'Alimentos', tabProgress: 'Progreso', tabSettings: 'Ajustes', dotHint: 'tienes algo pendiente', mealLate: 'aún sin registrar', certKicker: 'El reto de los 100 alimentos', certFoods: 'alimentos probados', certAlt: m => `Certificado de ${m} alimentos probados`,
+    marcoTitle: m => `¡${m} alimentos probados!`, marcoLead: (n, m) => n ? `${n} ya ha probado ${m} alimentos diferentes. Guarda el certificado o compártelo con la familia.` : `Ya van ${m} alimentos diferentes. Guarda el certificado o compártelo con la familia.`,
+    certShare: 'Compartir certificado', certSave: 'Guardar imagen', certOpen: m => `Ver el certificado de ${m} alimentos`,
+    rewardKicker: 'Tu premio', rewardText: 'Un descuento en la tienda Petit Nuvem para celebrarlo. Usa este código al finalizar la compra:', rewardFine: 'Un uso por cliente. No se acumula con otras campañas.', rewardShop: 'Usar en la tienda', sameYesterday: 'Igual que ayer', planDone: 'Comió lo planeado', recentFoods: 'Recientes',
     today: 'Hoy', prevDay: 'Día anterior', nextDay: 'Día siguiente',
     addFood: '+ Registrar alimento', emptyDay: 'Aún no hay registros este día.',
     ageMonths: n => n === 1 ? '1 mes' : `${n} meses`, ageLine: (name, age) => `${name} · ${age}`,
@@ -86,7 +95,10 @@ window.DiaryI18n = {
   },
   fr: {
     langName: 'Français', tagline: 'Journal de diversification alimentaire',
-    tabToday: "Aujourd'hui", tabFoods: 'Aliments', tabProgress: 'Progrès', tabSettings: 'Réglages', dotHint: 'quelque chose à faire', mealLate: 'pas encore noté', sameYesterday: 'Comme hier', planDone: 'A mangé le prévu', recentFoods: 'Récents',
+    tabToday: "Aujourd'hui", tabFoods: 'Aliments', tabProgress: 'Progrès', tabSettings: 'Réglages', dotHint: 'quelque chose à faire', mealLate: 'pas encore noté', certKicker: 'Le défi des 100 aliments', certFoods: 'aliments goûtés', certAlt: m => `Certificat de ${m} aliments goûtés`,
+    marcoTitle: m => `${m} aliments goûtés !`, marcoLead: (n, m) => n ? `${n} a déjà goûté ${m} aliments différents. Gardez le certificat ou partagez-le avec la famille.` : `Déjà ${m} aliments différents. Gardez le certificat ou partagez-le avec la famille.`,
+    certShare: 'Partager le certificat', certSave: "Enregistrer l'image", certOpen: m => `Voir le certificat des ${m} aliments`,
+    rewardKicker: 'Votre récompense', rewardText: 'Une réduction dans la boutique Petit Nuvem pour fêter ça. Utilisez ce code au paiement :', rewardFine: 'Une utilisation par client. Non cumulable avec d’autres campagnes.', rewardShop: 'Utiliser en boutique', sameYesterday: 'Comme hier', planDone: 'A mangé le prévu', recentFoods: 'Récents',
     today: "Aujourd'hui", prevDay: 'Jour précédent', nextDay: 'Jour suivant',
     addFood: '+ Noter un aliment', emptyDay: 'Rien de noté pour ce jour.',
     ageMonths: n => `${n} mois`, ageLine: (name, age) => `${name} · ${age}`,

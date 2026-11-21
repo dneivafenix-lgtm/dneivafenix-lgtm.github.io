@@ -46,6 +46,7 @@
     jmoods: Object.fromEntries(Object.entries(b.jmoods && typeof b.jmoods === 'object' ? b.jmoods : {}).filter(([d, m]) => /^\d{4}-\d\d-\d\d(\|p)?$/.test(d) && MOODS.includes(m))),
     method: METHODS.includes(b.method) ? b.method : '', premature: !!b.premature, eczema: !!b.eczema, diet: ['veg', 'vegan'].includes(b.diet) ? b.diet : '',
     avoid: (Array.isArray(b.avoid) ? b.avoid : []).filter(a => F.allergens.includes(a)),
+    marcos: Array.isArray(b.marcos) ? b.marcos.filter(m => CFG.milestones.includes(m)) : null,
     bought: { week: DATE.test(b.bought?.week) ? b.bought.week : '', lines: (Array.isArray(b.bought?.lines) ? b.bought.lines : []).filter(x => typeof x === 'string').slice(0, 300) }
   });
   // O bebé ativo fica acessível em state.baby e os seus registos em state.log (não são gravados em duplicado).
@@ -1544,7 +1545,9 @@
             state.baby.name && el('p', { class: 'eyebrow' }, state.baby.name),
             el('h2', {}, t().foodsTried),
             el('p', { class: 'next' }, next ? t().nextMilestone(next) : t().allDone))),
-        el('div', { class: 'medals' }, CFG.milestones.map(m => el('span', { class: 'medal' + (tried.size >= m ? ' on' : '') }, String(m))))),
+        el('div', { class: 'medals' }, CFG.milestones.map(m => tried.size >= m
+          ? el('button', { class: 'medal on', 'aria-label': t().certOpen(m), onclick: () => openMarco(m) }, String(m))
+          : el('span', { class: 'medal' }, String(m))))),
       el('div', { class: 'stats' }, [[state.log.length, t().statLogs], [streak, t().statStreak], [days.size, t().statDays]].map(([n, label]) =>
         el('div', { class: 'card stat' }, el('b', {}, String(n)), el('span', {}, label(n))))),
       el('button', { class: 'ghost', onclick: () => { tab = 'path'; render(); window.scrollTo(0, 0); } }, t().pathTitle),
@@ -1804,6 +1807,64 @@
   const EXTRA = { path: [viewPath, 'today', 'pathTitle'], report: [viewReport, 'progress', 'reportOpen'], allergens: [viewAllergens, 'progress', 'algTitle'], guides: [viewGuides, 'today', 'guidesTitle'], journal: [viewJournal, 'today', 'journalTitle'], jbook: [viewJBook, 'today', 'jExportTitle'] };
   const ALL_TABS = [['today', 'tabToday', viewToday], ['foods', 'tabFoods', viewFoods], ['recipes', 'tabRecipes', viewRecipes], ['progress', 'tabProgress', viewProgress], ['settings', 'tabSettings', viewSettings]];
   let TABS = ALL_TABS;
+  // ---------- marcos dos alimentos: celebração, certificado e prémio da loja ----------
+  const RW = Object.assign({ codesLive: false, shop: '', codes: {} }, CFG.rewards);
+  const triedCount = () => new Set(state.log.map(e => e.food)).size;
+  // Dia em que o bebé chegou ao marco (o dia do m-ésimo alimento novo).
+  const marcoDate = m => {
+    const seen = new Set();
+    for (const e of [...state.log].sort((a, b) => a.date.localeCompare(b.date))) { seen.add(e.food); if (seen.size >= m) return parse(e.date); }
+    return new Date();
+  };
+  const certCanvas = async m => {
+    try { await Promise.all(['700 64px Manrope', '400 40px "DM Sans"', '600 72px Caveat'].map(f => document.fonts.load(f))); } catch { /* usa a letra do sistema */ }
+    const W = 1080, H = 1350, c = Object.assign(document.createElement('canvas'), { width: W, height: H }), x = c.getContext('2d');
+    x.fillStyle = '#faf6f2'; x.fillRect(0, 0, W, H);
+    const cloud = (cx, cy, k, a) => { x.save(); x.globalAlpha = a; x.fillStyle = '#fff'; x.beginPath();
+      [[0, 0, 70], [-75, 20, 50], [80, 18, 55], [-30, -40, 55], [40, -35, 50]].forEach(([dx, dy, r]) => { x.moveTo(cx + dx * k + r * k, cy + dy * k); x.arc(cx + dx * k, cy + dy * k, r * k, 0, Math.PI * 2); });
+      x.fill(); x.restore(); };
+    cloud(170, 210, 1.3, 1); cloud(900, 330, 1, .9); cloud(860, 1130, 1.2, .9); cloud(200, 1180, .8, .8);
+    x.strokeStyle = '#d9c6b8'; x.lineWidth = 4; x.setLineDash([14, 12]); x.strokeRect(60, 60, W - 120, H - 120); x.setLineDash([]);
+    x.textAlign = 'center'; x.fillStyle = '#a8552e'; x.font = '700 34px Manrope'; x.fillText(t().certKicker.toUpperCase(), W / 2, 360);
+    x.fillStyle = '#3b2e28'; x.font = '800 260px Manrope'; x.fillText(String(m), W / 2, 640);
+    x.font = '700 64px Manrope'; x.fillText(t().certFoods, W / 2, 740);
+    const who = state.baby.name || t().babyDefault;
+    x.fillStyle = '#6b5246'; x.font = '600 96px Caveat'; x.fillText(who, W / 2, 900);
+    x.fillStyle = '#77675f'; x.font = '400 38px "DM Sans"';
+    x.fillText(new Intl.DateTimeFormat(state.lang, { day: 'numeric', month: 'long', year: 'numeric' }).format(marcoDate(m)), W / 2, 980);
+    x.fillStyle = '#6b5246'; x.font = '700 40px Manrope'; x.fillText('Petit Nuvem', W / 2, 1180);
+    x.fillStyle = '#77675f'; x.font = '400 30px "DM Sans"'; x.fillText('app.petitnuvem.com', W / 2, 1230);
+    return c;
+  };
+  const openMarco = async m => {
+    const c = await certCanvas(m), url = c.toDataURL('image/jpeg', .9);
+    const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .9)), name = `petit-nuvem-${m}-alimentos.jpg`;
+    const file = typeof File === 'function' ? new File([blob], name, { type: 'image/jpeg' }) : null;
+    const canShare = !!file && !!navigator.share && !!navigator.canShare && navigator.canShare({ files: [file] });
+    const code = RW.codesLive && RW.codes[m];
+    openSheet(sheetHead('', t().marcoTitle(m)),
+      el('p', { class: 'muted' }, t().marcoLead(state.baby.name, m)),
+      el('img', { class: 'cert', src: url, alt: t().certAlt(m), width: 1080, height: 1350 }),
+      el('div', { class: 'btnrow' }, canShare
+        ? el('button', { class: 'primary', onclick: () => navigator.share({ files: [file], title: t().marcoTitle(m) }).catch(() => {}) }, t().certShare)
+        : el('button', { class: 'primary', onclick: () => downloadBlob(blob, name) }, t().certSave)),
+      code ? el('div', { class: 'card reward' },
+        el('p', { class: 'eyebrow' }, t().rewardKicker),
+        el('p', {}, t().rewardText),
+        el('p', { class: 'rcode' }, code),
+        el('p', { class: 'fine' }, t().rewardFine),
+        el('div', { class: 'btnrow' }, el('a', { class: 'ghost btnlink', href: `${RW.shop}/discount/${encodeURIComponent(code)}`, target: '_blank', rel: 'noopener' }, t().rewardShop))) : null,
+      el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().close)));
+  };
+  // Celebra uma vez cada marco novo. Quem já tinha passado marcos antes desta versão não recebe a celebração dos antigos.
+  const checkMarcos = () => {
+    const b = state.baby, n = triedCount(), reached = CFG.milestones.filter(m => n >= m);
+    if (b.marcos === null) { b.marcos = reached; save(); return; }
+    const fresh = reached.filter(m => !b.marcos.includes(m));
+    if (!fresh.length || sheet.open) return;
+    b.marcos = [...b.marcos, ...fresh]; save();
+    openMarco(fresh[fresh.length - 1]);
+  };
   const drawTabs = current => {
     const dots = state.onboarded ? dotReasons() : {};
     if (dots[current]) { dotSeen(current); delete dots[current]; }
@@ -1830,6 +1891,7 @@
       if (shown && window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: '/' + key, title: key, event: false });
       shown = key; main.classList.remove('enter'); void main.offsetWidth; main.classList.add('enter');
     }
+    if (!welcome) checkMarcos();
   };
   // Marca: tenta a imagem do logótipo; se falhar fica a nuvem com o nome.
   $('brandName').textContent = CFG.brand.name;
