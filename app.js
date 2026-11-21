@@ -71,7 +71,7 @@
       goals: (Array.isArray(s.goals) ? s.goals : []).filter(g => GOALS.includes(g)), started: typeof s.started === 'boolean' ? s.started : null, hideStart: !!s.hideStart,
       since: DATE.test(s.since) ? s.since : '', inviteAt: Math.max(0, +s.inviteAt || 0),
       backupAt: Math.max(0, +s.backupAt || 0), backupAsk: Math.max(0, +s.backupAsk || 0),
-      dots: { today: DATE.test(s.dots?.today) ? s.dots.today : '', progress: DATE.test(s.dots?.progress) ? s.dots.progress : '', settings: DATE.test(s.dots?.settings) ? s.dots.settings : '', stage: typeof s.dots?.stage === 'string' ? s.dots.stage.slice(0, 40) : '' },
+      dots: { today: DATE.test(s.dots?.today) ? s.dots.today : '', meals: (Array.isArray(s.dots?.meals) ? s.dots.meals : []).filter(m => MEALS.includes(m)), progress: DATE.test(s.dots?.progress) ? s.dots.progress : '', settings: DATE.test(s.dots?.settings) ? s.dots.settings : '', stage: typeof s.dots?.stage === 'string' ? s.dots.stage.slice(0, 40) : '' },
       favFoods: [...new Set(Array.isArray(s.favFoods) ? s.favFoods : [])].filter(id => F.byId.has(id)),
       favRecipes: [...new Set(Array.isArray(s.favRecipes) ? s.favRecipes : [])].filter(n => Number.isInteger(n) && R && R.list[n]),
       babies, current: seen.has(s.current) ? s.current : babies[0].id
@@ -978,13 +978,19 @@
   // ---------- pontos de «tens algo por fazer» nos separadores ----------
   // No máximo um ponto por separador. Some quando a pessoa entra no separador e volta no dia seguinte
   // se a tarefa continuar por fazer. O número no ícone da app só muda quando a app é aberta (não há servidor).
-  const DOT_HOUR = 17; // a partir desta hora, um dia sem refeições registadas acende o ponto em «Hoje»
+  // Hora a partir da qual uma refeição de hoje ainda sem registos conta como «por fazer».
+  const MEAL_DUE = { breakfast: [10, 30], lunch: [14, 0], snack: [17, 0], dinner: [21, 0] };
+  const mealsLate = () => {
+    const now = new Date(), mins = now.getHours() * 60 + now.getMinutes(), today = todayIso();
+    return MEALS.filter(m => mins >= MEAL_DUE[m][0] * 60 + MEAL_DUE[m][1] && !state.log.some(e => e.date === today && e.meal === m));
+  };
   const backupLate = () => { const base = state.backupAt || firstRecord(); return !!base && Date.now() - base >= 30 * 864e5; };
   const stageKey = () => { const st = hasRecipes() ? babyStage() : null; return st == null ? '' : state.baby.id + ':' + st; };
   const dotReasons = () => {
     const d = state.dots, today = todayIso(), r = {};
     if (!state.onboarded) return r;
-    if (new Date().getHours() >= DOT_HOUR && !state.log.some(e => e.date === today) && d.today !== today) r.today = true;
+    const seenMeals = d.today === today ? d.meals : [];
+    if (mealsLate().some(m => !seenMeals.includes(m))) r.today = true;
     if (d.progress !== today && allergenStatus().some(x => x.due)) r.progress = true;
     if (d.settings !== today && (backupLate() || !state.baby.birth || !state.baby.method)) r.settings = true;
     const sk = stageKey();
@@ -993,6 +999,7 @@
   };
   const dotSeen = id => {
     if (id === 'recipes') state.dots.stage = stageKey();
+    else if (id === 'today') { state.dots.meals = state.dots.today === todayIso() ? [...new Set([...state.dots.meals, ...mealsLate()])] : mealsLate(); state.dots.today = todayIso(); }
     else state.dots[id] = todayIso();
     save();
   };
@@ -1409,9 +1416,9 @@
           note ? el('span', { class: 'sumchip note' }, t().optNote) : null,
           dayJournal.length ? el('span', { class: 'sumchip note' }, t().journalTitle) : null) : null,
         el('div', { class: 'meals' }, MEALS.map(m => {
-          const rows = entries.filter(e => e.meal === m);
+          const rows = entries.filter(e => e.meal === m), late = day === todayIso() && mealsLate().includes(m);
           return el('section', { class: 'meal' },
-            el('div', { class: 'mealhead' }, el('h3', {}, t().meals[m]), el('button', { class: 'mealadd', 'aria-label': t().addToMeal(t().meals[m]), onclick: () => openPicker(day, m) }, icon('plus', 20))),
+            el('div', { class: 'mealhead' }, el('h3', { 'aria-label': late ? `${t().meals[m]}, ${t().mealLate}` : null }, t().meals[m], late && el('span', { class: 'mdot', 'aria-hidden': 'true' })), el('button', { class: 'mealadd', 'aria-label': t().addToMeal(t().meals[m]), onclick: () => openPicker(day, m) }, icon('plus', 20))),
             rows.length ? el('div', { class: 'mealrows' }, rows.map(e => entryRow(e, false))) : null);
         }),
           entries.some(e => !e.meal) ? el('section', { class: 'meal' }, el('div', { class: 'mealhead' }, el('h3', {}, t().mealOther)),
