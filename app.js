@@ -47,6 +47,7 @@
     method: METHODS.includes(b.method) ? b.method : '', premature: !!b.premature, eczema: !!b.eczema, diet: ['veg', 'vegan'].includes(b.diet) ? b.diet : '',
     avoid: (Array.isArray(b.avoid) ? b.avoid : []).filter(a => F.allergens.includes(a)),
     marcos: Array.isArray(b.marcos) ? b.marcos.filter(m => CFG.milestones.includes(m)) : null,
+    prizes: (Array.isArray(b.prizes) ? b.prizes : []).filter(m => CFG.milestones.includes(m)),
     bought: { week: DATE.test(b.bought?.week) ? b.bought.week : '', lines: (Array.isArray(b.bought?.lines) ? b.bought.lines : []).filter(x => typeof x === 'string').slice(0, 300) }
   });
   // O bebé ativo fica acessível em state.baby e os seus registos em state.log (não são gravados em duplicado).
@@ -1808,7 +1809,24 @@
   const ALL_TABS = [['today', 'tabToday', viewToday], ['foods', 'tabFoods', viewFoods], ['recipes', 'tabRecipes', viewRecipes], ['progress', 'tabProgress', viewProgress], ['settings', 'tabSettings', viewSettings]];
   let TABS = ALL_TABS;
   // ---------- marcos dos alimentos: celebração, certificado e prémio da loja ----------
-  const RW = Object.assign({ codesLive: false, shop: '', codes: {} }, CFG.rewards);
+  const RW = Object.assign({ codesLive: false, shop: '', codes: {}, percent: {}, minOrder: 0 }, CFG.rewards);
+  const RR = Object.assign({ newPerDay: 3, lateDays: 2, minDays: {} }, RW.rules);
+  // Contagem para os prémios da loja (contra registos feitos de uma vez só para ganhar o código).
+  // A hora em que cada registo foi criado está no início do id (Date.now em base 36).
+  const created = e => { const n = parseInt(String(e.id).slice(0, 8), 36); return n > 1.5e12 && n < 4e12 ? n : 0; };
+  const rewardStats = () => {
+    const ok = state.log.filter(e => {
+      if (!MEALS.includes(e.meal)) return false;
+      const c = created(e); if (!c) return false;
+      const lag = (parse(iso(new Date(c))) - parse(e.date)) / 864e5;
+      return lag >= 0 && lag <= RR.lateDays;
+    }).sort((a, b) => a.date.localeCompare(b.date) || created(a) - created(b));
+    const seen = new Set(), perDay = {};
+    for (const e of ok) { if (seen.has(e.food) || (perDay[e.date] || 0) >= RR.newPerDay) continue; seen.add(e.food); perDay[e.date] = (perDay[e.date] || 0) + 1; }
+    return { count: seen.size, first: ok.length ? Math.min(...ok.map(created)) : 0 };
+  };
+  const prizeFrom = (m, st) => st.first ? st.first + (RR.minDays[m] || 0) * 864e5 : 0;
+  const prizeReady = (m, st = rewardStats()) => !!(RW.codesLive && RW.codes[m]) && st.count >= m && Date.now() >= prizeFrom(m, st);
   const triedCount = () => new Set(state.log.map(e => e.food)).size;
   // Dia em que o bebé chegou ao marco (o dia do m-ésimo alimento novo).
   const marcoDate = m => {
@@ -1841,19 +1859,26 @@
     const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .9)), name = `petit-nuvem-${m}-alimentos.jpg`;
     const file = typeof File === 'function' ? new File([blob], name, { type: 'image/jpeg' }) : null;
     const canShare = !!file && !!navigator.share && !!navigator.canShare && navigator.canShare({ files: [file] });
-    const code = RW.codesLive && RW.codes[m];
+    const code = RW.codesLive && RW.codes[m], st = rewardStats(), ready = prizeReady(m, st);
+    if (ready && signedIn() && !state.baby.prizes.includes(m)) { state.baby.prizes = [...state.baby.prizes, m]; save(); }
+    const longDate = ms => new Intl.DateTimeFormat(state.lang, { day: 'numeric', month: 'long' }).format(new Date(ms));
     openSheet(sheetHead('', t().marcoTitle(m)),
       el('p', { class: 'muted' }, t().marcoLead(state.baby.name, m)),
       el('img', { class: 'cert', src: url, alt: t().certAlt(m), width: 1080, height: 1350 }),
       el('div', { class: 'btnrow' }, canShare
         ? el('button', { class: 'primary', onclick: () => navigator.share({ files: [file], title: t().marcoTitle(m) }).catch(() => {}) }, t().certShare)
         : el('button', { class: 'primary', onclick: () => downloadBlob(blob, name) }, t().certSave)),
-      code ? el('div', { class: 'card reward' },
+      !code ? null : ready && signedIn() ? el('div', { class: 'card reward' },
         el('p', { class: 'eyebrow' }, t().rewardKicker),
-        el('p', {}, t().rewardText),
+        el('p', {}, t().rewardText(RW.percent[m], RW.minOrder)),
         el('p', { class: 'rcode' }, code),
         el('p', { class: 'fine' }, t().rewardFine),
-        el('div', { class: 'btnrow' }, el('a', { class: 'ghost btnlink', href: `${RW.shop}/discount/${encodeURIComponent(code)}`, target: '_blank', rel: 'noopener' }, t().rewardShop))) : null,
+        el('div', { class: 'btnrow' }, el('a', { class: 'ghost btnlink', href: `${RW.shop}/discount/${encodeURIComponent(code)}`, target: '_blank', rel: 'noopener' }, t().rewardShop)))
+        : ready ? el('div', { class: 'card reward' },
+          el('p', { class: 'eyebrow' }, t().rewardKicker), el('p', {}, t().rewardLogin),
+          accOn() ? el('div', { class: 'btnrow' }, el('button', { class: 'primary', onclick: () => accSignIn().catch(() => toast(t().accFail)) }, t().rewardLoginBtn)) : null)
+        : el('div', { class: 'card reward' }, el('p', { class: 'eyebrow' }, t().rewardKicker),
+          el('p', { class: 'muted' }, st.count >= m ? t().rewardWaitDate(longDate(prizeFrom(m, st))) : t().rewardWaitCount(RR.newPerDay, RR.lateDays))),
       el('div', { class: 'btnrow' }, el('button', { class: 'ghost', onclick: closeSheet }, t().close)));
   };
   // Celebra uma vez cada marco novo. Quem já tinha passado marcos antes desta versão não recebe a celebração dos antigos.
@@ -1861,9 +1886,13 @@
     const b = state.baby, n = triedCount(), reached = CFG.milestones.filter(m => n >= m);
     if (b.marcos === null) { b.marcos = reached; save(); return; }
     const fresh = reached.filter(m => !b.marcos.includes(m));
-    if (!fresh.length || sheet.open) return;
-    b.marcos = [...b.marcos, ...fresh]; save();
-    openMarco(fresh[fresh.length - 1]);
+    if (sheet.open) return;
+    if (fresh.length) { b.marcos = [...b.marcos, ...fresh]; save(); openMarco(fresh[fresh.length - 1]); return; }
+    // Prémio que ficou disponível depois do marco (passou o tempo mínimo, ou a pessoa iniciou sessão): mostra-o uma vez.
+    if (RW.codesLive && signedIn()) {
+      const st = rewardStats(), due = b.marcos.filter(m => RW.codes[m] && !b.prizes.includes(m) && prizeReady(m, st));
+      if (due.length) openMarco(due[due.length - 1]);
+    }
   };
   const drawTabs = current => {
     const dots = state.onboarded ? dotReasons() : {};
