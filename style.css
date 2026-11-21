@@ -470,6 +470,12 @@ dialog[open]::backdrop{animation:fade .3s ease}
 .meal:first-child{border-top:0}
 .mealhead{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px}
 .mealhead h3{font-family:var(--display);font-weight:600;font-size:16px;margin:0}
+.quicks{display:flex;flex-direction:column;gap:8px;padding:0 0 10px}
+.quick{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;text-align:left;border:1px dashed var(--edge);border-radius:14px;background:none;padding:8px 12px;font-size:14px;line-height:1.35;color:var(--body)}
+.quick .ico{width:auto;height:auto;flex:none;color:var(--brand)}
+.quick span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.quick b{color:var(--ink);font-weight:600}
+.quick:active{background:var(--tint)}
 .mdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#d63c2f;margin-left:8px;vertical-align:middle;position:relative;top:-1px}
 .mealadd{width:40px;height:40px;border-radius:50%;border:0;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;flex:none}
 .mealadd:active{transform:scale(.94)}

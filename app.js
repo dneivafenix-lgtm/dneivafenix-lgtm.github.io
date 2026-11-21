@@ -172,6 +172,7 @@
   };
   // Ícones de traço (conteúdo estático, nunca texto do utilizador).
   const ICONS = {
+    repeat: '<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>',
     today: '<path d="M4 10l8-6 8 6v10H4z"/>',
     foods: '<path d="M5 12l4 4 10-10"/>',
     progress: '<path d="M5 20V11M12 20V4M19 20v-6"/>',
@@ -360,6 +361,29 @@
     save(); return fresh.length;
   };
   let pickMode = 'foods', pickCat = '';
+  // Alimentos dados nos últimos 14 dias (até ao dia escolhido), do mais recente para o mais antigo.
+  const recentFoods = date => {
+    const from = iso(new Date(parse(date).getTime() - 14 * 864e5)), seen = new Set();
+    state.log.filter(e => e.date <= date && e.date >= from).sort((a, b) => b.date.localeCompare(a.date)).forEach(e => seen.add(e.food));
+    return [...seen].filter(id => F.byId.has(id)).slice(0, 12);
+  };
+  // Atalhos de um toque numa refeição vazia: repetir o que comeu na véspera, ou confirmar a receita planeada.
+  const quickMeal = (date, m) => {
+    const prev = iso(new Date(parse(date).getTime() - 864e5));
+    const before = state.log.filter(e => e.date === prev && e.meal === m);
+    const done = new Set(state.log.filter(e => e.date === date && e.recipe !== null).map(e => e.recipe));
+    const plan = hasRecipes() ? planFor(date).find(r => r.meals.includes(m) && !done.has(r.id) && r.foods.length) : null;
+    const out = [];
+    if (plan) out.push(el('button', { class: 'quick', onclick: () => { const n = addFoods(date, m, plan.foods, plan.id); render(); toast(t().mealAdded(n, t().meals[m])); } },
+      icon('check', 16), el('span', {}, el('b', {}, t().planDone), ' · ', rx(plan).t)));
+    if (before.length) out.push(el('button', { class: 'quick', onclick: () => {
+      let n = 0; const byRecipe = new Map();
+      before.forEach(e => { const k = e.recipe === null ? 'x' : e.recipe; byRecipe.set(k, [...(byRecipe.get(k) || []), e.food]); });
+      for (const [k, ids] of byRecipe) n += addFoods(date, m, ids, k === 'x' ? undefined : k);
+      render(); toast(t().mealAdded(n, t().meals[m]));
+    } }, icon('repeat', 16), el('span', {}, el('b', {}, t().sameYesterday), ' · ', [...new Set(before.map(e => fname(F.byId.get(e.food))))].join(', '))));
+    return out.length ? el('div', { class: 'quicks' }, out) : null;
+  };
   const openPicker = (date, meal) => {
     if (!meal) return openMealPick(date);
     if (!hasRecipes()) pickMode = 'foods';
@@ -391,7 +415,7 @@
       const fav = x => state.favFoods.includes(x.id) ? 0 : 1;
       // Sem pesquisa, mostra só a categoria escolhida; a pesquisa procura em todas.
       const items = ql ? F.foods.filter(x => fname(x).toLowerCase().includes(ql)).sort((x, y) => fav(x) - fav(y))
-        : pickCat === 'fav' ? F.foods.filter(x => !fav(x)) : F.foods.filter(x => x.cat === pickCat);
+        : pickCat === 'recent' ? recent.map(id => F.byId.get(id)) : pickCat === 'fav' ? F.foods.filter(x => !fav(x)) : F.foods.filter(x => x.cat === pickCat);
       cats.hidden = !!ql;
       list.className = 'picklist';
       list.replaceChildren(...(items.length ? items.map(x => el('button', { class: 'pickrow', role: 'checkbox', 'aria-checked': String(picked.has(x.id)),
@@ -403,13 +427,14 @@
         el('span', { class: 'pbox', 'aria-hidden': 'true' }, icon('check', 16)))) : [el('p', { class: 'muted' }, t().noResults)]));
     };
     const input = el('input', { class: 'search', type: 'search', 'aria-label': t().search, oninput: e => { q = e.target.value; fill(); } });
-    const catIds = [...(state.favFoods.length ? ['fav'] : []), ...F.categories];
-    if (!catIds.includes(pickCat)) pickCat = catIds[0];
+    const recent = recentFoods(date);
+    const catIds = [...(recent.length ? ['recent'] : []), ...(state.favFoods.length ? ['fav'] : []), ...F.categories];
+    if (recent.length) pickCat = 'recent'; else if (!catIds.includes(pickCat)) pickCat = catIds[0];
     const cats = el('div', { class: 'chips catstrip', role: 'group', 'aria-label': t().byCategory }, catIds.map(c => el('button', { class: 'chip', 'aria-pressed': String(pickCat === c), onclick: () => {
       pickCat = c; [...cats.children].forEach((b, i) => b.setAttribute('aria-pressed', String(catIds[i] === c))); fill();
       // Se a lista já estava deslocada, volta ao início da nova categoria.
       const gap = list.getBoundingClientRect().top - cats.getBoundingClientRect().bottom; if (gap < 0) document.getElementById('sheetBody').scrollTop += gap;
-    } }, c === 'fav' ? t().favs : t().cat[c])));
+    } }, c === 'recent' ? t().recentFoods : c === 'fav' ? t().favs : t().cat[c])));
     const hint = el('p', { class: 'muted' });
     const modes = hasRecipes() ? el('div', { class: 'chips seg two', role: 'group', style: 'margin-top:12px' }, [['foods', t().tabFoods], ['recipes', t().tabRecipes]].map(([id, label]) =>
       el('button', { class: 'chip', 'aria-pressed': String(pickMode === id), onclick: () => { pickMode = id; setMode(); } }, label))) : null;
@@ -1419,7 +1444,7 @@
           const rows = entries.filter(e => e.meal === m), late = day === todayIso() && mealsLate().includes(m);
           return el('section', { class: 'meal' },
             el('div', { class: 'mealhead' }, el('h3', { 'aria-label': late ? `${t().meals[m]}, ${t().mealLate}` : null }, t().meals[m], late && el('span', { class: 'mdot', 'aria-hidden': 'true' })), el('button', { class: 'mealadd', 'aria-label': t().addToMeal(t().meals[m]), onclick: () => openPicker(day, m) }, icon('plus', 20))),
-            rows.length ? el('div', { class: 'mealrows' }, rows.map(e => entryRow(e, false))) : null);
+            rows.length ? el('div', { class: 'mealrows' }, rows.map(e => entryRow(e, false))) : quickMeal(day, m));
         }),
           entries.some(e => !e.meal) ? el('section', { class: 'meal' }, el('div', { class: 'mealhead' }, el('h3', {}, t().mealOther)),
             el('div', { class: 'mealrows' }, entries.filter(e => !e.meal).map(e => entryRow(e, false)))) : null),

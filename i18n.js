@@ -2,7 +2,7 @@
 window.DiaryI18n = {
   pt: {
     langName: 'Português', tagline: 'Diário de introdução alimentar',
-    tabToday: 'Hoje', tabFoods: 'Alimentos', tabProgress: 'Progresso', tabSettings: 'Definições', dotHint: 'tem algo por fazer', mealLate: 'ainda por registar',
+    tabToday: 'Hoje', tabFoods: 'Alimentos', tabProgress: 'Progresso', tabSettings: 'Definições', dotHint: 'tem algo por fazer', mealLate: 'ainda por registar', sameYesterday: 'Igual a ontem', planDone: 'Comeu o planeado', recentFoods: 'Recentes',
     today: 'Hoje', prevDay: 'Dia anterior', nextDay: 'Dia seguinte',
     addFood: '+ Registar alimento', emptyDay: 'Ainda sem registos neste dia.',
     ageMonths: n => n === 1 ? '1 mês' : `${n} meses`, ageLine: (name, age) => `${name} · ${age}`,
@@ -30,7 +30,7 @@ window.DiaryI18n = {
   },
   en: {
     langName: 'English', tagline: 'Starting solids diary',
-    tabToday: 'Today', tabFoods: 'Foods', tabProgress: 'Progress', tabSettings: 'Settings', dotHint: 'something to do', mealLate: 'not logged yet',
+    tabToday: 'Today', tabFoods: 'Foods', tabProgress: 'Progress', tabSettings: 'Settings', dotHint: 'something to do', mealLate: 'not logged yet', sameYesterday: 'Same as yesterday', planDone: 'Ate what was planned', recentFoods: 'Recent',
     today: 'Today', prevDay: 'Previous day', nextDay: 'Next day',
     addFood: '+ Log a food', emptyDay: 'Nothing logged for this day yet.',
     ageMonths: n => n === 1 ? '1 month' : `${n} months`, ageLine: (name, age) => `${name} · ${age}`,
@@ -58,7 +58,7 @@ window.DiaryI18n = {
   },
   es: {
     langName: 'Español', tagline: 'Diario de alimentación complementaria',
-    tabToday: 'Hoy', tabFoods: 'Alimentos', tabProgress: 'Progreso', tabSettings: 'Ajustes', dotHint: 'tienes algo pendiente', mealLate: 'aún sin registrar',
+    tabToday: 'Hoy', tabFoods: 'Alimentos', tabProgress: 'Progreso', tabSettings: 'Ajustes', dotHint: 'tienes algo pendiente', mealLate: 'aún sin registrar', sameYesterday: 'Igual que ayer', planDone: 'Comió lo planeado', recentFoods: 'Recientes',
     today: 'Hoy', prevDay: 'Día anterior', nextDay: 'Día siguiente',
     addFood: '+ Registrar alimento', emptyDay: 'Aún no hay registros este día.',
     ageMonths: n => n === 1 ? '1 mes' : `${n} meses`, ageLine: (name, age) => `${name} · ${age}`,
@@ -86,7 +86,7 @@ window.DiaryI18n = {
   },
   fr: {
     langName: 'Français', tagline: 'Journal de diversification alimentaire',
-    tabToday: "Aujourd'hui", tabFoods: 'Aliments', tabProgress: 'Progrès', tabSettings: 'Réglages', dotHint: 'quelque chose à faire', mealLate: 'pas encore noté',
+    tabToday: "Aujourd'hui", tabFoods: 'Aliments', tabProgress: 'Progrès', tabSettings: 'Réglages', dotHint: 'quelque chose à faire', mealLate: 'pas encore noté', sameYesterday: 'Comme hier', planDone: 'A mangé le prévu', recentFoods: 'Récents',
     today: "Aujourd'hui", prevDay: 'Jour précédent', nextDay: 'Jour suivant',
     addFood: '+ Noter un aliment', emptyDay: 'Rien de noté pour ce jour.',
     ageMonths: n => `${n} mois`, ageLine: (name, age) => `${name} · ${age}`,
