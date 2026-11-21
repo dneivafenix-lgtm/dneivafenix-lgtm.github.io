@@ -1870,9 +1870,9 @@
         : el('button', { class: 'primary', onclick: () => downloadBlob(blob, name) }, t().certSave)),
       !code ? null : ready && signedIn() ? el('div', { class: 'card reward' },
         el('p', { class: 'eyebrow' }, t().rewardKicker),
-        el('p', {}, t().rewardText(RW.percent[m], RW.minOrder)),
+        el('p', {}, t().rewardText(RW.percent[m])),
         el('p', { class: 'rcode' }, code),
-        el('p', { class: 'fine' }, t().rewardFine),
+        el('p', { class: 'fine' }, t().rewardFine(RW.minOrder)),
         el('div', { class: 'btnrow' }, el('a', { class: 'ghost btnlink', href: `${RW.shop}/discount/${encodeURIComponent(code)}`, target: '_blank', rel: 'noopener' }, t().rewardShop)))
         : ready ? el('div', { class: 'card reward' },
           el('p', { class: 'eyebrow' }, t().rewardKicker), el('p', {}, t().rewardLogin),

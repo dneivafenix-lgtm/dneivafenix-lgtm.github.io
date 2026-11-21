@@ -13,11 +13,11 @@ window.DiaryConfig = {
   // Marcos do desafio (número de alimentos provados).
   milestones: [10, 25, 50, 75, 100],
   // Prémios dos marcos: certificado para partilhar e, quando os códigos existirem na loja, um código de desconto.
-  // codesLive: false até a equipa criar os códigos no Shopify (os nomes abaixo são provisórios).
+  // Códigos ativos no Shopify desde 21/11 (excluem kits e packs, por margem).
   // Por regra da loja, estes códigos não acumulam com as campanhas.
   // O código só aparece a quem tem sessão iniciada na conta da loja e cumpre as regras abaixo (o certificado é livre).
   rewards: {
-    codesLive: false,
+    codesLive: true,
     shop: 'https://petitnuvem.com',
     codes: { 10: 'MARCO10', 25: 'MARCO25', 50: 'MARCO50', 100: 'MARCO100' },
     percent: { 10: 5, 25: 10, 50: 10, 100: 15 },
