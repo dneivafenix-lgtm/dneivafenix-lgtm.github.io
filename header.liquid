@@ -170,6 +170,48 @@
   </script>
 {%- endif -%}
 {%- comment -%}
+  22/11 (Diogo, Black Week sem portes grátis): de 24 a 30/11 não há envio grátis em Portugal continental; todas as encomendas pagam 4,90 €.
+  Este script tira «grátis a partir de 39/49 €» dos textos do site (faixas, rodapé, página do produto, janela do artigo) e esconde a barra dos portes grátis no saco.
+  A 1/12 desliga-se sozinho e os textos voltam a «a partir de 49 €». As tarifas mudam por tarefa agendada (24/11 e 1/12). Testar: ?pn_portes=bw.
+{%- endcomment -%}
+<style>
+  .pn-sem-gratis #pnFrete{display:none!important}
+</style>
+<script>
+  (function () {
+    var n = Date.now(), on = (n >= Date.UTC(2026, 10, 24) && n < Date.UTC(2026, 11, 1)) || /[?&]pn_portes=bw/.test(location.search);
+    if (!on) return;
+    document.documentElement.classList.add('pn-sem-gratis');
+    var LEGAL = /\/policies\/|\/pages\/(envios|condiciones-generales|aviso-legal|devoluciones-y-desistimiento|privacidad)(\/|$)/.test(location.pathname);
+    var M = '(?:a partir de|acima de|desde|más de|from|over|above)\\s*€?\\s*\\d+(?:[.,]\\d+)?\\s*€?';
+    var R = [
+      [new RegExp('\\s*\\((?:pack|packs)[^)]*\\d+\\s?€\\)', 'i'), ''],
+      [new RegExp('^\\s*(Envio|Envío) (?:CTT )?gr[áa]tis(?: ' + M + ')?', 'i'), '$1 CTT 4,90 €'],
+      [new RegExp('^\\s*Free (?:CTT )?shipping(?: ' + M + ')?', 'i'), 'CTT shipping €4.90'],
+      [new RegExp(',\\s*gr[áa]tis ' + M, 'i'), ' 4,90 €'],
+      [new RegExp(',\\s*free ' + M, 'i'), ' €4.90'],
+      [new RegExp('\\s*·\\s*(?:envio |envío |free shipping )?(?:gr[áa]tis|free)(?: shipping)? ' + M, 'i'), '']
+    ];
+    var G = /gr[áa]tis|free/i, S = /envio|envío|portes|shipping/i;
+    var rep = function (t) { for (var i = 0; i < R.length; i++) t = t.replace(R[i][0], R[i][1]); return t; };
+    var fix = function (root) {
+      if (!root) return;
+      var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), x;
+      while ((x = w.nextNode())) {
+        var v = x.nodeValue; if (!G.test(v) || !S.test(v)) continue;
+        var e = x.parentElement; if (!e || e.closest('script,style') || (LEGAL && e.closest('#MainContent'))) continue;
+        if (e.closest('#cart')) { if (!e.closest('#pnFrete')) e.hidden = true; continue; }
+        var r = rep(v); if (r !== v) x.nodeValue = r;
+      }
+    };
+    var t = 0;
+    document.addEventListener('DOMContentLoaded', function () {
+      fix(document.body);
+      new MutationObserver(function () { clearTimeout(t); t = setTimeout(function () { fix(document.body); }, 120); }).observe(document.body, { childList: true, subtree: true, characterData: true });
+    });
+  })();
+</script>
+{%- comment -%}
   09/11 (entrega-48h): «Em stock · entrega em 48 horas úteis em Portugal continental» logo a seguir ao botão de compra, nos artigos em stock: Mushie, packs e kit.
   Não aparece na roupa (vem do parceiro de produção), nos PDF nem nos artigos «Por encomenda». Esconde-se se a cor escolhida estiver esgotada.
   Também muda o interruptor da grelha para «Entrega em 48 h» e tira de lá a roupa (marca os cartões de roupa com data-mto, que é o que o interruptor esconde).
