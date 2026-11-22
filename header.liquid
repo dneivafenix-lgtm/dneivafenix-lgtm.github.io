@@ -1,0 +1,470 @@
+{%- assign pn_announcement = section.settings.announcement -%}{%- if pn_announcement == blank -%}{%- assign pn_announcement = 'sections.header.announcement' | t -%}{%- endif -%}{%- assign pn_tagline = section.settings.tagline -%}{%- if pn_tagline == blank -%}{%- assign pn_tagline = 'sections.header.tagline' | t -%}{%- endif -%}{%- assign pn_drawer_text = section.settings.drawer_text -%}{%- if pn_drawer_text == blank -%}{%- assign pn_drawer_text = 'sections.header.drawer_text' | t -%}{%- endif -%}
+{%- comment -%}
+  09/11 (campanha-novembro-2026): faixa de cima com os descontos automáticos e o período (DL 70/2007).
+  10 a 23/11: −15% artigos e −30% PDF. 24 a 30/11 (Black Week): −20% e −40%.
+  Os descontos estão em Shopify → Descontos, etiqueta campanha-novembro-2026.
+  O script escolhe a fase pela data, o que corrige páginas em cache. Para testar antes do dia 10, juntar ?pn_campanha=nov ou ?pn_campanha=bw ao endereço.
+  O data-pn-natal no link impede o assets/pn-digitais.js de trocar esta faixa pela do Natal. A 1/12 esta faixa sai e volta a do Natal.
+{%- endcomment -%}
+{%- comment -%} 11/11 (auditoria): textos da campanha em PT, EN e ES (antes apareciam em português em /en e /es). {%- endcomment -%}
+{%- liquid
+  assign pnc_lg = request.locale.iso_code | slice: 0, 2
+  case pnc_lg
+    when 'en'
+      assign pnc_nov = '<strong>−15% on almost everything in the shop and −30% on PDFs</strong> · 10 to 23 November · discount already applied in your bag'
+      assign pnc_bw = '<strong>Black Week: −20% on almost everything in the shop and −40% on PDFs</strong> · 24 to 30 November · discount already applied in your bag'
+      assign pnc_ate_nov = 'until 23 November'
+      assign pnc_ate_bw = 'until 30 November'
+      assign pnc_with = 'With the discount it costs'
+      assign pnc_applied = 'applied in your bag'
+      assign pnc_excl = 'Special price · not included in the promotion'
+      assign pnc_last = 'last day'
+      assign pnc_left = '[n] days left'
+    when 'es'
+      assign pnc_nov = '<strong>−15% en casi toda la tienda y −30% en los PDF</strong> · del 10 al 23 de noviembre · descuento ya aplicado en la cesta'
+      assign pnc_bw = '<strong>Black Week: −20% en casi toda la tienda y −40% en los PDF</strong> · del 24 al 30 de noviembre · descuento ya aplicado en la cesta'
+      assign pnc_ate_nov = 'hasta el 23 de noviembre'
+      assign pnc_ate_bw = 'hasta el 30 de noviembre'
+      assign pnc_with = 'Con el descuento se queda en'
+      assign pnc_applied = 'aplicado en la cesta'
+      assign pnc_excl = 'Precio especial · no incluido en la promoción'
+      assign pnc_last = 'último día'
+      assign pnc_left = 'quedan [n] días'
+    else
+      assign pnc_nov = '<strong>−15% em quase toda a loja e −30% nos PDF</strong> · de 10 a 23 de novembro · desconto já aplicado no saco'
+      assign pnc_bw = '<strong>Black Week: −20% em quase toda a loja e −40% nos PDF</strong> · de 24 a 30 de novembro · desconto já aplicado no saco'
+      assign pnc_ate_nov = 'até 23 de novembro'
+      assign pnc_ate_bw = 'até 30 de novembro'
+      assign pnc_with = 'Com o desconto fica por'
+      assign pnc_applied = 'aplicado no saco'
+      assign pnc_excl = 'Preço especial · não incluído na campanha'
+      assign pnc_last = 'último dia'
+      assign pnc_left = 'faltam [n] dias'
+  endcase
+-%}
+{%- assign pn_hoje_c = 'now' | date: '%Y%m%d' | plus: 0 -%}
+{%- assign pn_camp = '' -%}
+{%- if pn_hoje_c >= 20261110 and pn_hoje_c <= 20261123 -%}{%- assign pn_camp = 'nov' -%}{%- elsif pn_hoje_c >= 20261124 and pn_hoje_c <= 20261130 -%}{%- assign pn_camp = 'bw' -%}{%- endif -%}
+{%- if pn_hoje_c >= 20261109 and pn_hoje_c <= 20261130 -%}
+  <style>
+    .announcement.announcement--campanha{background:#6b5246;color:#fff;border-bottom-color:#6b5246}
+    .announcement.announcement--campanha a{display:inline-block;color:#fff;text-decoration:none}
+    .announcement--campanha strong{font-weight:600}
+    .announcement--campanha [hidden],.announcement[hidden]{display:none}
+  </style>
+  <div class="announcement announcement--campanha" data-pn-camp{% if pn_camp == '' %} hidden{% endif %}>
+    <a href="{{ routes.root_url }}#colecao" data-pn-natal><span data-pn-camp-t="nov"{% unless pn_camp == 'nov' %} hidden{% endunless %}>{{ pnc_nov }}</span><span data-pn-camp-t="bw"{% unless pn_camp == 'bw' %} hidden{% endunless %}>{{ pnc_bw }}</span> <span aria-hidden="true">›</span></a>
+  </div>
+{%- endif -%}
+{%- if pn_announcement != blank -%}
+  <div class="announcement" data-pn-aviso{% if pn_camp != '' %} hidden{% endif %}>{{ pn_announcement }}</div>
+{%- endif -%}
+{%- if pn_hoje_c >= 20261109 and pn_hoje_c <= 20261130 -%}
+  <script>
+    (function () {
+      var bar = document.querySelector('[data-pn-camp]'); if (!bar) return;
+      var aviso = document.querySelector('[data-pn-aviso]'), n = Date.now();
+      var k = n < Date.UTC(2026, 10, 10) ? '' : n < Date.UTC(2026, 10, 24) ? 'nov' : n < Date.UTC(2026, 11, 1) ? 'bw' : '';
+      var q = (location.search.match(/[?&]pn_campanha=(nov|bw)/) || [])[1]; if (q) k = q;
+      if (!k) { bar.remove(); if (aviso) aviso.hidden = false; return; }
+      bar.hidden = false; if (aviso) aviso.hidden = true;
+      bar.querySelectorAll('[data-pn-camp-t]').forEach(function (s) { s.hidden = s.getAttribute('data-pn-camp-t') !== k; });
+    })();
+  </script>
+{%- endif -%}
+{%- if pn_hoje_c >= 20261109 and pn_hoje_c <= 20261130 -%}
+  {%- comment -%}
+    09/11 (campanha-novembro-2026, parte 2): os cartões da grelha e a janela do artigo mostram o preço com o desconto da campanha,
+    e a faixa de cima diz quantos dias faltam nos últimos 3 dias de cada fase. As listas são as dos descontos automáticos, por handle
+    (digitais: −30% e depois −40%, mais os 5 cartões de grupo de PDF; físicos: −15% e depois −20%). Um produto novo tem de entrar também aqui.
+  {%- endcomment -%}
+  <style>
+    .pn-camp-on [data-card-price]{text-decoration:line-through;color:#8a7d75;font-weight:400}
+    .pn-camp-on [data-card-was]{display:none!important}
+    .pn-camp-p{margin-left:6px;color:#a8552e;font-weight:700}
+    .pn-camp-b{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:#a8552e;color:#fff;font-size:11.5px;font-weight:700;line-height:1.5;vertical-align:1px}
+    .pn-camp-q{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin:-4px 0 14px;font-size:14px;line-height:1.45;color:#3d3a40}
+    .pn-camp-q strong{color:#a8552e;font-weight:700}
+    .pn-camp-q .pn-camp-b{margin-left:0;font-size:13px;padding:2px 9px}
+    .pn-camp-x{display:block;margin-top:2px;font-size:11.5px;font-weight:400;line-height:1.35;color:#8a7d75}
+    .pn-camp-xq{margin:-4px 0 12px;font-size:12.5px;line-height:1.4;color:#8a7d75}
+    .pn-product__info:has(.pn-campanha:not([hidden])) #productPrice .pn-was{display:none}
+  </style>
+  <script>
+    (function () {
+      var n = Date.now(), k = n < Date.UTC(2026, 10, 10) ? '' : n < Date.UTC(2026, 10, 24) ? 'nov' : n < Date.UTC(2026, 11, 1) ? 'bw' : '';
+      var q = (location.search.match(/[?&]pn_campanha=(nov|bw)/) || [])[1]; if (q) k = q;
+      if (!k) return;
+      var D = ' natal-para-imprimir livros-de-pintar pintar-no-tablet atividades-para-imprimir inverno-e-ano-novo a-primeira-colher-livro-receitas-bebe calendario-do-advento-com-24-atividades-de-natal-pdf carta-ao-pai-natal-e-certificado-da-lista-dos-bem-comportados-pdf etiquetas-de-natal-para-presentes-pdf etiquetas-de-natal-editaveis-com-nomes-pdf postais-de-natal-para-imprimir-pdf enfeites-de-natal-em-papel-para-pintar-e-recortar-pdf desenhos-de-natal-para-maquinas-de-corte-svg-png-e-dxf pacote-de-natal-4-em-1-para-imprimir-pdf planeador-de-refeicoes-do-bebe-pdf cartoes-de-marcos-do-bebe-pdf diario-de-sono-e-alimentacao-do-bebe-pdf pacote-primeiro-ano-do-bebe-pdf pacote-de-atividades-de-natal-carta-calendario-etiquetas-e-postais-pdf livro-de-pintar-de-natal-20-desenhos-para-imprimir-pdf livro-de-pintar-de-natal-para-tablet-goodnotes-e-procreate bingo-de-natal-com-imagens-20-cartoes-para-imprimir-pdf caca-ao-tesouro-de-natal-pistas-e-lista-de-imagens-pdf livro-de-pintar-animais-20-desenhos-para-imprimir-pdf livro-de-pintar-dinossauros-20-desenhos-para-imprimir-pdf livro-de-pintar-oceano-20-desenhos-para-imprimir-pdf livro-de-pintar-princesas-20-desenhos-para-imprimir-pdf livro-de-pintar-espaco-20-desenhos-para-imprimir-pdf livro-de-pintar-doces-20-desenhos-para-imprimir-pdf livro-de-pintar-unicornios-20-desenhos-para-imprimir-pdf livro-de-pintar-veiculos-20-desenhos-para-imprimir-pdf livro-de-pintar-animais-para-tablet-goodnotes-e-procreate livro-de-pintar-dinossauros-para-tablet-goodnotes-e-procreate livro-de-pintar-oceano-para-tablet-goodnotes-e-procreate livro-de-pintar-princesas-para-tablet-goodnotes-e-procreate livro-de-pintar-espaco-para-tablet-goodnotes-e-procreate livro-de-pintar-doces-para-tablet-goodnotes-e-procreate livro-de-pintar-unicornios-para-tablet-goodnotes-e-procreate livro-de-pintar-veiculos-para-tablet-goodnotes-e-procreate livro-dos-numeros-escrever-e-contar-de-1-a-20-pdf liga-os-pontos-20-desenhos-para-descobrir-e-pintar-pdf labirintos-para-criancas-20-labirintos-do-facil-ao-dificil-pdf descobre-as-diferencas-16-jogos-para-criancas-pdf cartoes-de-aprendizagem-animais-cores-formas-e-numeros-pdf atividades-de-inverno-para-criancas-colorir-labirinto-e-sopa-de-letras-pdf contagem-para-o-ano-novo-saquinhos-atividades-e-coroas-pdf capsula-do-tempo-2026-o-meu-ano-para-criancas-pdf metas-de-ano-novo-para-criancas-2027-pdf calendario-infantil-2027-para-imprimir-e-pintar-pdf bingo-de-sao-valentim-com-imagens-20-cartoes-pdf cartoes-de-sao-valentim-para-a-turma-pdf pacote-ano-novo-e-inverno-6-conjuntos-para-imprimir-pdf etiquetas-de-natal-para-professores-e-educadoras-pdf a-nuvenzinha-e-a-estrela-de-natal-historia-para-adormecer-pdf a-nuvi-e-a-estrela-de-natal-livro-de-historia-ilustrado-pdf jogos-para-a-festa-de-natal-66-cartas-para-imprimir-pdf jogos-de-natal-da-nuvenzinha-jogo-da-memoria-e-bingo-pdf kit-da-caixa-da-consoada-para-imprimir-pdf mesa-de-natal-para-imprimir-marcadores-menus-e-individual-pdf pacote-natal-de-ultima-hora-6-conjuntos-para-imprimir-pdf natal-da-nuvenzinha-postais-e-etiquetas-para-imprimir-pdf pacote-natal-completo-todos-os-pdfs-de-natal-zip pequenos-garfos-livro-receitas-criancas-1-2-anos maos-na-massa-livro-receitas-criancas-2-3-anos pack-3-livros-receitas-6-meses-3-anos ', F = ' tigela-com-ventosa-mushie copinho-de-aprendizagem babete-com-bolsinho potinho-para-snacks molde-para-congelar-comida prato-de-silicone-com-ventosa telefone-sensorial mordedor-argola-silicone-mushie brinquedo-giratorio-sunshine-mushie copo-de-treino-com-palhinha pack-de-2-colheres-de-silicone livro-de-colorir-com-agua brinquedo-sensorial-flor pack-baleias luva-de-denticao-sol saco-resistente-agua-mushie copos-de-empilhar-mushie brinquedo-sensorial-paleta barquinhos-de-banho cesto-de-fraldas babete-de-mangas-compridas prendedor-de-chupeta-linho caixa-de-encaixe-de-formas conjunto-de-banho-encher-e-despejar figuras-de-banho mordedor-pretzel brinquedo-moedas-e-tubo copo-para-enxaguar mordedor-roca-margarida encaixe-elastico-de-formas bola-giratoria-com-ventosa garfo-e-colher-mushie escova-de-dentes-flor body-bambu-recem-nascido babygrow-algodao-capuz babygrow-polar-orelhas-recem-nascido babygrow-algodao-estampado pijama-babygrow-fino-algodao babygrow-acolchoado-veludo-recem-nascido body-natal-bebe conjunto-natal-menina-recem-nascida sapatinhos-malha-respiravel-bebe sapatinhos-respiraveis-sola-borracha-bebe sapatinhos-meia-antiderrapantes-bebe babygrow-floral-gola-boneca-gorro macacao-malha-algodao-folhos-bebe sapatinhos-meia-peluche-bebe ';
+      // 22/11 (descontos-novos): W = macacão waffle com descontos próprios (−10% até 23/11, −15% na Black Week); X = Kit e Pack Fairy Mice, fora da campanha por margem (nota).
+      var W = ' macacao-waffle-manga-comprida-bebe ', X = ' kit-primeiras-refeicoes-petit-nuvem pack-fairy-mice ', XT = {{ pnc_excl | json }};
+      var isX = function (h) { return X.indexOf(' ' + h + ' ') > -1; };
+      var pct = function (h) { h = ' ' + h + ' '; return D.indexOf(h) > -1 ? (k === 'bw' ? 40 : 30) : F.indexOf(h) > -1 ? (k === 'bw' ? 20 : 15) : W.indexOf(h) > -1 ? (k === 'bw' ? 15 : 10) : 0; };
+      var cents = function (t) { var s = String(t || '').replace(/[^0-9,.]/g, ''); if (!s) return 0; if (s.indexOf(',') > -1) s = s.replace(/\./g, '').replace(',', '.'); var x = parseFloat(s); return isNaN(x) ? 0 : Math.round(x * 100); };
+      var fmt = function (c) { return '€' + (c / 100).toFixed(2).replace('.', ','); };
+      var off = function (c, p) { return c - Math.floor(c * p / 100); };
+      var ate = k === 'bw' ? {{ pnc_ate_bw | json }} : {{ pnc_ate_nov | json }};
+      var end = k === 'bw' ? Date.UTC(2026, 11, 1) : Date.UTC(2026, 10, 24), left = Math.ceil((end - n) / 864e5);
+      var cards = function () {
+        document.querySelectorAll('article.card[data-handle]').forEach(function (a) {
+          var hh = a.getAttribute('data-handle'), p = pct(hh), pr = a.querySelector('[data-card-price]');
+          if (!p && pr && isX(hh) && !pr.parentNode.querySelector('.pn-camp-x')) { var x = document.createElement('span'); x.className = 'pn-camp-x'; x.textContent = XT; pr.parentNode.appendChild(x); }
+          if (!p || !pr) return;
+          var c = cents(pr.textContent); if (!c) return;
+          var box = pr.parentNode, el = box.querySelector('.pn-camp-p');
+          if (!el) { box.classList.add('pn-camp-on'); el = document.createElement('span'); el.className = 'pn-camp-p'; box.appendChild(el); var b = document.createElement('span'); b.className = 'pn-camp-b'; b.textContent = '−' + p + '%'; box.appendChild(b); }
+          var v = fmt(off(c, p)); if (el.textContent !== v) el.textContent = v;
+        });
+      };
+      var modal = function () {
+        var d = document.getElementById('detail'); if (!d) return;
+        var btn = d.querySelector('[data-quick-add]'), old = d.querySelector('.pn-camp-q'); if (!btn) return;
+        var a = d.querySelector('a.kit-link[href*="/products/"]'), h = a ? a.getAttribute('href').split('/products/')[1].split(/[?#]/)[0] : '', p = pct(h);
+        var pp = btn.previousElementSibling; while (pp && !(pp.tagName === 'P' && pp.firstElementChild && pp.firstElementChild.tagName === 'STRONG')) pp = pp.previousElementSibling;
+        var c = pp ? cents(pp.firstElementChild.textContent) : 0;
+        var ox = d.querySelector('.pn-camp-xq');
+        if (!p && pp && isX(h)) { if (!ox || ox.previousElementSibling !== pp) { if (ox) ox.remove(); ox = document.createElement('p'); ox.className = 'pn-camp-xq'; ox.textContent = XT; pp.after(ox); } } else if (ox) ox.remove();
+        if (!p || !c) { if (old) old.remove(); return; }
+        var key = p + '|' + c;
+        if (!old || old.previousElementSibling !== pp) { if (old) old.remove(); old = document.createElement('p'); old.className = 'pn-camp-q'; pp.after(old); }
+        if (old.getAttribute('data-k') !== key) { old.setAttribute('data-k', key); old.innerHTML = '<span class="pn-camp-b">−' + p + '%</span><span>' + {{ pnc_with | json }} + ' <strong>' + fmt(off(c, p)) + '</strong> · ' + {{ pnc_applied | json }} + ' ' + ate + '</span>'; }
+        pp.querySelectorAll('.pn-was').forEach(function (s) { s.hidden = true; });
+      };
+      var bar = document.querySelector('[data-pn-camp-t="' + k + '"]');
+      if (bar && left <= 3 && left > 0 && !bar.querySelector('[data-pn-camp-dias]')) bar.insertAdjacentHTML('beforeend', '<span data-pn-camp-dias> · <strong>' + (left === 1 ? {{ pnc_last | json }} : {{ pnc_left | json }}.replace('[n]', left)) + '</strong></span>');
+      var t = 0, run = function () { clearTimeout(t); t = setTimeout(function () { cards(); modal(); }, 60); };
+      document.addEventListener('DOMContentLoaded', function () {
+        cards(); modal();
+        new MutationObserver(run).observe(document.body, { childList: true, subtree: true, characterData: true });
+      });
+    })();
+  </script>
+{%- endif -%}
+{%- if pn_hoje_c >= 20261109 and pn_hoje_c <= 20261130 -%}
+  {%- comment -%}
+    09/11 (campanha-novembro-2026, portes): até 30/11 o envio é grátis em Portugal continental a partir de 39 € (tarifas em Envio e entrega; nota na Política de envio).
+    Este script troca «a partir de 49 €» / «acima de 49 €» por 39 € nos textos do site (faixas, rodapé, página do produto, janela do artigo, saco). Não mexe nas páginas das políticas.
+    09/11 noite (fix EN/ES portes): também troca o inglês («from €49», «over €49», «above €49») e o espanhol («a partir de 49 €», «desde 49 €», «más de 49 €»), para PT, EN e ES ficarem iguais.
+    O limite da barra do saco e do «Junta ao teu pedido» vem do «free» do #pnUpsell (snippets/cart-drawer.liquid). A 1/12 tudo volta aos 49 € sozinho, menos as tarifas, que têm de ser repostas.
+  {%- endcomment -%}
+  <script>
+    (function () {
+      if (Date.now() >= Date.UTC(2026, 11, 1)) return;
+      /* 09/11 noite: nas políticas e nas páginas legais em espanhol (também em /en/ e /es/) o texto principal fica como está (já explica 39 € até 30/11 e 49 € depois); só as faixas e o rodapé passam a 39 €. */
+      var LEGAL = /\/policies\/|\/pages\/(envios|condiciones-generales|aviso-legal|devoluciones-y-desistimiento|privacidad)(\/|$)/.test(location.pathname);
+      var inMain = function (n) { var e = n.parentElement; return !!(e && e.closest('#MainContent')); };
+      var re = /(a partir de |acima de |desde |más de )49(\s| )?€/g, reEn = /(from |over |above )€(\s| )?49(?![\d.,]*\d)/g;
+      var rep = function (s) { return s.replace(re, function (m, a, sp) { return a + '39' + (sp || ' ') + '€'; }).replace(reEn, function (m, a, sp) { return a + '€' + (sp || '') + '39'; }); };
+      var fix = function (root) {
+        if (!root) return;
+        var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n;
+        while ((n = w.nextNode())) { if (n.nodeValue.indexOf('49') > -1 && !(LEGAL && inMain(n))) { var v = rep(n.nodeValue); if (v !== n.nodeValue) n.nodeValue = v; } }
+        if (root.querySelectorAll) root.querySelectorAll('[data-shipping]').forEach(function (e) { var a = e.getAttribute('data-shipping'), b = rep(a); if (a !== b) e.setAttribute('data-shipping', b); });
+      };
+      var t = 0;
+      document.addEventListener('DOMContentLoaded', function () {
+        fix(document.body);
+        new MutationObserver(function () { clearTimeout(t); t = setTimeout(function () { fix(document.getElementById('detail')); fix(document.getElementById('cart')); }, 80); }).observe(document.body, { childList: true, subtree: true });
+      });
+    })();
+  </script>
+{%- endif -%}
+{%- comment -%}
+  09/11 (entrega-48h): «Em stock · entrega em 48 horas úteis em Portugal continental» logo a seguir ao botão de compra, nos artigos em stock: Mushie, packs e kit.
+  Não aparece na roupa (vem do parceiro de produção), nos PDF nem nos artigos «Por encomenda». Esconde-se se a cor escolhida estiver esgotada.
+  Também muda o interruptor da grelha para «Entrega em 48 h» e tira de lá a roupa (marca os cartões de roupa com data-mto, que é o que o interruptor esconde).
+  Na roupa e no calçado, tira «CTT» da linha dos portes («Envio 4,90 € · …»), porque a roupa não segue pelos CTT.
+  Ligado à Política de envio (secção 3) e às taxas Padrão e Grátis em Definições → Envio e entrega.
+{%- endcomment -%}
+{%- liquid
+  assign pn48_pg = false
+  assign pn48_w = false
+  if template.name == 'product' and product
+    if product.type == 'Roupa de bebé' or product.type == 'Calçado de bebé'
+      assign pn48_w = true
+    endif
+    if product.vendor == 'Mushie' or product.type == 'Packs' or product.type == 'Kit de alimentação'
+      assign pn48_pg = true
+      for v in product.variants
+        if v.inventory_policy == 'continue'
+          assign pn48_pg = false
+        endif
+      endfor
+    endif
+  endif
+-%}
+<style>
+  .pn-48{display:flex;align-items:center;gap:8px;margin:12px 0 4px;font-size:14px;line-height:1.4;font-weight:600;color:#3d6b4c}
+  .pn-48::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:#4f9a5b;box-shadow:0 0 0 3px rgba(79,154,91,.18)}
+  .pn-48[hidden]{display:none}
+</style>
+<script>
+  (function () {
+    {%- comment -%} 09/11 noite (fix EN/ES portes): textos em PT, EN e ES {%- endcomment -%}
+    {%- assign pn48_l = request.locale.iso_code | slice: 0, 2 -%}
+    var I = {%- case pn48_l -%}{%- when 'en' -%}{ t: 'In stock · delivered within 48 business hours in mainland Portugal', lab: '48-hour delivery', a: 'CTT shipping ', b: 'Shipping ' }{%- when 'es' -%}{ t: 'En stock · entrega en 48 horas laborables en Portugal continental', lab: 'Entrega en 48 h', a: 'Envío CTT ', b: 'Envío ' }{%- else -%}{ t: 'Em stock · entrega em 48 horas úteis em Portugal continental', lab: 'Entrega em 48 h', a: 'Envio CTT ', b: 'Envio ' }{%- endcase -%};
+    var T = I.t, PAGE = {{ pn48_pg | json }}, WEAR = {{ pn48_w | json }};
+    var OK = { meal: 1, play: 1, care: 1, pack: 1 }, last = false;
+    var cardOk = function (c) { var w = c.closest('.card-wrap'); return !!OK[c.getAttribute('data-category')] && !(w && w.hasAttribute('data-mto')); };
+    document.addEventListener('click', function (e) { var c = e.target.closest && e.target.closest('[data-product-card]'); if (c) last = cardOk(c); }, true);
+    var modalCard = function () {
+      var a = document.querySelector('#detailContent a.kit-link[href*="/products/"]');
+      return a ? document.getElementById('produto-' + (a.getAttribute('href').split('/products/')[1] || '').split(/[?#]/)[0]) : null;
+    };
+    var modalOk = function () { var c = modalCard(); return c ? cardOk(c) : last; };
+    var noCtt = function (el) { if (el && el.textContent.indexOf(I.a) === 0) el.textContent = el.textContent.replace(I.a, I.b); };
+    var mk = function () { var p = document.createElement('p'); p.className = 'pn-48'; p.setAttribute('data-pn-48', ''); p.textContent = T; return p; };
+    var put = function (btn, show) {
+      if (!btn) return;
+      var p = btn.nextElementSibling;
+      for (var i = 0; p && i < 4 && !p.hasAttribute('data-pn-48'); i++) p = p.nextElementSibling;
+      if (!p || !p.hasAttribute('data-pn-48')) {
+        if (!show) return;
+        var a = btn; while (a.nextElementSibling && a.nextElementSibling.matches('.pn-pv-tag,.pn-montra-pill')) a = a.nextElementSibling;
+        p = mk(); a.insertAdjacentElement('afterend', p);
+      }
+      p.hidden = !show || btn.disabled;
+    };
+    var paint = function () {
+      var d = document.querySelector('#detailContent p.pn-shipping');
+      put(document.querySelector('#detail [data-quick-add]'), !!d && !d.hasAttribute('data-pn-digital') && modalOk());
+      var mc = d && modalCard(); if (mc && mc.getAttribute('data-category') === 'wear') noCtt(d);
+      if (PAGE) put(document.getElementById('productAdd'), true);
+      if (WEAR) noCtt(document.querySelector('.pn-product__info p.pn-shipping'));
+      document.querySelectorAll('[data-kit-form] button.primary').forEach(function (b) { put(b, true); });
+    };
+    var t = 0, later = function () { if (t) return; t = setTimeout(function () { t = 0; paint(); }, 60); };
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('#products .card-wrap > article.card[data-category="wear"]').forEach(function (a) { a.parentElement.setAttribute('data-mto', ''); });
+      var lab = document.querySelector('[data-pn-stock-toggle] .pn-stock-toggle__text'); if (lab) lab.textContent = I.lab;
+      paint();
+      new MutationObserver(later).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
+    });
+  })();
+</script>
+{%- capture pn_clube_icon -%}<svg viewBox="0 0 28 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 18h14a5 5 0 0 0 .6-9.96A7 7 0 0 0 8.2 6.3 5.5 5.5 0 0 0 7 18z"/></svg>{%- endcapture -%}
+<header>
+  <div class="header-start">
+    <button class="menu-toggle" type="button" aria-label="{{ 'header.open_menu' | t }}" aria-expanded="false" aria-haspopup="dialog" aria-controls="mobileMenu">{% render 'icon', name: 'menu' %}</button>
+    <a class="search-toggle" href="{{ routes.root_url }}#pesquisa" data-search-open aria-label="{{ 'header.search' | t }}">{% render 'icon', name: 'search' %}</a>
+  </div>
+  <a class="brand" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+    <span class="pn-nlogo pn-nlogo--a"><img class="pn-logo" src="https://cdn.shopify.com/s/files/1/1092/3832/1484/files/pn-logo-horizontal-texto.png?v=1792060811&width=685" alt="{{ shop.name | escape }}" width="685" height="149"><img class="pn-nlogo__nuvem" src="https://cdn.shopify.com/s/files/1/1092/3832/1484/files/pn-logo-horizontal-nuvem.png?v=1792060811&width=685" alt="" aria-hidden="true" width="685" height="149"></span>
+    <span class="visually-hidden">{{ section.settings.brand_name }} · {{ pn_tagline }}</span>
+  </a>
+  {%- liquid
+    assign pn_roupa_lang = request.locale.iso_code | slice: 0, 2
+    case pn_roupa_lang
+      when 'en'
+        assign pn_roupa_label = 'Clothes & booties'
+      when 'es'
+        assign pn_roupa_label = 'Ropa y patucos'
+      else
+        assign pn_roupa_label = 'Roupa e sapatinhos'
+    endcase
+    assign pn_roupa_url = collections['roupa-e-sapatinhos'].url
+    if pn_roupa_url == blank
+      assign pn_roupa_url = '/collections/roupa-e-sapatinhos'
+    endif
+  -%}
+  <nav id="mainNav" aria-label="{{ 'header.main_nav' | t }}">
+    {%- comment -%} 22/11 (Diogo, menu de cima só com 3 botões): saíram daqui «A nossa coleção», o menu Mushie, o atalho da roupa e «O primeiro kit». Ficam Clube, A Petit Nuvem e Junta-te a nós. No telemóvel, o menu lateral mantém os atalhos dos artigos. {%- endcomment -%}
+    {%- comment -%} 07/11 (clube-0711): atalho do Clube das mães, em destaque {%- endcomment -%}
+    {%- comment -%} 22/11 (auditoria 21/11): nome do Clube traduzido em /en e /es. {%- endcomment -%}
+    {%- liquid
+      assign pn_clube_lg22 = request.locale.iso_code | slice: 0, 2
+      case pn_clube_lg22
+        when 'en'
+          assign pn_clube_nome22 = "Mums' Club"
+          assign pn_clube_curto22 = "Mums' Club"
+          assign pn_junta22 = 'Join us'
+        when 'es'
+          assign pn_clube_nome22 = 'Club de mamás'
+          assign pn_clube_curto22 = 'Club de mamás'
+          assign pn_junta22 = 'Únete'
+        else
+          assign pn_clube_nome22 = 'Clube das mães'
+          assign pn_clube_curto22 = 'Clube'
+          assign pn_junta22 = 'Junta-te a nós'
+      endcase
+    -%}
+    <a class="pn-nav__clube" href="{{ routes.root_url }}?view=clube" title="{{ pn_clube_nome22 }}">{{ pn_clube_icon }}{{ pn_clube_curto22 }}</a>
+    <a href="{{ routes.root_url }}#sobre">{{ 'header.about' | t }}</a>
+    <a class="pn-nav__junta" href="/pages/junta-te-a-nos">{{ pn_junta22 }}</a>
+  </nav>
+  <div class="header-actions">
+    {%- if localization.available_languages.size > 1 -%}
+      {%- form 'localization', class: 'language-switch' -%}
+        {%- for language in localization.available_languages -%}
+          <button type="submit" name="language_code" value="{{ language.iso_code }}" lang="{{ language.iso_code }}"{% if language.iso_code == localization.language.iso_code %} aria-current="true"{% endif %}>{{ language.iso_code | upcase | slice: 0, 2 }}</button>
+        {%- endfor -%}
+        <input type="hidden" name="return_to" value="{{ request.path }}">
+      {%- endform -%}
+    {%- endif -%}
+    {%- if shop.customer_accounts_enabled -%}
+      {%- comment -%} 04/11: com sessão iniciada, o botão mostra «Olá, Nome» e um ponto verde, para se perceber que se está dentro da conta. {%- endcomment -%}
+      {%- liquid
+        assign pn_acc_lang = request.locale.iso_code | slice: 0, 2
+        case pn_acc_lang
+          when 'en'
+            assign pn_hi = 'Hi'
+            assign pn_acc_in = 'Signed in · my account'
+          when 'es'
+            assign pn_hi = 'Hola'
+            assign pn_acc_in = 'Sesión iniciada · mi cuenta'
+          else
+            assign pn_hi = 'Olá'
+            assign pn_acc_in = 'Sessão iniciada · a minha conta'
+        endcase
+      -%}
+      {%- if customer -%}
+        {%- assign pn_acc_name = customer.first_name | default: customer.name | default: '' | strip -%}
+        <a class="account-link is-in" href="{{ routes.account_url }}" aria-label="{{ pn_acc_in }}" title="{{ pn_acc_in }}">{% render 'icon', name: 'account' %}<span>{% if pn_acc_name != blank %}{{ pn_hi }}, {{ pn_acc_name | split: ' ' | first | escape }}{% else %}{{ 'header.account' | t }}{% endif %}</span><i class="pn-acc-dot" aria-hidden="true"></i></a>
+      {%- else -%}
+        <a class="account-link" href="{{ routes.account_url }}" aria-label="{{ 'header.account_label' | t }}">{% render 'icon', name: 'account' %}<span>{{ 'header.account' | t }}</span></a>
+      {%- endif -%}
+    {%- endif -%}
+    <button class="bag{% if cart.item_count > 0 %} has-items{% endif %}" id="openCart" type="button" aria-label="{{ 'header.open_cart' | t }}" aria-haspopup="dialog" aria-controls="cart">{% render 'icon', name: 'bag' %}<span id="count" aria-live="polite" aria-atomic="true">{{ cart.item_count }}</span></button>
+  </div>
+</header>
+<dialog id="mobileMenu" class="mobile-menu" aria-labelledby="mobileMenuTitle">
+  <div class="mobile-menu-head">
+    <div class="drawer-brand"><span class="pn-nlogo pn-nlogo--a pn-nlogo--drawer"><img class="pn-logo pn-logo--drawer" src="https://cdn.shopify.com/s/files/1/1092/3832/1484/files/pn-logo-horizontal-texto.png?v=1792060811&width=685" alt="{{ shop.name | escape }}" width="685" height="149"><img class="pn-nlogo__nuvem" src="https://cdn.shopify.com/s/files/1/1092/3832/1484/files/pn-logo-horizontal-nuvem.png?v=1792060811&width=685" alt="" aria-hidden="true" width="685" height="149" loading="lazy"></span><span id="mobileMenuTitle" class="visually-hidden">{{ shop.name }}</span></div>
+    <button class="mobile-menu-close" type="button" data-close="mobileMenu" aria-label="{{ 'header.close_menu' | t }}">×</button>
+  </div>
+  <a class="drawer-search" href="{{ routes.root_url }}#pesquisa" data-search-open>{% render 'icon', name: 'search' %}<span>{{ 'header.search' | t }}</span></a>
+  <nav class="drawer-links" aria-label="{{ 'header.mobile_nav' | t }}">
+    <a href="{{ routes.root_url }}?cat=todos#colecao" data-menu-filter="all">{{ 'collection.all' | t }}<span aria-hidden="true">›</span></a>
+    <div class="pn-mm pn-mm--drawer" data-pn-mm>
+      <button class="pn-mm__toggle" type="button" aria-expanded="false" aria-controls="pnMmDrawer">Mushie<span class="pn-mm__chev" aria-hidden="true">›</span></button>
+      <div class="pn-mm__sub" id="pnMmDrawer" hidden>
+        <a href="{{ routes.root_url }}?cat=mesa#colecao" data-menu-filter="meal">{{ 'collection.meal' | t }}<span aria-hidden="true">›</span></a>
+        <a href="{{ routes.root_url }}?cat=brincar#colecao" data-menu-filter="play">{{ 'collection.play' | t }}<span aria-hidden="true">›</span></a>
+        <a href="{{ routes.root_url }}?cat=cuidados#colecao" data-menu-filter="care">{{ 'collection.care' | t }}<span aria-hidden="true">›</span></a>
+      </div>
+    </div>
+    {%- comment -%} 22/11 (Diogo): retirado do menu do telemóvel, como no computador.
+    <a href="{{ pn_roupa_url }}">{{ pn_roupa_label }}<span aria-hidden="true">→︎</span></a>
+    {%- endcomment -%}
+    <a href="{{ routes.root_url }}?kit=1" data-open-kit>{{ 'header.kit' | t }}<span aria-hidden="true">→︎</span></a>
+    <a class="pn-nav__clube" href="{{ routes.root_url }}?view=clube">{{ pn_clube_icon }}{{ pn_clube_nome22 }}<span aria-hidden="true">→︎</span></a>
+    <a href="{{ routes.root_url }}#sobre">{{ 'header.about' | t }}<span aria-hidden="true">→︎</span></a>
+    <a href="/pages/junta-te-a-nos">{{ pn_junta22 }}<span aria-hidden="true">→︎</span></a>
+  </nav>
+  <div class="drawer-bottom">
+    {%- if shop.customer_accounts_enabled -%}<a href="{{ routes.account_url }}">{% if customer %}{% assign pn_acc_name = customer.first_name | default: customer.name | default: '' | strip %}{% if pn_acc_name != blank %}{{ pn_hi }}, {{ pn_acc_name | split: ' ' | first | escape }} · {% endif %}{% endif %}{{ 'header.account' | t }}</a>{%- endif -%}
+    <p>{{ pn_drawer_text }}</p>
+  </div>
+</dialog>
+{%- comment -%} 05/11 (filtros-unificados): saiu o script menu-mushie-0211 e o «Todos os artigos Mushie». O menu Mushie (À mesa / A brincar / Cuidados) e os separadores da grelha usam a mesma regra: cada categoria mostra os artigos em stock e os «Por encomenda» (theme.js + pn-grelha.js). {%- endcomment -%}
+{%- comment -%}
+  09/11 noite (fix EN/ES portes): a pré-venda acabou e a oferta do Planeador foi desativada às 23:03 de 09/11; o script abaixo já não corre (antes só parava a 10/11 00:00 UTC).
+  02/11 (pre-venda-0211): a FB Trading só entrega a 9/11. Até 9/11 inclusive (some sozinho a 10/11):
+  - em modo montra (antes da abertura), a pílula dos artigos Mushie com stock passa de «Disponível a 05/11» para «Pré-venda de abertura a 05/11 · chega a 10/11»
+    (classe pn-pv-pill, pode partir em 2 linhas); os digitais, a roupa e os «Por encomenda» mantêm «Disponível a 05/11»;
+  - depois da abertura (sem modo montra), os artigos Mushie com stock ficam à venda com a nota «Pré-venda de abertura · envio a 10/11 · Planeador PDF de oferta»
+    na janela de detalhes, no kit e na página do produto (desde 05/11 já não aparece nos cartões da grelha).
+  03/11: texto comercial («Pré-venda de abertura», primeiro lote limitado, oferta do Planeador de refeições em PDF enviado por email pela Bárbara a quem comprar Mushie até 9/11).
+  Mushie = categorias meal/play/care/pack (fora os «Por encomenda», que têm a sua própria etiqueta), o kit, e páginas de produto com vendor Mushie.
+{%- endcomment -%}
+{%- liquid
+  assign pn_pv_lang = request.locale.iso_code | slice: 0, 2
+  case pn_pv_lang
+    when 'en'
+      assign pn_pv_pill = 'Launch pre-order from 05/11 · arrives 10/11'
+      assign pn_pv_tag = 'Launch pre-order · ships 10/11 · free Meal Planner PDF'
+    when 'es'
+      assign pn_pv_pill = 'Preventa de apertura el 05/11 · llega el 10/11'
+      assign pn_pv_tag = 'Preventa de apertura · envío el 10/11 · planificador PDF de regalo'
+    else
+      assign pn_pv_pill = 'Pré-venda de abertura a 05/11 · chega a 10/11'
+      assign pn_pv_tag = 'Pré-venda de abertura · envio a 10/11 · Planeador PDF de oferta'
+  endcase
+  assign pn_pv_page = false
+  if template.name == 'product' and product.vendor == 'Mushie'
+    assign pn_pv_page = true
+  endif
+-%}
+<style>
+  .account-link.is-in{position:relative}
+  .cart-row .cart-qty .cart-remove{width:auto;height:auto;border:0;border-radius:0;background:none;padding:0 2px;margin-left:8px}
+  .account-link .pn-acc-dot{position:absolute;left:31px;top:10px;width:9px;height:9px;border-radius:50%;background:#4f9a5b;box-shadow:0 0 0 2px #fff}
+  .pn-pv-tag{margin:4px 0 0;font-size:12px;line-height:1.35;color:#8a6d3b;font-weight:600}
+  .pn-montra-pill.pn-pv-pill{white-space:normal;height:auto;line-height:1.25;padding-top:6px;padding-bottom:6px;text-align:center;max-width:100%}
+</style>
+<script>
+  (function () {
+    if (new Date() >= new Date('2026-11-09T23:03:00Z')) return;
+    var T = { pill: {{ pn_pv_pill | json }}, tag: {{ pn_pv_tag | json }} }, PAGE = {{ pn_pv_page | json }};
+    var MC = { meal: 1, play: 1, care: 1, pack: 1 }, lastMushie = false;
+    var cardIsMushie = function (c) { var w = c.closest('.card-wrap'); return !!MC[c.dataset.category] && !(w && w.hasAttribute('data-mto')); };
+    var isMushie = function (el) {
+      var c = el.closest('[data-product-card]'); if (c) return cardIsMushie(c);
+      if (el.closest('[data-kit-form]')) return true;
+      if (el.closest('#detail')) return lastMushie;
+      if (el.closest('#ProductForm') || el.id === 'productAdd') return PAGE;
+      return false;
+    };
+    document.addEventListener('click', function (e) { var c = e.target.closest && e.target.closest('[data-product-card]'); if (c) lastMushie = cardIsMushie(c); }, true);
+    var addTag = function (after) { var n = after.nextElementSibling; while (n && n.classList.contains('pn-montra-pill')) n = n.nextElementSibling; if (n && n.classList.contains('pn-pv-tag')) return; var t = document.createElement('p'); t.className = 'pn-pv-tag'; t.textContent = T.tag; after.insertAdjacentElement('afterend', t); };
+    var paint = function () {
+      if (document.documentElement.classList.contains('pn-montra')) {
+        document.querySelectorAll('.pn-montra-pill').forEach(function (p) { if (isMushie(p) && p.textContent !== T.pill) { p.textContent = T.pill; p.classList.add('pn-pv-pill'); } });
+        return;
+      }
+      /* 05/11: a nota já não aparece nos cartões da grelha; fica só dentro do cartão aberto, no kit e na página do produto. */
+      document.querySelectorAll('#detail [data-quick-add],[data-kit-form] button.primary,#productAdd').forEach(function (b) { if (isMushie(b)) addTag(b); });
+    };
+    var timer = 0, q = function () { if (timer) return; timer = setTimeout(function () { timer = 0; paint(); }, 20); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paint); else paint();
+    window.addEventListener('load', paint);
+    new MutationObserver(q).observe(document.documentElement, { childList: true, subtree: true });
+  })();
+</script>
+
+{%- comment -%} 20/11 (menu-roupa): o menu no computador não transborda entre 901 e 1350 px, com o atalho novo e o Natal. {%- endcomment -%}
+<style>
+  @media (min-width: 901px) and (max-width: 1350px) {
+    header { gap: 8px; padding-left: 16px; padding-right: 16px; }
+    header > .brand .pn-logo { width: 140px; }
+    header > #mainNav { gap: 3px; }
+    header > #mainNav a,
+    header > #mainNav .pn-mm__toggle {
+      white-space: nowrap;
+      padding: 8px 8px;
+      min-height: 40px;
+      font-size: 12.5px;
+      letter-spacing: -0.02em;
+    }
+    header > .header-actions { gap: 6px; }
+  }
+  @media (min-width: 901px) and (max-width: 1180px) {
+    header > .brand .pn-logo { width: 120px; }
+    header > #mainNav a,
+    header > #mainNav .pn-mm__toggle {
+      padding: 7px 6px;
+      min-height: 38px;
+      font-size: 12px;
+      letter-spacing: -0.03em;
+    }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    header > #mainNav > a.pn-nav__roupa { display: none; }
+  }
+  /* 22/11 (Diogo, «demasiadas opções»): na janela rápida da roupa, a galeria por cor (pn-qv-galeria) já mostra as fotos da cor escolhida; esconde a 2.ª fila com as fotos de todas as cores. */
+  #detail .pn-qv-gal ~ .pn-thumbs--wear { display: none !important; }
+</style>
+
+
+{% schema %}
+{
+  "name": "Cabeçalho",
+  "class": "pn-header",
+  "settings": [
+    { "type": "text", "id": "announcement", "label": "Barra de aviso" },
+    { "type": "text", "id": "brand_name", "label": "Nome da marca", "default": "petit nuvem" },
+    { "type": "text", "id": "tagline", "label": "Frase da marca" },
+    { "type": "text", "id": "drawer_text", "label": "Texto do menu móvel" }
+  ]
+}
+{% endschema %}
