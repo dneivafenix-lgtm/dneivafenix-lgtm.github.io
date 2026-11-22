@@ -333,6 +333,12 @@
       el('div', { class: 'phasefoot' }, el('p', { class: 'fine' }, t().shopSugNote),
         el('button', { class: 'linkish', onclick: () => { state.shopHide = Date.now(); save(); render(); } }, t().notNow)));
   };
+  // Livro de receitas: loja na língua da app (/en/, /es/ quando existem) e com UTM para medir as vendas que vêm da app.
+  const bookUrl = () => {
+    const u = new URL(R.book.url);
+    if (state.lang !== 'pt') u.pathname = `/${state.lang}${u.pathname}`;
+    return u.href + (SHOP.utm ? `?${SHOP.utm}&utm_campaign=livro-receitas` : '');
+  };
   const shopBlock = handles => shopOn() && handles && handles.length ? el('div', { class: 'shopbox' },
     el('p', { class: 'eyebrow' }, t().shopTitle), handles.map(shopLink), el('p', { class: 'fine' }, t().shopSugNote)) : null;
   const serveSection = food => {
@@ -869,7 +875,7 @@
       el('input', { class: 'search', type: 'search', value: rquery, placeholder: t().searchRecipes, 'aria-label': t().searchRecipes, oninput: e => { rquery = e.target.value; fill(); } }),
       chips, box,
       R.book.languages.includes(state.lang) && el('div', { class: 'card book' }, el('h2', {}, t().bookTitle), el('p', {}, t().bookText),
-        el('a', { href: R.book.url, rel: 'noopener' }, t().bookCta)),
+        el('a', { href: bookUrl(), target: '_blank', rel: 'noopener' }, t().bookCta)),
       el('p', { class: 'fine' }, t().recipeNote)
     ];
   };

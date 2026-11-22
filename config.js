@@ -77,17 +77,17 @@ window.DiaryConfig = {
     guides: {
       water: ['copo-de-treino-com-palhinha', 'copinho-de-aprendizagem'],
       routine: ['prato-de-silicone-com-ventosa', 'tigela-com-ventosa-mushie', 'babete-com-bolsinho'],
-      textures: ['pack-de-2-colheres-de-silicone', 'garfo-e-colher-mushie'],
+      textures: ['pack-de-2-colheres-de-silicone', 'prato-de-silicone-com-ventosa'],
       storage: ['molde-para-congelar-comida']
     },
-    serve: { 6: 'tigela-com-ventosa-mushie', 9: 'prato-de-silicone-com-ventosa', 12: 'garfo-e-colher-mushie' },
+    serve: { 6: 'tigela-com-ventosa-mushie', 9: 'prato-de-silicone-com-ventosa', 12: 'potinho-para-snacks' },
     // Cartão «Para esta fase» no Hoje: artigos por fase do bebé (6 = início dos sólidos, 7 = 7–8 meses, 9 = 9 meses ou mais).
-    // Primeiro os artigos Mushie com stock físico. Sem preços na app, porque mudam com as campanhas.
+    // Só artigos Mushie com stock físico (22/11: tirados os que vendem por encomenda). Sem preços na app, porque mudam com as campanhas.
     phases: {
       6: ['prato-de-silicone-com-ventosa', 'tigela-com-ventosa-mushie', 'pack-de-2-colheres-de-silicone', 'copinho-de-aprendizagem', 'babete-com-bolsinho'],
       // O kit volta a entrar quando a página dele tiver a foto do kit (hoje mostra só o babete).
-      7: ['garfo-e-colher-mushie', 'copinho-de-aprendizagem', 'babete-com-bolsinho', 'bola-giratoria-com-ventosa', 'copos-de-empilhar-mushie'],
-      9: ['copo-de-treino-com-palhinha', 'potinho-para-snacks', 'garfo-e-colher-mushie', 'escova-de-dentes-flor']
+      7: ['copinho-de-aprendizagem', 'babete-com-bolsinho', 'pack-de-2-colheres-de-silicone', 'molde-para-congelar-comida', 'prato-de-silicone-com-ventosa'],
+      9: ['copo-de-treino-com-palhinha', 'potinho-para-snacks', 'molde-para-congelar-comida', 'babete-com-bolsinho']
     },
     // Fim do plano da semana (cozinhar de uma vez e guardar).
     plan: ['molde-para-congelar-comida', 'potinho-para-snacks', 'planeador-de-refeicoes-do-bebe-pdf'],
@@ -97,7 +97,7 @@ window.DiaryConfig = {
       'tigela-com-ventosa-mushie': 'cambridge_bowl_suction_bowl_side-2.jpg?v=1791842949',
       'pack-de-2-colheres-de-silicone': 'Blush_ShiftingSand_SiliconeSpoon_3a1f5eca-1576-443b-a080-0258bf54f0f4.jpg?v=1791843060',
       'copinho-de-aprendizagem': 'Blush_TrainerSippyCup.jpg?v=1791843708',
-      'babete-com-bolsinho': 'Whales_SiliconeBib.jpg?v=1792431043',
+      'babete-com-bolsinho': 'FairyMice_SiliconeBib_dc8ade68-9a32-4341-ab5f-7b8045a6aa69.jpg?v=1791842699',
       'kit-primeiras-refeicoes-petit-nuvem': 'blush_silicone_bib_44fef9be-df4e-4e70-9f93-d0f9b17ef0ea.jpg?v=1791882254',
       'garfo-e-colher-mushie': 'Dinnerware_20Fork_20and_20Spoon_20Set_Blush.jpg?v=1792958406',
       'bola-giratoria-com-ventosa': 'Round_20Ball_20Suction_20Spinner.jpg?v=1792958405',
