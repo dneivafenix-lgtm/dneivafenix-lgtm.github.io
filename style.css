@@ -62,6 +62,16 @@ main{max-width:680px;margin:auto;padding:16px 20px 28px;outline:none;display:fle
 .obopt[aria-pressed=true] .obtick{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
 .obopt:active{transform:scale(.98)}
 .obnav{display:flex;gap:8px;margin-top:4px}
+.obmake{display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center;padding:12vh 0 0}
+.obmake .points{align-self:stretch;text-align:left}
+.obmake .points li{opacity:0;animation:obin .45s ease forwards}
+.obspin{width:54px;height:54px;border-radius:50%;border:5px solid var(--track);border-top-color:var(--brand);animation:obspin .9s linear infinite}
+@keyframes obspin{to{transform:rotate(360deg)}}
+@keyframes obin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.obspin{animation:none}.obmake .points li{animation:none;opacity:1}}
+.obplan{margin:0;padding:0;list-style:none;counter-reset:obp;display:flex;flex-direction:column;gap:10px}
+.obplan li{counter-increment:obp;display:flex;align-items:center;gap:12px;font-size:16px;font-weight:600;color:var(--ink)}
+.obplan li::before{content:counter(obp);width:28px;height:28px;border-radius:50%;background:var(--tint);color:var(--tint-ink);display:grid;place-items:center;font-size:13px;flex:none}
 .obnav .ghost{flex:none}
 .obnav .primary{flex:1}
 .startcard h2{margin:0}

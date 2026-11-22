@@ -128,9 +128,17 @@ window.DiaryI18n = {
 
 // Boas-vindas, marcos e relatório.
 Object.assign(window.DiaryI18n.pt, {
-  obTitle: 'Os primeiros alimentos do teu bebé, bem registados.',
-  obLead: 'Um diário simples para a introdução alimentar, dos primeiros purés aos 100 alimentos.',
-  obPoints: ['Regista o que o bebé provou, se gostou e como reagiu.', 'Acompanha os alergénios já introduzidos.', 'Leva um relatório claro à consulta do pediatra.'],
+  obTitle: 'Vais começar os sólidos e não sabes por onde?',
+  obLead: 'O que dar primeiro, quando entram os alergénios, como servir cada alimento. Num minuto fica feito um plano para o teu bebé.',
+  obPoints: ['Um plano semana a semana, com poucos alimentos novos de cada vez.', 'Como servir cada alimento na idade do bebé.', 'Os alergénios registados, um a um.'],
+  obYes: 'Sim, sou eu',
+  obMaking: n => n ? `A criar o plano para ${n}…` : 'A criar o plano do teu bebé…',
+  obMakingSteps: ['A ver a idade do bebé', 'A escolher os primeiros alimentos', 'A ordenar os alergénios'],
+  obPlanTitle: n => n ? `O plano para ${n} está pronto.` : 'O plano do teu bebé está pronto.',
+  obPlanLead: n => `Primeira semana: ${n} alimentos simples para começar.`,
+  obPlanAlg: (w, a) => `Primeiro alergénio na semana ${w}: ${a}.`,
+  obPlanFine: 'É uma sugestão de ordem, que podes mudar quando quiseres. Segue sempre as indicações do pediatra.',
+  obPlanCta: 'Continuar',
   obAccept: 'Compreendo que esta app é um diário e não substitui o aconselhamento do pediatra.',
   obPrivacy: 'Sem conta e sem publicidade. Os dados ficam apenas neste dispositivo.',
   obStart: 'Começar',
@@ -141,9 +149,17 @@ Object.assign(window.DiaryI18n.pt, {
   reportFoods: 'Alimentos provados', reportNone: 'Ainda sem registos.'
 });
 Object.assign(window.DiaryI18n.en, {
-  obTitle: "Your baby's first foods, properly recorded.",
-  obLead: 'A simple diary for starting solids, from the first purées to 100 foods.',
-  obPoints: ['Log what your baby tried, whether they liked it and how they reacted.', 'Keep track of the allergens already introduced.', "Bring a clear report to your paediatrician's appointment."],
+  obTitle: 'Starting solids and not sure where to begin?',
+  obLead: 'What to offer first, when allergens come in, how to serve each food. In one minute you get a plan for your baby.',
+  obPoints: ['A week-by-week plan, with only a few new foods at a time.', "How to serve each food at your baby's age.", 'Allergens logged, one by one.'],
+  obYes: "Yes, that's me",
+  obMaking: n => n ? `Creating the plan for ${n}…` : "Creating your baby's plan…",
+  obMakingSteps: ["Checking your baby's age", 'Choosing the first foods', 'Ordering the allergens'],
+  obPlanTitle: n => n ? `The plan for ${n} is ready.` : "Your baby's plan is ready.",
+  obPlanLead: n => `Week one: ${n} simple foods to start with.`,
+  obPlanAlg: (w, a) => `First allergen in week ${w}: ${a}.`,
+  obPlanFine: "It is a suggested order that you can change whenever you like. Always follow your paediatrician's advice.",
+  obPlanCta: 'Continue',
   obAccept: "I understand this app is a diary and does not replace my paediatrician's advice.",
   obPrivacy: 'No account and no ads. Your data stays on this device only.',
   obStart: 'Get started',
@@ -154,9 +170,17 @@ Object.assign(window.DiaryI18n.en, {
   reportFoods: 'Foods tried', reportNone: 'Nothing logged yet.'
 });
 Object.assign(window.DiaryI18n.es, {
-  obTitle: 'Los primeros alimentos de tu bebé, bien registrados.',
-  obLead: 'Un diario sencillo para la alimentación complementaria, de los primeros purés a los 100 alimentos.',
-  obPoints: ['Registra lo que probó tu bebé, si le gustó y cómo reaccionó.', 'Lleva el control de los alérgenos ya introducidos.', 'Lleva un informe claro a la consulta del pediatra.'],
+  obTitle: '¿Vas a empezar con los sólidos y no sabes por dónde?',
+  obLead: 'Qué dar primero, cuándo entran los alérgenos, cómo servir cada alimento. En un minuto queda hecho un plan para tu bebé.',
+  obPoints: ['Un plan semana a semana, con pocos alimentos nuevos cada vez.', 'Cómo servir cada alimento a la edad del bebé.', 'Los alérgenos registrados, uno a uno.'],
+  obYes: 'Sí, soy yo',
+  obMaking: n => n ? `Creando el plan para ${n}…` : 'Creando el plan de tu bebé…',
+  obMakingSteps: ['Mirando la edad del bebé', 'Eligiendo los primeros alimentos', 'Ordenando los alérgenos'],
+  obPlanTitle: n => n ? `El plan para ${n} está listo.` : 'El plan de tu bebé está listo.',
+  obPlanLead: n => `Primera semana: ${n} alimentos sencillos para empezar.`,
+  obPlanAlg: (w, a) => `Primer alérgeno en la semana ${w}: ${a}.`,
+  obPlanFine: 'Es un orden sugerido, que puedes cambiar cuando quieras. Sigue siempre las indicaciones del pediatra.',
+  obPlanCta: 'Continuar',
   obAccept: 'Entiendo que esta app es un diario y no sustituye el consejo del pediatra.',
   obPrivacy: 'Sin cuenta y sin publicidad. Los datos se quedan solo en este dispositivo.',
   obStart: 'Empezar',
@@ -167,9 +191,17 @@ Object.assign(window.DiaryI18n.es, {
   reportFoods: 'Alimentos probados', reportNone: 'Aún no hay registros.'
 });
 Object.assign(window.DiaryI18n.fr, {
-  obTitle: 'Les premiers aliments de votre bébé, bien notés.',
-  obLead: 'Un journal simple pour la diversification alimentaire, des premières purées aux 100 aliments.',
-  obPoints: ["Notez ce que bébé a goûté, s'il a aimé et comment il a réagi.", 'Suivez les allergènes déjà introduits.', 'Apportez un compte rendu clair chez le pédiatre.'],
+  obTitle: 'Vous commencez la diversification sans savoir par où ?',
+  obLead: "Quoi proposer en premier, quand arrivent les allergènes, comment servir chaque aliment. En une minute, un plan est prêt pour votre bébé.",
+  obPoints: ['Un plan semaine après semaine, avec peu de nouveaux aliments à la fois.', "Comment servir chaque aliment à l'âge de bébé.", 'Les allergènes notés, un par un.'],
+  obYes: "Oui, c'est moi",
+  obMaking: n => n ? `Création du plan pour ${n}…` : 'Création du plan de votre bébé…',
+  obMakingSteps: ["On regarde l'âge de bébé", 'On choisit les premiers aliments', 'On ordonne les allergènes'],
+  obPlanTitle: n => n ? `Le plan pour ${n} est prêt.` : 'Le plan de votre bébé est prêt.',
+  obPlanLead: n => `Première semaine : ${n} aliments simples pour commencer.`,
+  obPlanAlg: (w, a) => `Premier allergène en semaine ${w} : ${a}.`,
+  obPlanFine: "C'est un ordre suggéré, que vous pouvez modifier à tout moment. Suivez toujours les conseils du pédiatre.",
+  obPlanCta: 'Continuer',
   obAccept: "Je comprends que cette app est un journal et ne remplace pas l'avis du pédiatre.",
   obPrivacy: 'Sans compte et sans publicité. Vos données restent uniquement sur cet appareil.',
   obStart: 'Commencer',
