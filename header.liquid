@@ -183,7 +183,7 @@
     if (!on) return;
     document.documentElement.classList.add('pn-sem-gratis');
     var LEGAL = /\/policies\/|\/pages\/(envios|condiciones-generales|aviso-legal|devoluciones-y-desistimiento|privacidad)(\/|$)/.test(location.pathname);
-    var M = '(?:a partir de|acima de|desde|más de|from|over|above)\\s*€?\\s*\\d+(?:[.,]\\d+)?\\s*€?';
+    var M = '(?:a partir de|acima de|desde|más de|from|over|above)\\s*€?\\s*\\d+(?:[.,]\\d+)?(?:\\s?€)?';
     var R = [
       [new RegExp('\\s*\\((?:pack|packs)[^)]*\\d+\\s?€\\)', 'i'), ''],
       [new RegExp('^\\s*(Envio|Envío) (?:CTT )?gr[áa]tis(?: ' + M + ')?', 'i'), '$1 CTT 4,90 €'],
