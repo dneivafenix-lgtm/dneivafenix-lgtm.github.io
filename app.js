@@ -1696,21 +1696,22 @@
   };
 
   // Boas-vindas em passos curtos: uma pergunta por ecrã.
-  let obStep = 0, obNews = false;
+  let obStep = 0, obNews = false, obTimer = 0;
   const viewWelcome = () => {
     // O passo da conta só existe se a conta estiver ligada em config.js.
-    const OB_STEPS = accOn() ? 7 : 6, accStep = accOn() && obStep === 5;
+    const OB_STEPS = accOn() ? 9 : 8, accStep = accOn() && obStep === 7;
+    clearTimeout(obTimer);
     const go = n => { obStep = Math.max(0, Math.min(OB_STEPS - 1, obStep + n)); save(); render(); window.scrollTo(0, 0); };
     const bar = el('div', { class: 'obbar', role: 'img', 'aria-label': t().stepOf(obStep + 1, OB_STEPS) }, Array.from({ length: OB_STEPS }, (_, i) => el('i', { class: i < obStep ? 'done' : i === obStep ? 'now' : '' })));
     const nav = (nextLabel, onNext, disabled) => el('div', { class: 'obnav' },
-      obStep > 0 ? el('button', { class: 'ghost', onclick: () => go(-1) }, t().back) : null,
+      obStep > 0 ? el('button', { class: 'ghost', onclick: () => go(obStep === 6 ? -2 : -1) }, t().back) : null,
       el('button', { class: 'primary', disabled: !!disabled, onclick: onNext || (() => go(1)) }, nextLabel || t().next));
     let body;
     if (obStep === 0) body = [
       el('img', { class: 'obart', src: 'img/diario.jpg', alt: '', width: 960, height: 640 }),
       el('h1', {}, t().obTitle), el('p', { class: 'lead' }, t().obLead),
-      el('ul', { class: 'points' }, t().obPoints.map(x => el('li', {}, icon('check', 16), el('span', {}, x)))),
-      nav()];
+      nav(t().obYes),
+      el('ul', { class: 'points' }, t().obPoints.map(x => el('li', {}, icon('check', 16), el('span', {}, x))))];
     else if (obStep === 1) body = [
       el('h1', {}, t().obQ1), el('p', { class: 'lead' }, t().obQ1Hint),
       el('div', { class: 'obopts' }, GOALS.map(g => el('button', { class: 'obopt', 'aria-pressed': String(state.goals.includes(g)), onclick: ev => {
@@ -1736,6 +1737,25 @@
         el('label', { class: 'field' }, t().birthDate, el('input', { type: 'date', value: state.baby.birth, max: todayIso(),
           onchange: e => { state.baby.birth = e.target.value; save(); } }))),
       nav()];
+    else if (obStep === 5) {
+      // Pausa curta "a criar o plano": avança sozinha para o plano pronto.
+      obTimer = setTimeout(() => { if (!state.onboarded && obStep === 5) go(1); }, 2600);
+      body = [el('div', { class: 'obmake', role: 'status' },
+        el('div', { class: 'obspin', 'aria-hidden': 'true' }),
+        el('h1', {}, t().obMaking(state.baby.name)),
+        el('ul', { class: 'points' }, t().obMakingSteps.map((x, i) => el('li', { style: `animation-delay:${i * .7}s` }, icon('check', 16), el('span', {}, x)))))];
+    }
+    else if (obStep === 6) {
+      // Plano pronto: a 1.ª semana do percurso guiado e o primeiro alergénio.
+      const P = buildPath(), w1 = P.weeks[0] || [];
+      const wa = P.weeks.findIndex(w => w.some(x => x.allergen)), fa = wa < 0 ? null : P.weeks[wa].find(x => x.allergen);
+      body = [
+        el('h1', {}, t().obPlanTitle(state.baby.name)), el('p', { class: 'lead' }, t().obPlanLead(w1.length)),
+        el('div', { class: 'card' }, el('ol', { class: 'obplan' }, w1.map(x => el('li', {}, fname(x)))),
+          fa && el('p', { class: 'info', style: 'margin-top:12px' }, t().obPlanAlg(wa + 1, t().allergenName[fa.allergen]))),
+        el('p', { class: 'fine' }, t().obPlanFine),
+        nav(t().obPlanCta)];
+    }
     else if (accStep) body = signedIn() ? [
       el('h1', {}, t().accStepTitle), el('p', { class: 'lead' }, t().accAs(acc.email || '')),
       entitled && el('p', { class: 'lead' }, t().accPremiumOn),
