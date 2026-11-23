@@ -1,17 +1,14 @@
 # Fotos de «como servir» em falta
 
-Atualizado a 22/11/2026. Necessárias: 298 (100 alimentos × 6, 9 e 12 meses; o mel só aos 12 meses). Feitas: 20. Em falta: 278.
+Atualizado a 23/11/2026. Necessárias: 298 (100 alimentos × 6, 9 e 12 meses; o mel só aos 12 meses). Feitas: 39. Em falta: 259.
 
-A refazer por segurança (retiradas da app a 21/11): `corn-9` (grãos têm de estar esmagados) e `aubergine-6` (tiras sem pele).
+A refazer: `fennel-12` (saiu em tiras grandes; o texto pede pedaços pequenos). `corn-9` e `aubergine-6` foram refeitas a 23/11.
 
 Como gerar: Nano Banana (Google, modo IA), pedido em inglês no estilo das fotos das receitas (taça creme, colher de pau, linho bege, vista de cima e perto). Ficheiro `img/servir/<alimento>-<idade>.jpg`, 800 × 800, e uma linha em `serve-photos.js`.
 
 | Alimento | Idades em falta |
 |---|---|
-| carrot | 6, 9, 12 |
-| pumpkin | 6, 9, 12 |
-| sweetpotato | 6, 9, 12 |
-| potato | 6, 9, 12 |
+| potato | 9, 12 |
 | courgette | 6, 9, 12 |
 | broccoli | 6, 9, 12 |
 | cauliflower | 6, 9, 12 |
@@ -22,11 +19,7 @@ Como gerar: Nano Banana (Google, modo IA), pedido em inglês no estilo das fotos
 | cucumber | 6, 9, 12 |
 | pepper | 6, 9, 12 |
 | beetroot | 6, 9, 12 |
-| aubergine | 6 |
-| corn | 9 |
-| mushroom | 9, 12 |
-| fennel | 6, 9, 12 |
-| garlic | 6, 9, 12 |
+| fennel | 12 |
 | banana | 6, 9, 12 |
 | apple | 6, 9, 12 |
 | pear | 6, 9, 12 |
